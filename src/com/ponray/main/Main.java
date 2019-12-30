@@ -1,6 +1,7 @@
 package com.ponray.main;
 
 import com.ponray.utils.FontUtil;
+import com.sun.imageio.plugins.common.ImageUtil;
 import com.sun.scenario.effect.impl.prism.ps.PPSOneSamplerPeer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -38,18 +39,29 @@ public class Main extends Application {
         lable1.setMinSize(165,55);
         lable1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 50));
         lable1.setAlignment(Pos.CENTER);
-        lable1.setStyle("-fx-background-color: #002060;-fx-border:1 0 0 1 solid");
+        lable1.setStyle("-fx-background-color: #002060;");
+        lable1.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,new Insets(1,0,0,1))));
         lable1.setTextFill(Color.web("#fff"));
         Label label2 = new Label("N");
-        label2.setMinSize(46,23);
-        label2.setStyle("-fx-background-color: #002060;");
+        label2.setMinSize(68,23);
+        label2.setStyle("-fx-background-color: #002060;-fx-start-margin: 10");
+        label2.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         label2.setTextFill(Color.web("#fff"));
         label2.setAlignment(Pos.CENTER);
-        label2.setPadding(new Insets(0,0,0,10));
+        label2.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,new Insets(1,0,0,1))));
 
         Label label3 = new Label("力");
-        Button button1 = new Button("清零");
+        label3.setMinSize(68,23);
+        label3.setStyle("-fx-background-color: #5FB41B;-fx-start-margin: 10");
+        label3.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
+        label3.setTextFill(Color.web("#fff"));
+        label3.setAlignment(Pos.CENTER);
+        label3.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,new Insets(1,0,0,1))));
+        label3.setLayoutY(20);
 
+
+        Button button1 = new Button("清零");
+        button1.setMinSize(34,53);
 
         GridPane topGrid = new GridPane();
         topGrid.setGridLinesVisible(true);
@@ -69,7 +81,11 @@ public class Main extends Application {
         stage.setTitle("拉力试验工具软件");
         stage.setMinWidth(1000);
         stage.setMinHeight(700);
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/user.jpg")));
         stage.setScene(scene);
         stage.show();
     }
 }
+
+    //git filter-branch --force --index-filter 'git rm -rf --cached --ignore-unmatch Android' --prune-empty --tag-name-filter cat -- --all
+
