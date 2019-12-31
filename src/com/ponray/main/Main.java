@@ -7,12 +7,17 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+
+import javax.swing.*;
 
 public class Main extends Application {
 
@@ -202,9 +207,65 @@ public class Main extends Application {
         HBox.setHgrow(topGrid4,Priority.ALWAYS);
 
 
+
+        //右侧操作按钮
+        Label redLabel = new Label();
+        redLabel.setMinSize(250,3);
+        redLabel.setStyle("-fx-background-color: red");
+
+        Label statusNameLabel = new Label("状态:");
+        statusNameLabel.setBorder(null);
+
+        Label statusLable = new Label("脱机");
+        Image offLineImg = new Image(getClass().getResourceAsStream("/images/off_line.png"));
+        statusLable.setGraphic(new ImageView(offLineImg));
+        statusLable.setPadding(new Insets(0,0,0,50));
+
+        Label nullLable = new Label();
+        nullLable.setMinSize(250,200);
+
+        Button upBt = new Button("上升");
+        upBt.setMinSize(80,40);
+        upBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
+        Button dropBt = new Button("下降");
+        dropBt.setMinSize(80,40);
+        dropBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
+
+        HBox lineOne = new HBox();
+        lineOne.getChildren().addAll(upBt,dropBt);
+        lineOne.setSpacing(50);
+
+        Button startBt = new Button("开始");
+        startBt.setMinSize(80,40);
+        startBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
+        Button stopBt = new Button("结束");
+        stopBt.setMinSize(80,40);
+        stopBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
+        HBox lineTwo = new HBox();
+        lineTwo.getChildren().addAll(startBt,stopBt);
+        lineTwo.setSpacing(50);
+
+        VBox opBtvBox = new VBox();
+        opBtvBox.getChildren().addAll(lineOne,lineTwo);
+        opBtvBox.setSpacing(30);
+
+
+
+        GridPane rightGrid = new GridPane();
+        rightGrid.setPadding(new Insets(5));
+        rightGrid.setHgap(5);
+        rightGrid.setVgap(5);
+        rightGrid.setMinSize(250,500);
+        rightGrid.add(redLabel,0,0,2,1);
+        rightGrid.add(statusNameLabel,0,1);
+        rightGrid.add(statusLable,1,1);
+        rightGrid.add(nullLable,0,2,2,1);
+        rightGrid.add(opBtvBox,0,3,2,1);
+
+        //整体布局
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(hBox);
-        borderPane.setPadding(new Insets(10));
+        borderPane.setRight(rightGrid);
 
         Scene scene = new Scene(borderPane);
         stage.setTitle("拉力试验工具软件");
