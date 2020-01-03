@@ -2,12 +2,11 @@ package com.ponray.main;
 
 import com.ponray.utils.FontUtil;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -19,7 +18,15 @@ import javafx.stage.Stage;
 
 import javax.swing.*;
 
+import static java.awt.Color.white;
+
 public class Main extends Application {
+
+    private TabPane tabPane = new TabPane();
+    private Tab tab1 = new Tab("用户参数");
+    private Tab tab2 = new Tab("单图");
+    private Tab tab3 = new Tab("多图");
+    private Tab tab4 = new Tab("查询");
 
 
 
@@ -262,10 +269,30 @@ public class Main extends Application {
         rightGrid.add(nullLable,0,2,2,1);
         rightGrid.add(opBtvBox,0,3,2,1);
 
+        //tabPane
+        tabPane.setPrefSize(1000,800);
+        tabPane.setMinSize(TabPane.USE_PREF_SIZE,TabPane.USE_PREF_SIZE);
+        tabPane.setMaxSize(TabPane.USE_PREF_SIZE,TabPane.USE_PREF_SIZE);
+        tabPane.getTabs().addAll(tab1,tab2,tab3,tab4);
+        tabPane.setStyle("-fx-tab-min-width: 225px;-fx-tab-max-width: 300px;-fx-tab-min-height: 35px;");
+        tabPane.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,new Insets(1,0,0,1))));
+
+        tab1.setClosable(false);
+        tab1.setStyle("-fx-font-size:20px;");
+        tab1.setContent(createTab1());
+        tab2.setClosable(false);
+        tab2.setStyle("-fx-font-size:20px;");
+        tab3.setClosable(false);
+        tab3.setStyle("-fx-font-size:20px;");
+        tab4.setClosable(false);
+        tab4.setStyle("-fx-font-size:20px;");
+
+
         //整体布局
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(hBox);
         borderPane.setRight(rightGrid);
+        borderPane.setCenter(tabPane);
 
         Scene scene = new Scene(borderPane);
         stage.setTitle("拉力试验工具软件");
@@ -273,8 +300,49 @@ public class Main extends Application {
         stage.setMinHeight(700);
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/user.jpg")));
         stage.setScene(scene);
+        stage.setResizable(false);
         stage.show();
     }
+
+
+    /**
+     * 创建tab1
+     * @return
+     */
+    private VBox createTab1(){
+        VBox vBox = new VBox();
+
+        HBox hBox1 = new HBox();
+        Label label1 = new Label("请选择实验方案:");
+        label1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 18));
+        ChoiceBox cb = new ChoiceBox();
+        cb.setItems(FXCollections.observableArrayList(
+                "New Document", "Open ",
+                new Separator(), "Save", "Save as")
+        );
+        cb.setMinWidth(150);
+
+        Label label2 = new Label("数据保存名称:");
+        label2.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 18));
+        TextField textField = new TextField(System.currentTimeMillis()+"");
+
+        hBox1.getChildren().addAll(label1,cb,label2,textField);
+        hBox1.setPadding(new Insets(20));
+        hBox1.setSpacing(50);
+
+        Separator separator = new Separator();
+        separator.setMaxHeight(1000);
+
+
+
+        vBox.getChildren().add(hBox1);
+        vBox.getChildren().add(separator);
+        vBox.setSpacing(20);
+
+        return vBox;
+    }
+
+
 }
 
 
