@@ -10,7 +10,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/rxtx-2.1.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/src/lib/rxtx-2.1.7.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
