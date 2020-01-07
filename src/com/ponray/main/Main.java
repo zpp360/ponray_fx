@@ -1,8 +1,11 @@
 package com.ponray.main;
 
+import com.ponray.utils.AccessUtils;
 import com.ponray.utils.FontUtil;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,6 +20,12 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 import javax.swing.*;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Collections;
 
 import static java.awt.Color.white;
 
@@ -305,7 +314,14 @@ public class Main extends Application {
         tab4.setStyle("-fx-font-size:20px;");
 
         //菜单
-        MenuBar menuBar = createMenuBar();
+        MenuBar menuBar = null;
+        try {
+            menuBar = createMenuBar();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
         //整体布局
         VBox root = new VBox();
@@ -343,26 +359,34 @@ public class Main extends Application {
     }
 
 
-    private MenuBar createMenuBar(){
+    private MenuBar createMenuBar() throws SQLException, ClassNotFoundException {
 
         MenuBar menuBar = new MenuBar();
 
         Menu language = new Menu("语言");
         ToggleGroup languageGroup = new ToggleGroup();
-        RadioMenuItem chinaItem = new RadioMenuItem("中文");
-        chinaItem.setSelected(true);
-        chinaItem.setToggleGroup(languageGroup);
-        RadioMenuItem englishItem = new RadioMenuItem("English");
-        englishItem.setToggleGroup(languageGroup);
-        RadioMenuItem russianItem = new RadioMenuItem("русский язык");
-        russianItem.setToggleGroup(languageGroup);
-        russianItem.setDisable(true);
-        language.getItems().addAll(chinaItem,englishItem,new SeparatorMenuItem(),russianItem);
+
+        Connection connection = AccessUtils.getConnection();
+        Statement statement = AccessUtils.getStatement(connection);
+        String sql = "select id,name,file_name,selected from t_language";
+        ResultSet rs = AccessUtils.getResultSet(statement,sql);
+        while(rs.next()){
+            RadioMenuItem item = new RadioMenuItem(rs.getString("name"));
+            if(rs.getBoolean("selected")){
+                item.setSelected(true);
+            }
+            item.setToggleGroup(languageGroup);
+            item.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    System.out.println(item.getText());
+                }
+            });
+            language.getItems().add(item);
+        }
         menuBar.getMenus().add(language);
         menuBar.setMinHeight(20);
-
         return menuBar;
-
     }
 
 
