@@ -1,9 +1,10 @@
 package com.ponray.utils;
 
-import javax.xml.transform.Result;
 import java.sql.*;
 
-public class AccessUtils {
+public class AccessHelper {
+
+    private volatile  static AccessHelper instance = null;
 
     private final static String DRIVER = "net.ucanaccess.jdbc.UcanaccessDriver";
 
@@ -13,6 +14,30 @@ public class AccessUtils {
 
     private final static String PASSWORD = null;
 
+    private static Connection conn = null;
+
+    private static Statement statement = null;
+
+    private AccessHelper(){}
+
+    public static AccessHelper getInstance() throws ClassNotFoundException, SQLException {
+        //先检查实例是否存在，如果不存在才进入下面的同步模块
+        if(instance == null){
+            //同步块，线程安全的创建实例
+            synchronized (AccessHelper.class){
+                //再次检查实例是否存在，不存在才真的创建实例
+                if(instance == null){
+                    instance = new AccessHelper();
+
+                    Class.forName(DRIVER);
+                    conn = DriverManager.getConnection("jdbc:ucanaccess://" + DBPATH,USERNAME,PASSWORD);
+                    statement = conn.createStatement();
+                }
+            }
+        }
+        return instance;
+    }
+
 
     /**
      * 获取connection
@@ -20,9 +45,7 @@ public class AccessUtils {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    public static Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName(DRIVER);
-        Connection conn = DriverManager.getConnection("jdbc:ucanaccess://" + DBPATH,USERNAME,PASSWORD);
+    public final static Connection getConnection() throws ClassNotFoundException, SQLException {
         return conn;
     }
 
@@ -32,8 +55,8 @@ public class AccessUtils {
      * @return
      * @throws SQLException
      */
-    public static  Statement getStatement(Connection connection) throws SQLException {
-        return connection.createStatement();
+    public final static  Statement getStatement(Connection connection) throws SQLException {
+        return statement;
     }
 
 

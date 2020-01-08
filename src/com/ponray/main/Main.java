@@ -1,8 +1,10 @@
 package com.ponray.main;
 
-import com.ponray.utils.AccessUtils;
+import com.ponray.utils.AccessHelper;
 import com.ponray.utils.FontUtil;
+import com.ponray.utils.PropertiesUtils;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,30 +16,22 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
-import javax.swing.*;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
+import java.util.Properties;
 
-import static java.awt.Color.white;
 
 public class Main extends Application {
 
-    private TabPane tabPane = new TabPane();
-    private Tab tab1 = new Tab("用户参数");
-    private Tab tab2 = new Tab("单图");
-    private Tab tab3 = new Tab("多图");
-    private Tab tab4 = new Tab("查询");
-
-
+    private static Properties langProp = null;
 
 
     public static void main(String[] args) {
@@ -46,6 +40,26 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) {
+
+        //创建菜单，初始化语言
+        MenuBar menuBar = null;
+
+        try {
+            menuBar = createMenuBar();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        TabPane tabPane = new TabPane();
+        Tab tab1 = new Tab(langProp.getProperty("user_param"));
+        Tab tab2 = new Tab(langProp.getProperty("single_picture"));
+        Tab tab3 = new Tab(langProp.getProperty("more_picture"));
+        Tab tab4 = new Tab(langProp.getProperty("search"));
+
         //力 显示框布局
         Label lableNum1 = new Label("0.00000");
         lableNum1.setMinSize(165,55);
@@ -75,7 +89,7 @@ public class Main extends Application {
         labelN1.setAlignment(Pos.CENTER);
         labelN1.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
-        Label labelName1 = new Label("力");
+        Label labelName1 = new Label(langProp.getProperty("n"));
         labelName1.setMinSize(68,23);
         labelName1.setStyle("-fx-background-color: #5FB41B;");
         labelName1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -89,7 +103,7 @@ public class Main extends Application {
         vBox1.setPadding(new Insets(0,5,0,10));
         vBox1.getChildren().addAll(labelN1,labelName1);
 
-        Button button1 = new Button("清零");
+        Button button1 = new Button(langProp.getProperty("clear"));
         button1.setMinSize(40,53);
 
         GridPane topGrid1 = new GridPane();
@@ -121,7 +135,7 @@ public class Main extends Application {
         labelN2.setAlignment(Pos.CENTER);
         labelN2.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
-        Label labelName2 = new Label("位移");
+        Label labelName2 = new Label(langProp.getProperty("displacement"));
         labelName2.setMinSize(68,23);
         labelName2.setStyle("-fx-background-color: #5FB41B;");
         labelName2.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -135,7 +149,7 @@ public class Main extends Application {
         vBox2.setPadding(new Insets(0,5,0,10));
         vBox2.getChildren().addAll(labelN2,labelName2);
 
-        Button button2 = new Button("清零");
+        Button button2 = new Button(langProp.getProperty("clear"));
         button2.setMinSize(40,53);
 
         GridPane topGrid2 = new GridPane();
@@ -165,7 +179,7 @@ public class Main extends Application {
         labelN3.setAlignment(Pos.CENTER);
         labelN3.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
-        Label labelName3 = new Label("变形");
+        Label labelName3 = new Label(langProp.getProperty("transformation"));
         labelName3.setMinSize(68,23);
         labelName3.setStyle("-fx-background-color: #5FB41B;");
         labelName3.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -179,7 +193,7 @@ public class Main extends Application {
         vBox3.setPadding(new Insets(0,5,0,10));
         vBox3.getChildren().addAll(labelN3,labelName3);
 
-        Button button3 = new Button("清零");
+        Button button3 = new Button(langProp.getProperty("clear"));
         button3.setMinSize(40,53);
 
         GridPane topGrid3 = new GridPane();
@@ -209,7 +223,7 @@ public class Main extends Application {
         labelN4.setAlignment(Pos.CENTER);
         labelN4.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
-        Label labelName4 = new Label("时间");
+        Label labelName4 = new Label(langProp.getProperty("time"));
         labelName4.setMinSize(68,23);
         labelName4.setStyle("-fx-background-color: #5FB41B;");
         labelName4.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -223,7 +237,7 @@ public class Main extends Application {
         vBox4.setPadding(new Insets(0,5,0,10));
         vBox4.getChildren().addAll(labelN4,labelName4);
 
-        Button button4 = new Button("清零");
+        Button button4 = new Button(langProp.getProperty("clear"));
         button4.setMinSize(40,53);
 
         GridPane topGrid4 = new GridPane();
@@ -246,10 +260,10 @@ public class Main extends Application {
         redLabel.setMinSize(250,3);
         redLabel.setStyle("-fx-background-color: red");
 
-        Label statusNameLabel = new Label("状态:");
+        Label statusNameLabel = new Label(langProp.getProperty("status")+":");
         statusNameLabel.setBorder(null);
 
-        Label statusLable = new Label("脱机");
+        Label statusLable = new Label(langProp.getProperty("off-line"));
         Image offLineImg = new Image(getClass().getResourceAsStream("/images/off_line.png"));
         statusLable.setGraphic(new ImageView(offLineImg));
         statusLable.setPadding(new Insets(0,0,0,50));
@@ -257,10 +271,10 @@ public class Main extends Application {
         Label nullLable = new Label();
         nullLable.setMinSize(250,200);
 
-        Button upBt = new Button("上升");
+        Button upBt = new Button(langProp.getProperty("up"));
         upBt.setMinSize(80,40);
         upBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
-        Button dropBt = new Button("下降");
+        Button dropBt = new Button(langProp.getProperty("down"));
         dropBt.setMinSize(80,40);
         dropBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
 
@@ -268,10 +282,10 @@ public class Main extends Application {
         lineOne.getChildren().addAll(upBt,dropBt);
         lineOne.setSpacing(50);
 
-        Button startBt = new Button("开始");
+        Button startBt = new Button(langProp.getProperty("start"));
         startBt.setMinSize(80,40);
         startBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
-        Button stopBt = new Button("结束");
+        Button stopBt = new Button(langProp.getProperty("end"));
         stopBt.setMinSize(80,40);
         stopBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
         HBox lineTwo = new HBox();
@@ -288,7 +302,7 @@ public class Main extends Application {
         rightGrid.setPadding(new Insets(5));
         rightGrid.setHgap(5);
         rightGrid.setVgap(5);
-        rightGrid.setMinSize(250,500);
+        rightGrid.setPrefSize(250,500);
         rightGrid.add(redLabel,0,0,2,1);
         rightGrid.add(statusNameLabel,0,1);
         rightGrid.add(statusLable,1,1);
@@ -296,7 +310,7 @@ public class Main extends Application {
         rightGrid.add(opBtvBox,0,3,2,1);
 
         //tabPane
-        tabPane.setPrefSize(1000,800);
+        tabPane.setPrefSize(1000,500);
         tabPane.setMinSize(TabPane.USE_PREF_SIZE,TabPane.USE_PREF_SIZE);
         tabPane.setMaxSize(TabPane.USE_PREF_SIZE,TabPane.USE_PREF_SIZE);
         tabPane.getTabs().addAll(tab1,tab2,tab3,tab4);
@@ -313,15 +327,6 @@ public class Main extends Application {
         tab4.setClosable(false);
         tab4.setStyle("-fx-font-size:20px;");
 
-        //菜单
-        MenuBar menuBar = null;
-        try {
-            menuBar = createMenuBar();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
 
         //整体布局
         VBox root = new VBox();
@@ -345,11 +350,14 @@ public class Main extends Application {
         lableNum2.prefWidthProperty().bind(hBox.widthProperty().subtract(120));//绑定位移显示屏宽度
         lableNum3.prefWidthProperty().bind(hBox.widthProperty().subtract(120));//绑定变形显示屏宽度
         lableNum4.prefWidthProperty().bind(hBox.widthProperty().subtract(120));//绑定时间显示屏宽度
+        tabPane.prefWidthProperty().bind(root.widthProperty().subtract(280));
+        tabPane.prefHeightProperty().bind(root.heightProperty().subtract(150));
+
 
         Scene scene = new Scene(root);
         stage.setTitle("拉力试验工具软件");
         stage.setMinWidth(1000);
-        stage.setMinHeight(700);
+        stage.setMinHeight(600);
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/user.jpg")));
         stage.setScene(scene);
         //控制窗口是否可以缩放
@@ -359,33 +367,72 @@ public class Main extends Application {
     }
 
 
-    private MenuBar createMenuBar() throws SQLException, ClassNotFoundException {
+
+    /**
+     * 创建菜单并初始化语言变量
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     * @throws IOException
+     */
+    private MenuBar createMenuBar() throws SQLException, ClassNotFoundException, IOException {
 
         MenuBar menuBar = new MenuBar();
 
         Menu language = new Menu("语言");
         ToggleGroup languageGroup = new ToggleGroup();
 
-        Connection connection = AccessUtils.getConnection();
-        Statement statement = AccessUtils.getStatement(connection);
+        Connection connection = AccessHelper.getInstance().getConnection();
+        Statement statement = AccessHelper.getInstance().getStatement(connection);
         String sql = "select id,name,file_name,selected from t_language";
-        ResultSet rs = AccessUtils.getResultSet(statement,sql);
+        ResultSet rs = AccessHelper.getInstance().getResultSet(statement,sql);
         while(rs.next()){
+            String languageId = rs.getString("id");
+            String fileName = rs.getString("file_name");
             RadioMenuItem item = new RadioMenuItem(rs.getString("name"));
             if(rs.getBoolean("selected")){
                 item.setSelected(true);
+                setLangProp(fileName);
             }
             item.setToggleGroup(languageGroup);
             item.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
-                    System.out.println(item.getText());
+                    String updateSql = "update t_language set selected = false";
+                    try {
+                        statement.executeUpdate(updateSql);
+                        updateSql = "update t_language set selected = true where id = " + languageId;
+                        statement.executeUpdate(updateSql);
+                        //设置语言properties文件
+                        setLangProp(fileName);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             language.getItems().add(item);
         }
-        menuBar.getMenus().add(language);
-        menuBar.setMinHeight(20);
+
+
+        Menu file = new Menu("文件");
+        MenuItem createFile = new MenuItem("新建文件");
+        createFile.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/file_create.ico"))));
+        MenuItem editFile = new MenuItem("修改文件名");
+        editFile.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/file_edit.ico"))));
+        MenuItem delFile = new MenuItem("删除文件");
+        delFile.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/file_del.ico"))));
+        MenuItem out = new MenuItem("退出");
+        out.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/system_out.ico"))));
+        //点击退出程序
+        out.setOnAction(event -> Platform.exit());
+        file.getItems().addAll(createFile,editFile,delFile,new SeparatorMenuItem(),out);
+
+
+        menuBar.getMenus().addAll(file,language);
+        menuBar.setMinHeight(29);
+        menuBar.setBackground(new Background(new BackgroundImage(new Image(getClass().getResourceAsStream("/images/menubar_bg.png")),BackgroundRepeat.REPEAT,BackgroundRepeat.NO_REPEAT,null,null)));
         return menuBar;
     }
 
@@ -428,6 +475,15 @@ public class Main extends Application {
     }
 
 
+    /**
+     * 设置语言文字
+     * @param fileName
+     * @throws IOException
+     */
+    private void setLangProp(String fileName) throws IOException {
+        String propPath = System.getProperties().getProperty("user.dir") + "\\language\\"+fileName+".properties";
+        langProp = PropertiesUtils.getProperties(propPath);
+    }
 
 
 
