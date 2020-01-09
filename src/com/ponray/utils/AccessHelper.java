@@ -1,5 +1,6 @@
 package com.ponray.utils;
 
+import java.io.File;
 import java.sql.*;
 
 public class AccessHelper {
@@ -8,7 +9,8 @@ public class AccessHelper {
 
     private final static String DRIVER = "net.ucanaccess.jdbc.UcanaccessDriver";
 
-    private final static String DBPATH = System.getProperties().getProperty("user.dir") + "\\db\\db.mdb";
+//    private final static String DBPATH = AccessHelper.class.getResource("/db/db.mdb").getPath().replace("%20"," ");
+    private final static String DBPATH = System.getProperty("user.dir") + File.separator + "db" + File.separator + "db.mdb";
 
     private final static String USERNAME = null;
 
