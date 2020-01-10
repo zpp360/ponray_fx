@@ -441,26 +441,7 @@ public class Main extends Application {
         paramItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Stage dStage = new Stage();
-                DialogPane dialog = new DialogPane();
-                dialog.setHeaderText(Constans.language.getProperty("menu_hardware_param"));
-                dialog.getButtonTypes().add(ButtonType.CANCEL);
-                dialog.getButtonTypes().add(ButtonType.APPLY);
-
-                Button cancelBt = (Button) dialog.lookupButton(ButtonType.CANCEL);
-                Button applyBt = (Button) dialog.lookupButton(ButtonType.APPLY);
-                //取消关闭对话框
-                cancelBt.setOnAction(cancelEvent -> dStage.close());
-
-
-                Scene sc = new Scene(dialog);
-                dStage.setScene(sc);
-                dStage.initOwner(stage);
-                dStage.initStyle(StageStyle.UTILITY);
-                dStage.initModality(Modality.WINDOW_MODAL);
-                dStage.setTitle(Constans.language.getProperty("menu_hardware_param"));
-                dStage.setAlwaysOnTop(true);
-                dStage.show();
+                new UIParamSet().display();
             }
         });
         setMenu.getItems().addAll(paramItem);
