@@ -1,29 +1,31 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constans;
+import com.ponray.utils.AccessHelper;
 import com.ponray.utils.ValidateUtils;
-import javafx.embed.swing.SwingNode;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.lang.StringUtils;
 
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 
 /**
  * 参数设计弹出框界面
  */
 public class UIParamSet {
+
 
     public void display(){
         Stage window = new Stage();
@@ -70,16 +72,56 @@ public class UIParamSet {
                 String modelNumber = mnText.getText().trim();
                 String specification = spText.getText().trim();
                 String maxSpeed = spText.getText().trim();
+                String precision = preText.getText().trim();
+                String serialNum = numText.getText().trim();
+                String createTime = timeText.getText().trim();
+                if(StringUtils.isBlank(name)){
+                    alert(Alert.AlertType.WARNING,"请填写设备名称");
+                    return;
+                }
+                if(StringUtils.isBlank(modelNumber)){
+                    alert(Alert.AlertType.WARNING,"请填写设备型号");
+                    return;
+                }
+                if(StringUtils.isBlank(specification)){
+                    alert(Alert.AlertType.WARNING,"请填写设备规格");
+                    return;
+                }
                 if(StringUtils.isNotBlank(maxSpeed)){
                     //最大速度不为空
                     if(!ValidateUtils.zIndex(maxSpeed)){
-                        Alert alert = new Alert(Alert.AlertType.WARNING);
-                        alert.titleProperty().set("提示");
-                        alert.headerTextProperty().set("最大速度为正整数");
-                        alert.showAndWait();
+                        alert(Alert.AlertType.WARNING,"最大速度为正整数");
                         return;
                     }
 
+                }
+                if(StringUtils.isNotBlank(precision)){
+                    //最大速度不为空
+                    if(!ValidateUtils.posttiveFloat(maxSpeed)){
+                        alert(Alert.AlertType.WARNING,"系统精度为小数");
+                        return;
+                    }
+
+                }
+                if(StringUtils.isNotBlank(createTime)){
+                    //最大速度不为空
+                    if(!ValidateUtils.isDateTime("yyyyMMdd",createTime)){
+                        alert(Alert.AlertType.WARNING,"请输入正确的时间格式，例如20200304");
+                        return;
+                    }
+
+                }
+
+                //修改
+                try {
+                    Connection conn = AccessHelper.getConnection();
+                    Statement statement = AccessHelper.getStatement(conn);
+                    String sql = "select * from t_machine";
+                    ResultSet set = statement.executeQuery(sql);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -124,6 +166,13 @@ public class UIParamSet {
         //使用showAndWait()先处理这个窗口，而如果不处理，main中的那个窗口不能响应
         window.showAndWait();
 
+    }
+
+    private void alert(Alert.AlertType type,String msg){
+        Alert alert = new Alert(type);
+        alert.titleProperty().set("提示");
+        alert.headerTextProperty().set(msg);
+        alert.showAndWait();
     }
 
 }

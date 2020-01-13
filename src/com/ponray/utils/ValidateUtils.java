@@ -353,7 +353,7 @@ public class ValidateUtils {
      * @param value 要验证的字符串
      * @return 如果是符合格式的字符串,返回 <b>true </b>,否则为 <b>false </b>
      */
-    public static boolean Posttive_float(String value){
+    public static boolean posttiveFloat(String value){
         return match(V_POSTTIVE_FLOAT,value);
     }
 
@@ -576,4 +576,27 @@ public class ValidateUtils {
     public static boolean TelePhone(String value){
         return match(V_TELE_PHONE,value);
     }
+
+    /**
+     * 验证日期
+     * @param pattern
+     * @param value
+     * @return
+     */
+    public static boolean isDateTime(String pattern,String value){
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+        try {
+            sdf.setLenient(false);//设置lenient为false. 否则SimpleDateFormat会比较宽松地验证日期
+            sdf.parse(value);
+            return true;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void main(String[] args){
+        System.out.println(isDateTime("yyyyMMdd","20180101"));
+    }
+
 }
