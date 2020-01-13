@@ -1,7 +1,10 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constans;
+import com.ponray.utils.ValidateUtils;
 import javafx.embed.swing.SwingNode;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -58,6 +62,29 @@ public class UIParamSet {
         TextField numText = new TextField();
         TextField timeText = new TextField();
 
+        Button machineEditBtn = new Button("修改");
+        machineEditBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String name = nameText.getText().trim();
+                String modelNumber = mnText.getText().trim();
+                String specification = spText.getText().trim();
+                String maxSpeed = spText.getText().trim();
+                if(StringUtils.isNotBlank(maxSpeed)){
+                    //最大速度不为空
+                    if(!ValidateUtils.zIndex(maxSpeed)){
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.titleProperty().set("提示");
+                        alert.headerTextProperty().set("最大速度为正整数");
+                        alert.showAndWait();
+                        return;
+                    }
+
+                }
+
+            }
+        });
+
         HBox hBox1 = new HBox();
         hBox1.getChildren().addAll(nameLabel,nameText);
         hBox1.setSpacing(20);
@@ -79,12 +106,14 @@ public class UIParamSet {
         HBox hBox7 = new HBox();
         hBox7.getChildren().addAll(timeLabel,timeText);
         hBox7.setSpacing(20);
+        HBox hBox8 = new HBox();
+        hBox8.getChildren().addAll(machineEditBtn);
 
         VBox vBox = new VBox();
-        vBox.getChildren().addAll(hBox1,hBox2,hBox3,hBox4,hBox5,hBox6,hBox7);
+        vBox.getChildren().addAll(hBox1,hBox2,hBox3,hBox4,hBox5,hBox6,hBox7,hBox8);
         vBox.setSpacing(20);
         vBox.setAlignment(Pos.CENTER);
-        vBox.setPadding(new Insets(20,150,20,100));
+        vBox.setPadding(new Insets(10,150,10,100));
         tab1.setContent(vBox);
 
 
