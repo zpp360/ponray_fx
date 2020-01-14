@@ -596,7 +596,7 @@ public class ValidateUtils {
     }
 
     public static void main(String[] args){
-        System.out.println(isDateTime("yyyyMMdd","20180101"));
+        System.out.println(zIndex("52"));
     }
 
 }

@@ -1,7 +1,9 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constans;
+import com.ponray.service.MachineService;
 import com.ponray.utils.AccessHelper;
+import com.ponray.utils.DataMap;
 import com.ponray.utils.ValidateUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -15,10 +17,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.lang.StringUtils;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Map;
 
 
 /**
@@ -27,7 +27,7 @@ import java.sql.Statement;
 public class UIParamSet {
 
 
-    public void display(){
+    public void display() throws SQLException, ClassNotFoundException {
         Stage window = new Stage();
         window.setTitle(Constans.language.getProperty("menu_hardware_param"));
         //modality要使用Modality.APPLICATION_MODEL
@@ -56,13 +56,15 @@ public class UIParamSet {
         Label preLabel = new Label("系统精度:");
         Label numLabel = new Label("出产编号:");
         Label timeLabel = new Label("出产日期:");
-        TextField nameText = new TextField();
-        TextField mnText = new TextField();
-        TextField spText = new TextField();
-        TextField speedText = new TextField();
-        TextField preText = new TextField();
-        TextField numText = new TextField();
-        TextField timeText = new TextField();
+        MachineService machineService = new MachineService();
+        DataMap map = machineService.findMachine();
+        TextField nameText = new TextField(map==null?"":map.getString("name"));
+        TextField mnText = new TextField(map==null?"":map.getString("model_number"));
+        TextField spText = new TextField(map==null?"":map.getString("specification"));
+        TextField speedText = new TextField(map==null?"":map.getInt("max_speed")+"");
+        TextField preText = new TextField(map==null?"":map.getDouble("precision")+"");
+        TextField numText = new TextField(map==null?"":map.getString("serial_number"));
+        TextField timeText = new TextField(map==null?"":map.getString("create_time"));
 
         Button machineEditBtn = new Button("修改");
         machineEditBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -71,7 +73,7 @@ public class UIParamSet {
                 String name = nameText.getText().trim();
                 String modelNumber = mnText.getText().trim();
                 String specification = spText.getText().trim();
-                String maxSpeed = spText.getText().trim();
+                String maxSpeed = speedText.getText().trim();
                 String precision = preText.getText().trim();
                 String serialNum = numText.getText().trim();
                 String createTime = timeText.getText().trim();
@@ -112,12 +114,32 @@ public class UIParamSet {
 
                 }
 
+                DataMap map = null;
+                try {
+                    map = machineService.findMachine();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
                 //修改
                 try {
-                    Connection conn = AccessHelper.getConnection();
-                    Statement statement = AccessHelper.getStatement(conn);
-                    String sql = "select * from t_machine";
-                    ResultSet set = statement.executeQuery(sql);
+                    if(map!=null && !map.isEmpty()){
+                        //存在数据
+                        long ID = map.getLong("ID");
+                        int result = machineService.update(ID,name,modelNumber,specification,maxSpeed,precision,serialNum,createTime);
+                        if(result>0){
+                            //更新成功
+                            alert(Alert.AlertType.INFORMATION,"更新成功");
+                        }
+                    }else{
+                        int result = machineService.insert(name,modelNumber,specification,maxSpeed,precision,serialNum,createTime);
+                        if(result>0){
+                            //插入成功
+                            alert(Alert.AlertType.INFORMATION,"更新成功");
+                        }
+                    }
+
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 } catch (SQLException e) {

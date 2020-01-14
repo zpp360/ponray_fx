@@ -441,7 +441,13 @@ public class Main extends Application {
         paramItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                new UIParamSet().display();
+                try {
+                    new UIParamSet().display();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         });
         setMenu.getItems().addAll(paramItem);
