@@ -2,15 +2,16 @@ package com.ponray.main;
 
 import com.ponray.constans.Constans;
 import com.ponray.service.MachineService;
-import com.ponray.utils.AccessHelper;
 import com.ponray.utils.DataMap;
 import com.ponray.utils.ValidateUtils;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -18,13 +19,14 @@ import javafx.stage.Stage;
 import org.apache.commons.lang.StringUtils;
 
 import java.sql.*;
-import java.util.Map;
 
 
 /**
  * 参数设计弹出框界面
  */
 public class UIParamSet {
+
+    private static String flag = "";
 
 
     public void display() throws SQLException, ClassNotFoundException {
@@ -180,6 +182,10 @@ public class UIParamSet {
         vBox.setPadding(new Insets(10,150,10,100));
         tab1.setContent(vBox);
 
+        tab3.setContent(createTab3());
+
+
+
 
 
         Scene scene = new Scene(tabPane);
@@ -189,6 +195,86 @@ public class UIParamSet {
         window.showAndWait();
 
     }
+
+
+    /**
+     * 力传感器tab
+     * @return
+     */
+    private BorderPane createTab3(){
+        BorderPane borderPane = new BorderPane();
+        Label nameLabel = new Label("设备名称:");
+        TextField nameText = new TextField();
+        //设置隐藏
+        nameText.setVisible(false);
+        nameText.setPrefSize(150,20);
+        String[] nameList = new String[]{"a","b"};
+        ChoiceBox<String> nameChoice = new ChoiceBox<String>(FXCollections.observableArrayList(nameList));
+        nameChoice.setValue("a");
+        nameChoice.setPrefSize(150,20);
+        HBox hBox1 = new HBox();
+        hBox1.getChildren().addAll(nameLabel,nameChoice,nameText);
+        hBox1.setSpacing(10);
+
+        Label nLabel = new Label("标准量程:");
+        TextField nText = new TextField();
+        nText.setPrefSize(150,20);
+        Label tipLabel = new Label("N");
+        tipLabel.setPadding(new Insets(5,0,0,0));
+        HBox hBox22 = new HBox();
+        hBox22.getChildren().addAll(nText,tipLabel);
+        HBox hBox2 = new HBox();
+        hBox2.getChildren().addAll(nLabel,hBox22);
+        hBox2.setSpacing(10);
+        VBox vBox = new VBox();
+        vBox.getChildren().addAll(hBox1,hBox2);
+        vBox.setSpacing(15);
+
+
+        Button addBtn = new Button("新增");
+        Button editBtn = new Button("修改");
+        Button delBtn = new Button("删除");
+        Button saveBtn = new Button("保存");
+        Button cancelBtn = new Button("取消");
+
+        HBox bottomHBox = new HBox();
+        bottomHBox.getChildren().addAll(addBtn,editBtn,delBtn,saveBtn,cancelBtn);
+        bottomHBox.setSpacing(10);
+        bottomHBox.setAlignment(Pos.BOTTOM_RIGHT);
+
+
+        borderPane.setTop(vBox);
+        borderPane.setBottom(bottomHBox);
+        borderPane.setPadding(new Insets(10));
+
+
+        addBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                nameChoice.setDisable(true);
+                nameText.setVisible(true);
+                editBtn.setDisable(true);
+                delBtn.setDisable(true);
+                //添加操作
+                flag = "add";
+
+
+
+            }
+        });
+
+        //保存
+        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+            }
+        });
+
+
+        return borderPane;
+    }
+
 
     private void alert(Alert.AlertType type,String msg){
         Alert alert = new Alert(type);
