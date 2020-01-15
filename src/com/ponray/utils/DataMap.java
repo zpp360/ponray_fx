@@ -38,6 +38,10 @@ public class DataMap extends HashMap implements Map{
         return (float)get(key);
     }
 
+    public boolean getBoolean(Object key){
+        return (boolean) get(key);
+    }
+
 
 
     @SuppressWarnings("unchecked")
