@@ -1,6 +1,7 @@
 package com.ponray.main;
 
-import com.ponray.constans.Constans;
+import com.ponray.constans.Constants;
+import com.ponray.service.DisplacementSensorService;
 import com.ponray.service.ForceSensorService;
 import com.ponray.service.MachineService;
 import com.ponray.utils.AlertUtils;
@@ -14,10 +15,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +30,11 @@ import java.util.List;
 public class UIParamSet {
 
     //力选择器操作标志select代表选择，add代表添加，edit代表修改
-    private static String flag = "select";
+    private static String SELECT = "select";
+    private static String EDIT = "edit";
+    private static String ADD = "add";
+    private static String flag = SELECT;
+
 
     //已选择的力选择器index，-1为还未选择
     private static int choiceSelect = -1;
@@ -42,7 +44,7 @@ public class UIParamSet {
 
     public void display() throws SQLException, ClassNotFoundException {
         Stage window = new Stage();
-        window.setTitle(Constans.language.getProperty("menu_hardware_param"));
+        window.setTitle(Constants.language.getProperty("menu_hardware_param"));
         //modality要使用Modality.APPLICATION_MODEL
         window.initModality(Modality.APPLICATION_MODAL);
         window.setMinWidth(500);
@@ -55,10 +57,12 @@ public class UIParamSet {
         tab2.setClosable(false);
         Tab tab3 = new Tab("力传感器");
         tab3.setClosable(false);
-        Tab tab4 = new Tab("引伸计");
+        Tab tab4 = new Tab("大变形");
         tab4.setClosable(false);
+        Tab tab5 = new Tab("驱动器");
+        tab5.setClosable(false);
 
-        tabPane.getTabs().addAll(tab1,tab2,tab3,tab4);
+        tabPane.getTabs().addAll(tab1,tab2,tab3,tab4,tab5);
         tabPane.setPrefSize(500,400);
 
 
@@ -71,13 +75,13 @@ public class UIParamSet {
         Label timeLabel = new Label("出产日期:");
         MachineService machineService = new MachineService();
         DataMap map = machineService.findMachine();
-        TextField nameText = new TextField(map==null?"":map.getString("name"));
-        TextField mnText = new TextField(map==null?"":map.getString("model_number"));
-        TextField spText = new TextField(map==null?"":map.getString("specification"));
-        TextField speedText = new TextField(map==null?"":map.getInt("max_speed")+"");
-        TextField preText = new TextField(map==null?"":map.getDouble("precision")+"");
-        TextField numText = new TextField(map==null?"":map.getString("serial_number"));
-        TextField timeText = new TextField(map==null?"":map.getString("create_time"));
+        TextField nameText = new TextField(map==null?Constants.BLANK:map.getString("name"));
+        TextField mnText = new TextField(map==null?Constants.BLANK:map.getString("model_number"));
+        TextField spText = new TextField(map==null?Constants.BLANK:map.getString("specification"));
+        TextField speedText = new TextField(map==null?Constants.BLANK:map.getInt("max_speed")+Constants.BLANK);
+        TextField preText = new TextField(map==null?Constants.BLANK:map.getDouble("precision")+Constants.BLANK);
+        TextField numText = new TextField(map==null?Constants.BLANK:map.getString("serial_number"));
+        TextField timeText = new TextField(map==null?Constants.BLANK:map.getString("create_time"));
 
         Button machineEditBtn = new Button("修改");
         machineEditBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -192,7 +196,7 @@ public class UIParamSet {
         vBox.setAlignment(Pos.CENTER);
         vBox.setPadding(new Insets(10,150,10,100));
         tab1.setContent(vBox);
-
+        tab2.setContent(createTab2());
         tab3.setContent(createTab3());
 
 
@@ -205,6 +209,99 @@ public class UIParamSet {
         //使用showAndWait()先处理这个窗口，而如果不处理，main中的那个窗口不能响应
         window.showAndWait();
 
+    }
+
+    /**
+     * 位移传感器tab
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
+    private BorderPane createTab2() throws SQLException, ClassNotFoundException{
+        DisplacementSensorService service = new DisplacementSensorService();
+        DataMap data = service.findOne();
+        BorderPane borderPane = new BorderPane();
+        VBox vBox = new VBox();
+        Label nameLabel = new Label("设备名称：");
+        Label rangeLabel = new Label("有限实验空间：");
+        TextField nameText = new TextField(data!=null?data.getString("name"):Constants.BLANK);
+        nameText.setEditable(false);
+        TextField rangeText = new TextField(data!=null?data.getInt("range")+Constants.BLANK:Constants.BLANK);
+        rangeText.setEditable(false);
+        Label mmLabel = new Label("mm");
+        Button editBtn = new Button("修改");
+        Button saveBtn = new Button("保存");
+        saveBtn.setDisable(true);
+        Button cancelBtn = new Button("取消");
+        HBox bottomHBox = new HBox();
+        bottomHBox.getChildren().addAll(editBtn,saveBtn,cancelBtn);
+        bottomHBox.setSpacing(10);
+        bottomHBox.setAlignment(Pos.BOTTOM_CENTER);
+        mmLabel.setPadding(new Insets(2));
+        HBox hBox1 = new HBox();
+        hBox1.getChildren().addAll(nameLabel,nameText);
+        hBox1.setSpacing(32);
+        HBox hBox2 = new HBox();
+        HBox hBox22 = new HBox();
+        hBox22.getChildren().addAll(rangeText,mmLabel);
+        hBox2.getChildren().addAll(rangeLabel,hBox22);
+        hBox2.setSpacing(10);
+        vBox.getChildren().addAll(hBox1,hBox2);
+        vBox.setSpacing(15);
+        borderPane.setPadding(new Insets(10));
+        borderPane.setTop(vBox);
+        borderPane.setBottom(bottomHBox);
+
+        //修改
+        editBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                nameText.setEditable(true);
+                rangeText.setEditable(true);
+                saveBtn.setDisable(false);
+            }
+        });
+
+        //保存
+        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String name = nameText.getText().trim();
+                String range = rangeText.getText().trim();
+                if(!validataDisplacementSensor(name,range)){
+                    return;
+                }
+                try {
+                    long ID = 0;
+                    if(data!=null){
+                        ID = data.getLong("ID");
+                    }
+                    int res = service.insertOrUpdate(ID,name,Integer.valueOf(range));
+                    if(res>0){
+                        nameText.setEditable(false);
+                        rangeText.setEditable(false);
+                        saveBtn.setDisable(true);
+                        AlertUtils.alertInfo("修改成功");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        //取消
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                nameText.setEditable(false);
+                rangeText.setEditable(false);
+                saveBtn.setDisable(true);
+            }
+        });
+
+        return borderPane;
     }
 
 
@@ -274,7 +371,7 @@ public class UIParamSet {
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if(newValue.intValue()>-1){
                     nameText.setText(list.get(newValue.intValue()).getString("name"));
-                    nText.setText(list.get(newValue.intValue()).getInt("range")+"");
+                    nText.setText(list.get(newValue.intValue()).getFloat("range")+Constants.BLANK);
                     choiceSelect = newValue.intValue();
                 }
             }
@@ -291,10 +388,10 @@ public class UIParamSet {
                 saveBtn.setDisable(false);
                 cancelBtn.setDisable(false);
                 //情况text
-                nameText.setText("");
-                nText.setText("");
+                nameText.setText(Constants.BLANK);
+                nText.setText(Constants.BLANK);
                 //添加操作
-                flag = "add";
+                flag = ADD;
 
 
 
@@ -312,7 +409,7 @@ public class UIParamSet {
                 saveBtn.setDisable(false);
                 cancelBtn.setDisable(false);
                 //修改操作
-                flag = "edit";
+                flag = EDIT;
             }
         });
 
@@ -321,7 +418,7 @@ public class UIParamSet {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    if(flag == "select"){
+                    if(flag == SELECT){
                         //选择
                         DataMap data = list.get(choiceSelect);
                         int res = forceSensorService.selected(data.getLong("ID"));
@@ -331,33 +428,50 @@ public class UIParamSet {
                             AlertUtils.alertInfo("选择成功");
                         }
                     }
-                    if(flag=="add"){
+                    if(flag==ADD){
                         //添加操作
                         String name = nameText.getText().trim();
                         //标准量程
                         String range = nText.getText().trim();
-                        if(!validateForceSensor(name,range)){
+                        if(!validataForceSensor(name,range)){
                             return;
                         }
-                        int res = forceSensorService.insert(name,Integer.parseInt(range));
+                        int res = forceSensorService.insert(name,Float.parseFloat(range));
                         //更新列表
                         list = forceSensorService.list();
                         updateChoice(nameChoice,nameText,nText,list);
                         if (res>0){
+                            //显示选择框，隐藏输入框
+                            nameChoice.setVisible(true);
+                            nameText.setVisible(false);
+                            addBtn.setDisable(false);
+                            editBtn.setDisable(false);
+                            delBtn.setDisable(false);
+                            flag = "select";
                             AlertUtils.alertInfo("添加成功");
                         }
                     }
-                    if(flag=="edit"){
+                    if(flag==EDIT){
                         //修改操作
                         DataMap data = list.get(choiceSelect);
                         String name = nameText.getText().trim();
                         //标准量程
                         String range = nText.getText().trim();
-                        if(!validateForceSensor(name,range)){
+                        if(!validataForceSensor(name,range)){
                             return;
                         }
-                        int res = forceSensorService.update(data.getLong("ID"),name,Integer.valueOf(range));
+                        int res = forceSensorService.update(data.getLong("ID"),name,Float.valueOf(range));
+                        //更新列表
+                        list = forceSensorService.list();
+                        updateChoice(nameChoice,nameText,nText,list);
                         if (res>0){
+                            //显示选择框，隐藏输入框
+                            nameChoice.setVisible(true);
+                            nameText.setVisible(false);
+                            addBtn.setDisable(false);
+                            editBtn.setDisable(false);
+                            delBtn.setDisable(false);
+                            flag = "select";
                             AlertUtils.alertInfo("修改成功");
                         }
                     }
@@ -372,13 +486,15 @@ public class UIParamSet {
         delBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if(!AlertUtils.alertConfirm("确认删除吗？")){
+                DataMap data = list.get(choiceSelect);
+                if(!AlertUtils.alertConfirm("确认删除"+data.getString("name")+"吗？")){
                     return;
                 }
-                DataMap data = list.get(choiceSelect);
                 try {
                     int res = forceSensorService.del(data.getLong("ID"));
                     if(res>0){
+                        list.remove(choiceSelect);
+                        updateChoice(nameChoice,nameText,nText,list);
                         AlertUtils.alertInfo("删除成功");
                     }
                 } catch (SQLException e) {
@@ -405,7 +521,7 @@ public class UIParamSet {
                 cancelBtn.setDisable(true);
                 updateChoice(nameChoice,nameText,nText,list);
                 //flag重置为选择select
-                flag = "select";
+                flag = SELECT;
             }
         });
 
@@ -423,15 +539,20 @@ public class UIParamSet {
         //先清空
         choice.getItems().clear();
         if(list!=null && list.size()>0){
+            int i = 0;
             for (DataMap data:list){
-                int i = 0;
                 choice.getItems().add(data.getString("name"));
                 if(data.getBoolean("selected")){
                     choice.setValue(data.getString("name"));
                     nameText.setText(data.getString("name"));
-                    nText.setText(data.getInt("range")+"");
-                    choiceSelect = i++;
+                    nText.setText(data.getFloat("range")+Constants.BLANK);
+                    choiceSelect = i;
+                }else {
+                    //置空
+                    nameText.setText(Constants.BLANK);
+                    nText.setText(Constants.BLANK);
                 }
+                i++;
             }
         }
     }
@@ -443,7 +564,7 @@ public class UIParamSet {
      * @param range
      * @return
      */
-    private boolean validateForceSensor(String name,String range){
+    private boolean validataForceSensor(String name, String range){
         if(StringUtils.isBlank(name)){
             AlertUtils.alertError("请输入传感器名称");
             return false;
@@ -453,8 +574,32 @@ public class UIParamSet {
             return false;
         }
 
+        if(!ValidateUtils.zIndex(range) && !ValidateUtils.posttiveFloat(range)){
+            AlertUtils.alertError("标准量程为正整数或正浮点数");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 校验位移传感器
+     * @param name
+     * @param range
+     * @return
+     */
+    private boolean validataDisplacementSensor(String name,String range){
+        if(StringUtils.isBlank(name)){
+            AlertUtils.alertError("请输入设备名称");
+            return false;
+        }
+        if(StringUtils.isBlank(range)){
+            AlertUtils.alertError("请输入有限实验空间");
+            return false;
+        }
+
         if(!ValidateUtils.zIndex(range)){
-            AlertUtils.alertError("标准量程为正整数");
+            AlertUtils.alertError("有限实验空间为正整数");
             return false;
         }
 

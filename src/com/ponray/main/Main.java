@@ -1,6 +1,6 @@
 package com.ponray.main;
 
-import com.ponray.constans.Constans;
+import com.ponray.constans.Constants;
 import com.ponray.utils.AccessHelper;
 import com.ponray.utils.FontUtil;
 import com.ponray.utils.PropertiesUtils;
@@ -19,9 +19,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 
 import java.io.IOException;
@@ -59,10 +57,10 @@ public class Main extends Application {
         }
 
         TabPane tabPane = new TabPane();
-        Tab tab1 = new Tab(Constans.language.getProperty("user_param"));
-        Tab tab2 = new Tab(Constans.language.getProperty("single_picture"));
-        Tab tab3 = new Tab(Constans.language.getProperty("more_picture"));
-        Tab tab4 = new Tab(Constans.language.getProperty("search"));
+        Tab tab1 = new Tab(Constants.language.getProperty("user_param"));
+        Tab tab2 = new Tab(Constants.language.getProperty("single_picture"));
+        Tab tab3 = new Tab(Constants.language.getProperty("more_picture"));
+        Tab tab4 = new Tab(Constants.language.getProperty("search"));
 
         //力 显示框布局
         Label lableNum1 = new Label("0.00000");
@@ -93,7 +91,7 @@ public class Main extends Application {
         labelN1.setAlignment(Pos.CENTER);
         labelN1.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
-        Label labelName1 = new Label(Constans.language.getProperty("n"));
+        Label labelName1 = new Label(Constants.language.getProperty("n"));
         labelName1.setMinSize(68,23);
         labelName1.setStyle("-fx-background-color: #5FB41B;");
         labelName1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -107,7 +105,7 @@ public class Main extends Application {
         vBox1.setPadding(new Insets(0,5,0,10));
         vBox1.getChildren().addAll(labelN1,labelName1);
 
-        Button button1 = new Button(Constans.language.getProperty("clear"));
+        Button button1 = new Button(Constants.language.getProperty("clear"));
         button1.setMinSize(40,53);
 
         GridPane topGrid1 = new GridPane();
@@ -139,7 +137,7 @@ public class Main extends Application {
         labelN2.setAlignment(Pos.CENTER);
         labelN2.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
-        Label labelName2 = new Label(Constans.language.getProperty("displacement"));
+        Label labelName2 = new Label(Constants.language.getProperty("displacement"));
         labelName2.setMinSize(68,23);
         labelName2.setStyle("-fx-background-color: #5FB41B;");
         labelName2.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -153,7 +151,7 @@ public class Main extends Application {
         vBox2.setPadding(new Insets(0,5,0,10));
         vBox2.getChildren().addAll(labelN2,labelName2);
 
-        Button button2 = new Button(Constans.language.getProperty("clear"));
+        Button button2 = new Button(Constants.language.getProperty("clear"));
         button2.setMinSize(40,53);
 
         GridPane topGrid2 = new GridPane();
@@ -183,7 +181,7 @@ public class Main extends Application {
         labelN3.setAlignment(Pos.CENTER);
         labelN3.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
-        Label labelName3 = new Label(Constans.language.getProperty("transformation"));
+        Label labelName3 = new Label(Constants.language.getProperty("transformation"));
         labelName3.setMinSize(68,23);
         labelName3.setStyle("-fx-background-color: #5FB41B;");
         labelName3.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -197,7 +195,7 @@ public class Main extends Application {
         vBox3.setPadding(new Insets(0,5,0,10));
         vBox3.getChildren().addAll(labelN3,labelName3);
 
-        Button button3 = new Button(Constans.language.getProperty("clear"));
+        Button button3 = new Button(Constants.language.getProperty("clear"));
         button3.setMinSize(40,53);
 
         GridPane topGrid3 = new GridPane();
@@ -227,7 +225,7 @@ public class Main extends Application {
         labelN4.setAlignment(Pos.CENTER);
         labelN4.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
-        Label labelName4 = new Label(Constans.language.getProperty("time"));
+        Label labelName4 = new Label(Constants.language.getProperty("time"));
         labelName4.setMinSize(68,23);
         labelName4.setStyle("-fx-background-color: #5FB41B;");
         labelName4.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -241,7 +239,7 @@ public class Main extends Application {
         vBox4.setPadding(new Insets(0,5,0,10));
         vBox4.getChildren().addAll(labelN4,labelName4);
 
-        Button button4 = new Button(Constans.language.getProperty("clear"));
+        Button button4 = new Button(Constants.language.getProperty("clear"));
         button4.setMinSize(40,53);
 
         GridPane topGrid4 = new GridPane();
@@ -264,10 +262,10 @@ public class Main extends Application {
         redLabel.setMinSize(250,3);
         redLabel.setStyle("-fx-background-color: red");
 
-        Label statusNameLabel = new Label(Constans.language.getProperty("status")+":");
+        Label statusNameLabel = new Label(Constants.language.getProperty("status")+":");
         statusNameLabel.setBorder(null);
 
-        Label statusLable = new Label(Constans.language.getProperty("off-line"));
+        Label statusLable = new Label(Constants.language.getProperty("off-line"));
         Image offLineImg = new Image(getClass().getResourceAsStream("/images/off_line.png"));
         statusLable.setGraphic(new ImageView(offLineImg));
         statusLable.setPadding(new Insets(0,0,0,50));
@@ -275,10 +273,10 @@ public class Main extends Application {
         Label nullLable = new Label();
         nullLable.setMinSize(250,200);
 
-        Button upBt = new Button(Constans.language.getProperty("up"));
+        Button upBt = new Button(Constants.language.getProperty("up"));
         upBt.setMinSize(80,40);
         upBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
-        Button dropBt = new Button(Constans.language.getProperty("down"));
+        Button dropBt = new Button(Constants.language.getProperty("down"));
         dropBt.setMinSize(80,40);
         dropBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
 
@@ -286,10 +284,10 @@ public class Main extends Application {
         lineOne.getChildren().addAll(upBt,dropBt);
         lineOne.setSpacing(50);
 
-        Button startBt = new Button(Constans.language.getProperty("start"));
+        Button startBt = new Button(Constants.language.getProperty("start"));
         startBt.setMinSize(80,40);
         startBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
-        Button stopBt = new Button(Constans.language.getProperty("end"));
+        Button stopBt = new Button(Constants.language.getProperty("end"));
         stopBt.setMinSize(80,40);
         stopBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
         HBox lineTwo = new HBox();
@@ -420,23 +418,23 @@ public class Main extends Application {
         }
 
 
-        Menu file = new Menu(Constans.language.getProperty("menu_file"));
-        MenuItem createFile = new MenuItem(Constans.language.getProperty("menu_create_file"));
+        Menu file = new Menu(Constants.language.getProperty("menu_file"));
+        MenuItem createFile = new MenuItem(Constants.language.getProperty("menu_create_file"));
         createFile.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/file_create.ico"))));
-        MenuItem editFile = new MenuItem(Constans.language.getProperty("menu_edit_file"));
+        MenuItem editFile = new MenuItem(Constants.language.getProperty("menu_edit_file"));
         editFile.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/file_edit.ico"))));
-        MenuItem delFile = new MenuItem(Constans.language.getProperty("menu_del_file"));
+        MenuItem delFile = new MenuItem(Constants.language.getProperty("menu_del_file"));
         delFile.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/file_del.ico"))));
-        MenuItem out = new MenuItem(Constans.language.getProperty("menu_out"));
+        MenuItem out = new MenuItem(Constants.language.getProperty("menu_out"));
         out.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/system_out.ico"))));
         //点击退出程序
         out.setOnAction(event -> Platform.exit());
         file.getItems().addAll(createFile,editFile,delFile,new SeparatorMenuItem(),out);
 
 
-        Menu setMenu = new Menu(Constans.language.getProperty("menu_set"));
+        Menu setMenu = new Menu(Constants.language.getProperty("menu_set"));
         //硬件参数
-        MenuItem paramItem = new MenuItem(Constans.language.getProperty("menu_hardware_param"));
+        MenuItem paramItem = new MenuItem(Constants.language.getProperty("menu_hardware_param"));
         paramItem.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/hardware_param.ico"))));
         paramItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -515,7 +513,7 @@ public class Main extends Application {
      */
     private void setLanguage(String fileName) throws IOException {
         InputStream inputStream = this.getClass().getResourceAsStream("/language/"+fileName+".properties");
-        Constans.language = PropertiesUtils.getProperties(inputStream);
+        Constants.language = PropertiesUtils.getProperties(inputStream);
     }
 
 
