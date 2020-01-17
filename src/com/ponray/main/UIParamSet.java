@@ -4,6 +4,7 @@ import com.ponray.constans.Constants;
 import com.ponray.service.DisplacementSensorService;
 import com.ponray.service.ForceSensorService;
 import com.ponray.service.MachineService;
+import com.ponray.service.ShapeSensorService;
 import com.ponray.utils.AlertUtils;
 import com.ponray.utils.DataMap;
 import com.ponray.utils.ValidateUtils;
@@ -41,6 +42,11 @@ public class UIParamSet {
 
     //力传感器
     private static List<DataMap> list = null;
+
+    //大变形
+    private static String SHAPE_FLAG = SELECT;
+    private static int choiceShapeSelect = -1;
+    private static List<DataMap> shapeList = null;
 
     public void display() throws SQLException, ClassNotFoundException {
         Stage window = new Stage();
@@ -198,9 +204,7 @@ public class UIParamSet {
         tab1.setContent(vBox);
         tab2.setContent(createTab2());
         tab3.setContent(createTab3());
-
-
-
+        tab4.setContent(createTab4());
 
 
         Scene scene = new Scene(tabPane);
@@ -323,7 +327,6 @@ public class UIParamSet {
         nameText.setPrefSize(150,20);
         ChoiceBox<String> nameChoice = new ChoiceBox<String>();
 
-        nameChoice.setValue("a");
         nameChoice.setPrefSize(150,20);
         StackPane stackPane = new StackPane();
         stackPane.getChildren().addAll(nameText,nameChoice);
@@ -359,7 +362,7 @@ public class UIParamSet {
         HBox bottomHBox = new HBox();
         bottomHBox.getChildren().addAll(addBtn,editBtn,delBtn,saveBtn,cancelBtn);
         bottomHBox.setSpacing(10);
-        bottomHBox.setAlignment(Pos.BOTTOM_RIGHT);
+        bottomHBox.setAlignment(Pos.BOTTOM_CENTER);
 
 
         borderPane.setTop(vBox);
@@ -447,7 +450,7 @@ public class UIParamSet {
                             addBtn.setDisable(false);
                             editBtn.setDisable(false);
                             delBtn.setDisable(false);
-                            flag = "select";
+                            flag = SELECT;
                             AlertUtils.alertInfo("添加成功");
                         }
                     }
@@ -471,7 +474,7 @@ public class UIParamSet {
                             addBtn.setDisable(false);
                             editBtn.setDisable(false);
                             delBtn.setDisable(false);
-                            flag = "select";
+                            flag = SELECT;
                             AlertUtils.alertInfo("修改成功");
                         }
                     }
@@ -519,9 +522,228 @@ public class UIParamSet {
                 //保存按钮可用和删除按钮不可用
                 saveBtn.setDisable(false);
                 cancelBtn.setDisable(true);
+                try {
+                    list = forceSensorService.list();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
                 updateChoice(nameChoice,nameText,nText,list);
                 //flag重置为选择select
                 flag = SELECT;
+            }
+        });
+
+        return borderPane;
+    }
+
+    /**
+     * 大变形
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
+    private BorderPane createTab4() throws SQLException, ClassNotFoundException{
+        ShapeSensorService service = new ShapeSensorService();
+        shapeList = service.list();
+
+        BorderPane borderPane = new BorderPane();
+        Label nameLabel = new Label("设备名称：");
+        Label maxLabel = new Label("最大变形：");
+        ChoiceBox<String> choiceBox = new ChoiceBox<>();
+        choiceBox.setPrefSize(150,20);
+        TextField nameText = new TextField();
+        nameText.setPrefSize(150,20);
+        nameText.setVisible(false);
+        TextField maxText = new TextField();
+        maxText.setPrefSize(150,20);
+        Label mmLabel = new Label("mm");
+        mmLabel.setPadding(new Insets(5,0,0,0));
+        StackPane stackPane = new StackPane();
+        stackPane.getChildren().addAll(choiceBox,nameText);
+        HBox hBox1 = new HBox();
+        hBox1.setSpacing(10);
+        hBox1.getChildren().addAll(nameLabel,stackPane);
+        HBox hBox2 = new HBox();
+        HBox hBox22 = new HBox();
+        hBox22.getChildren().addAll(maxText,mmLabel);
+        hBox2.setSpacing(10);
+        hBox2.getChildren().addAll(maxLabel,hBox22);
+        VBox vBox = new VBox();
+        vBox.setSpacing(15);
+        vBox.getChildren().addAll(hBox1,hBox2);
+
+        Button addBtn = new Button("新增");
+        Button editBtn = new Button("修改");
+        Button delBtn = new Button("删除");
+        Button saveBtn = new Button("保存");
+        Button cancelBtn = new Button("取消");
+        cancelBtn.setDisable(true);
+
+        HBox bottomHBox = new HBox();
+        bottomHBox.getChildren().addAll(addBtn,editBtn,delBtn,saveBtn,cancelBtn);
+        bottomHBox.setSpacing(10);
+        bottomHBox.setAlignment(Pos.BOTTOM_CENTER);
+
+        borderPane.setTop(vBox);
+        borderPane.setBottom(bottomHBox);
+
+        borderPane.setTop(vBox);
+        borderPane.setPadding(new Insets(10));
+
+        //初始化数据
+        updateShapeChoice(choiceBox,nameText,maxText,shapeList);
+
+        choiceBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.intValue()>-1){
+                nameText.setText(shapeList.get(newValue.intValue()).getString("name"));
+                maxText.setText(shapeList.get(newValue.intValue()).getFloat("shape")+Constants.BLANK);
+                choiceShapeSelect = newValue.intValue();
+            }
+        });
+
+        //点击添加按钮
+        addBtn.setOnAction(event -> {
+            choiceBox.setVisible(false);
+            nameText.setVisible(true);
+            addBtn.setDisable(true);
+            editBtn.setDisable(true);
+            delBtn.setDisable(true);
+            saveBtn.setDisable(false);
+            cancelBtn.setDisable(false);
+            //名称和最大变形
+            nameText.setText(Constants.BLANK);
+            maxText.setText(Constants.BLANK);
+            //添加操作
+            SHAPE_FLAG = ADD;
+        });
+        //点击修改按钮
+        editBtn.setOnAction(event -> {
+            choiceBox.setVisible(false);
+            nameText.setVisible(true);
+            addBtn.setDisable(true);
+            editBtn.setDisable(true);
+            delBtn.setDisable(true);
+            saveBtn.setDisable(false);
+            cancelBtn.setDisable(false);
+            //修改操作
+            SHAPE_FLAG = EDIT;
+        });
+
+        //保存
+        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if(SHAPE_FLAG == SELECT){
+                        //选择
+                        DataMap data = shapeList.get(choiceShapeSelect);
+                        int res = service.selected(data.getLong("ID"));
+                        if (res>0){
+                            //选中成功
+                            choiceBox.setValue(data.getString("name"));
+                            AlertUtils.alertInfo("选择成功");
+                        }
+                    }
+                    if(SHAPE_FLAG==ADD){
+                        //添加操作
+                        String name = nameText.getText().trim();
+                        //标准量程
+                        String shape = maxText.getText().trim();
+                        if(!validataShapeSensor(name,shape)){
+                            return;
+                        }
+                        int res = service.insert(name,Float.parseFloat(shape));
+                        //更新列表
+                        shapeList = service.list();
+                        updateShapeChoice(choiceBox,nameText,maxText,shapeList);
+                        if (res>0){
+                            //显示选择框，隐藏输入框
+                            choiceBox.setVisible(true);
+                            nameText.setVisible(false);
+                            addBtn.setDisable(false);
+                            editBtn.setDisable(false);
+                            delBtn.setDisable(false);
+                            SHAPE_FLAG = SELECT;
+                            AlertUtils.alertInfo("添加成功");
+                        }
+                    }
+                    if(SHAPE_FLAG==EDIT){
+                        //修改操作
+                        DataMap data = shapeList.get(choiceShapeSelect);
+                        String name = nameText.getText().trim();
+                        //标准量程
+                        String shape = maxText.getText().trim();
+                        if(!validataShapeSensor(name,shape)){
+                            return;
+                        }
+                        int res = service.update(data.getLong("ID"),name,Float.valueOf(shape));
+                        //更新列表
+                        shapeList = service.list();
+                        updateShapeChoice(choiceBox,nameText,maxText,shapeList);
+                        if (res>0){
+                            //显示选择框，隐藏输入框
+                            choiceBox.setVisible(true);
+                            nameText.setVisible(false);
+                            addBtn.setDisable(false);
+                            editBtn.setDisable(false);
+                            delBtn.setDisable(false);
+                            SHAPE_FLAG = SELECT;
+                            AlertUtils.alertInfo("修改成功");
+                        }
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        //删除操作
+        delBtn.setOnAction(event -> {
+            DataMap data = shapeList.get(choiceShapeSelect);
+            if(!AlertUtils.alertConfirm("确认删除"+data.getString("name")+"吗？")){
+                return;
+            }
+            try {
+                int res = service.del(data.getLong("ID"));
+                if(res>0){
+                    shapeList.remove(choiceShapeSelect);
+                    updateShapeChoice(choiceBox,nameText,maxText,shapeList);
+                    AlertUtils.alertInfo("删除成功");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+        //取消按钮
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //新增和修改按钮可用
+                addBtn.setDisable(false);
+                editBtn.setDisable(false);
+                delBtn.setDisable(false);
+                //选择框可见
+                choiceBox.setVisible(true);
+                //名称输入框隐藏
+                nameText.setVisible(false);
+                //保存按钮可用和删除按钮不可用
+                saveBtn.setDisable(false);
+                cancelBtn.setDisable(true);
+                try {
+                    shapeList = service.list();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                updateShapeChoice(choiceBox,nameText,maxText,shapeList);
+                //flag重置为选择select
+                SHAPE_FLAG = SELECT;
             }
         });
 
@@ -540,6 +762,7 @@ public class UIParamSet {
         choice.getItems().clear();
         if(list!=null && list.size()>0){
             int i = 0;
+            boolean selected = false;
             for (DataMap data:list){
                 choice.getItems().add(data.getString("name"));
                 if(data.getBoolean("selected")){
@@ -547,7 +770,34 @@ public class UIParamSet {
                     nameText.setText(data.getString("name"));
                     nText.setText(data.getFloat("range")+Constants.BLANK);
                     choiceSelect = i;
-                }else {
+                    selected = true;
+                }
+                if(!selected){
+                    //置空
+                    nameText.setText(Constants.BLANK);
+                    nText.setText(Constants.BLANK);
+                }
+                i++;
+            }
+        }
+    }
+
+    private void updateShapeChoice(ChoiceBox choice,TextField nameText,TextField nText, List<DataMap> list) {
+        //先清空
+        choice.getItems().clear();
+        if(list!=null && list.size()>0){
+            int i = 0;
+            boolean selected = false;
+            for (DataMap data:list){
+                choice.getItems().add(data.getString("name"));
+                if(data.getBoolean("selected")){
+                    choice.setValue(data.getString("name"));
+                    nameText.setText(data.getString("name"));
+                    nText.setText(data.getFloat("shape")+Constants.BLANK);
+                    choiceShapeSelect = i;
+                    selected = true;
+                }
+                if(!selected) {
                     //置空
                     nameText.setText(Constants.BLANK);
                     nText.setText(Constants.BLANK);
@@ -600,6 +850,24 @@ public class UIParamSet {
 
         if(!ValidateUtils.zIndex(range)){
             AlertUtils.alertError("有限实验空间为正整数");
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean validataShapeSensor(String name, String shape){
+        if(StringUtils.isBlank(name)){
+            AlertUtils.alertError("请输入设备名称");
+            return false;
+        }
+        if(StringUtils.isBlank(shape)){
+            AlertUtils.alertError("请输入最大变形");
+            return false;
+        }
+
+        if(!ValidateUtils.zIndex(shape) && !ValidateUtils.posttiveFloat(shape)){
+            AlertUtils.alertError("最大变形为正整数或正浮点数");
             return false;
         }
 
