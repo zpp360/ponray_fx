@@ -1,10 +1,7 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constants;
-import com.ponray.service.DisplacementSensorService;
-import com.ponray.service.ForceSensorService;
-import com.ponray.service.MachineService;
-import com.ponray.service.ShapeSensorService;
+import com.ponray.service.*;
 import com.ponray.utils.AlertUtils;
 import com.ponray.utils.DataMap;
 import com.ponray.utils.ValidateUtils;
@@ -205,6 +202,7 @@ public class UIParamSet {
         tab2.setContent(createTab2());
         tab3.setContent(createTab3());
         tab4.setContent(createTab4());
+        tab5.setContent(createTab5());
 
 
         Scene scene = new Scene(tabPane);
@@ -751,6 +749,108 @@ public class UIParamSet {
     }
 
     /**
+     * 驱动器
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
+    private BorderPane createTab5() throws SQLException, ClassNotFoundException{
+        ConfigService service = new ConfigService();
+        DataMap data = service.findOne();
+        BorderPane borderPane = new BorderPane();
+        Label numLabel = new Label("位移速度显示值/实际值：");
+        TextField numText = new TextField();
+        numText.setText(data!=null?data.getFloat("displacement_speed")+Constants.BLANK:Constants.BLANK);
+        numText.setEditable(false);
+        Label isLabel = new Label("启用虚拟位移：");
+        CheckBox checkBox = new CheckBox();
+        checkBox.setDisable(true);
+        checkBox.setSelected(data!=null?data.getBoolean("displacement_virtual"):false);
+
+        HBox hBox1 = new HBox();
+        hBox1.getChildren().addAll(numLabel,numText);
+        hBox1.setSpacing(10);
+        HBox hBox2 = new HBox();
+        hBox2.getChildren().addAll(isLabel,checkBox);
+        hBox2.setSpacing(10);
+        VBox vBox = new VBox();
+        vBox.getChildren().addAll(hBox1,hBox2);
+        vBox.setSpacing(15);
+
+        Button editBtn = new Button("修改");
+        Button saveBtn = new Button("保存");
+        saveBtn.setDisable(true);
+        Button cancelBtn = new Button("取消");
+        HBox bottomHBox = new HBox();
+        bottomHBox.getChildren().addAll(editBtn,saveBtn,cancelBtn);
+        bottomHBox.setSpacing(10);
+        bottomHBox.setAlignment(Pos.BOTTOM_CENTER);
+
+        borderPane.setTop(vBox);
+        borderPane.setBottom(bottomHBox);
+        borderPane.setPadding(new Insets(10));
+
+        checkBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                System.out.println(checkBox.isSelected());
+            }
+        });
+        //修改
+        editBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                numText.setEditable(true);
+                checkBox.setDisable(false);
+                saveBtn.setDisable(false);
+                editBtn.setDisable(true);
+            }
+        });
+
+        //保存
+        saveBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                String num = numText.getText().trim();
+                Boolean checked = checkBox.isSelected();
+                if(!validataConfig(num)){
+                    return;
+                }
+                try {
+                    long ID = 0;
+                    if(data!=null){
+                        ID = data.getLong("ID");
+                    }
+                    int res = service.insertOrUpdate(ID,Float.valueOf(num),checked);
+                    if(res>0){
+                        numText.setEditable(false);
+                        checkBox.setDisable(true);
+                        saveBtn.setDisable(true);
+                        editBtn.setDisable(false);
+                        AlertUtils.alertInfo("修改成功");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        //取消
+        cancelBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                numText.setEditable(false);
+                checkBox.setDisable(true);
+                saveBtn.setDisable(true);
+                editBtn.setDisable(false);
+            }
+        });
+        return borderPane;
+    }
+
+    /**
      * 更新choice力选择框
      * @param choice
      * @param nameText
@@ -871,6 +971,19 @@ public class UIParamSet {
             return false;
         }
 
+        return true;
+    }
+
+    private boolean validataConfig(String num){
+        if(StringUtils.isBlank(num)){
+            AlertUtils.alertError("请输入位移速度");
+            return false;
+        }
+
+        if(!ValidateUtils.zIndex(num) && !ValidateUtils.posttiveFloat(num)){
+            AlertUtils.alertError("位移速度为正整数或正浮点数");
+            return false;
+        }
         return true;
     }
 

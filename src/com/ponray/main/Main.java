@@ -459,7 +459,21 @@ public class Main extends Application {
 
         Menu experimentMenu = new Menu("实验管理");
         MenuItem createExp = new MenuItem("编辑实验方案");
-        experimentMenu.getItems().add(createExp);
+        MenuItem createStandard = new MenuItem("定义标准");
+        MenuItem createParam = new MenuItem("定义参数");
+        experimentMenu.getItems().addAll(createExp,createStandard,createParam);
+        createStandard.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    new UIStandard().display();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         menuBar.getMenus().addAll(file,setMenu,communicationMenu,experimentMenu,language);
         menuBar.setMinHeight(29);
