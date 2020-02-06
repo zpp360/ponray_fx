@@ -474,6 +474,18 @@ public class Main extends Application {
                 }
             }
         });
+        createParam.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    new UIParam().display();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         menuBar.getMenus().addAll(file,setMenu,communicationMenu,experimentMenu,language);
         menuBar.setMinHeight(29);
