@@ -33,6 +33,18 @@ public class Formula {
      * 参数名称2
      */
     private String paramNameTwo;
+    /**
+     * 参数
+     */
+    private Param param;
+
+    public Param getParam() {
+        return param;
+    }
+
+    public void setParam(Param param) {
+        this.param = param;
+    }
 
     public Long getID() {
         return ID;

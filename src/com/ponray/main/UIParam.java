@@ -2,7 +2,10 @@ package com.ponray.main;
 
 import com.ponray.constans.Constants;
 import com.ponray.entity.Formula;
+import com.ponray.entity.Param;
 import com.ponray.entity.Standard;
+import com.ponray.service.FormulaService;
+import com.ponray.service.ParamService;
 import com.ponray.service.StandardService;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -11,6 +14,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -25,7 +30,7 @@ public class UIParam {
 
     private static Label labelParamList = new Label("参数列表");
     //左侧参数列表
-    private static ListView<String> paramListView = new ListView<>();
+    private static ListView<Param> paramListView = new ListView<>();
 
     private static Label labelStandardInfo = new Label("标准信息");
     private static Label labelStandardCode = new Label("标准代码：");
@@ -62,7 +67,7 @@ public class UIParam {
     private static Label labelSymbol = new Label("运算符");
     private static Label labelParamType2 = new Label("参数类型2");
     private static Label labelParamName2 = new Label("参数名称2");
-    private static ChoiceBox<String> choiceBoxSymbol = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBoxOpChar = new ChoiceBox<>();
     private static ChoiceBox<String> choiceBoxParamType2 = new ChoiceBox<>();
     private static TextField textParamName2 = new TextField();
     private static ChoiceBox<String> choiceBoxParamName2 = new ChoiceBox<>();
@@ -77,6 +82,8 @@ public class UIParam {
 
 
     private static StandardService standardService = new StandardService();
+    private static ParamService paramService = new ParamService();
+    private static FormulaService formulaService = new FormulaService();
     private static List<Standard> standardList = null;
 
 
@@ -100,7 +107,6 @@ public class UIParam {
         VBox vBoxLeft = new VBox();
         labelParamList.setPadding(new Insets(0,0,10,10));
         paramListView.setPrefSize(180,420);
-        paramListView.getItems().addAll("dfsdfsdfsdf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf","sdfsdf4564564564654564564564564654dsf");
         paramListView.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
         vBoxLeft.getChildren().addAll(labelParamList,paramListView);
 
@@ -161,7 +167,7 @@ public class UIParam {
         gridPane.add(labelSymbol,1,2);
         gridPane.add(labelParamType2,2,2);
         gridPane.add(labelParamName2,3,2);
-        gridPane.add(choiceBoxSymbol,1,3);
+        gridPane.add(choiceBoxOpChar,1,3);
         gridPane.add(choiceBoxParamType2,2,3);
         StackPane stackPane2 = new StackPane();
         stackPane2.getChildren().addAll(choiceBoxParamName2,textParamName2);
@@ -192,6 +198,8 @@ public class UIParam {
 
         //设置数据
         initData();
+        //初始化组件状态
+        initComp();
         return main;
     }
 
@@ -232,9 +240,136 @@ public class UIParam {
                     //设置标准名称显示
                     labelStandardNameText.setText(s.getName());
                     //左侧参数列表
+                    try {
+                        List<Param> params = paramService.listByStandId(s.getId());
+                        paramListView.setItems(FXCollections.observableArrayList(params));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    //每次选择标准后清空组件并重置组件状态
+                    reset();
                 }
             }
         });
+
+
+        //listView绑定对象
+        paramListView.setCellFactory(lv -> new ListCell<Param>(){
+            private TextField textField = new TextField() ;
+
+            {
+                textField.setOnAction(e -> {
+                    commitEdit(getItem());
+                });
+                textField.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
+                    if (e.getCode() == KeyCode.ESCAPE) {
+                        cancelEdit();
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Param param, boolean empty) {
+                super.updateItem(param, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else if (isEditing()) {
+                    textField.setText(param.getName());
+                    setText(null);
+                    setGraphic(textField);
+                } else {
+                    setText(param.getName());
+                    setGraphic(null);
+                }
+            }
+
+            @Override
+            public void startEdit() {
+                super.startEdit();
+                textField.setText(getItem().getName());
+                setText(null);
+                setGraphic(textField);
+                textField.selectAll();
+                textField.requestFocus();
+            }
+
+            @Override
+            public void cancelEdit() {
+                super.cancelEdit();
+                setText(getItem().getName());
+                setGraphic(null);
+            }
+
+            @Override
+            public void commitEdit(Param param) {
+                super.commitEdit(param);
+                param.setName(textField.getText());
+                setText(textField.getText());
+                setGraphic(null);
+            }
+        });
+    }
+
+    /**
+     * 加载页面的时候所有组件设置为不可用
+     */
+    private void initComp(){
+        disableParam();
+        disableFormula();
+        disableBtn();
+    }
+
+    private void reset(){
+        clearParam();
+        clearFormula();
+        disableParam();
+        disableFormula();
+        disableBtn();
+        textParamName1.setVisible(false);
+        textParamName2.setVisible(false);
+        btnAddParam.setDisable(false);
+    }
+
+    private void disableParam(){
+        textParamName.setDisable(true);
+        choiceBoxParamType.setDisable(true);
+        choiceBoxParamUnit.setDisable(true);
+    }
+
+    private void clearParam(){
+        textParamName.clear();
+        choiceBoxParamType.setValue(null);
+        choiceBoxParamUnit.setValue(null);
+    }
+
+    private void disableFormula(){
+        choiceBoxParamType1.setDisable(true);
+        choiceBoxParamName1.setDisable(true);
+        textParamName1.setDisable(true);
+        choiceBoxOpChar.setDisable(true);
+        choiceBoxParamType2.setDisable(true);
+        choiceBoxParamName2.setDisable(true);
+        textParamName2.setDisable(true);
+    }
+
+    private void clearFormula(){
+        choiceBoxParamType1.setValue(null);
+        choiceBoxParamName1.setValue(null);
+        textParamName1.clear();
+        choiceBoxOpChar.setValue(null);
+        choiceBoxParamType2.setValue(null);
+        choiceBoxParamName2.setValue(null);
+        textParamName2.clear();
+    }
+
+    private void disableBtn(){
+        btnAddParam.setDisable(true);
+        btnAddFormula.setDisable(true);
+        btnSave.setDisable(true);
+        btnEdit.setDisable(true);
+        btnDel.setDisable(true);
+        btnReset.setDisable(true);
     }
 
 }

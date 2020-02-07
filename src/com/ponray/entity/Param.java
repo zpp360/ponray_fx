@@ -7,6 +7,8 @@ public class Param {
 
     private Long ID;
 
+    private Standard standard;
+
     private String name;
 
     private int type;
@@ -29,8 +31,8 @@ public class Param {
         this.name = name;
     }
 
-    public String getType() {
-        return ParamType.getName(this.type);
+    public int getType() {
+        return type;
     }
 
     public void setType(int type) {
@@ -43,6 +45,14 @@ public class Param {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public Standard getStandard() {
+        return standard;
+    }
+
+    public void setStandard(Standard standard) {
+        this.standard = standard;
     }
 
     @Override
