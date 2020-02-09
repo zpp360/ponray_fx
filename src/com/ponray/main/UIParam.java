@@ -1,12 +1,11 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constants;
-import com.ponray.entity.Formula;
-import com.ponray.entity.Param;
-import com.ponray.entity.Standard;
+import com.ponray.entity.*;
 import com.ponray.service.FormulaService;
 import com.ponray.service.ParamService;
 import com.ponray.service.StandardService;
+import com.ponray.utils.AlertUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -21,6 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import org.apache.commons.lang.StringUtils;
 
 import javax.swing.text.DefaultEditorKit;
 import java.sql.SQLException;
@@ -84,7 +84,15 @@ public class UIParam {
     private static StandardService standardService = new StandardService();
     private static ParamService paramService = new ParamService();
     private static FormulaService formulaService = new FormulaService();
+
     private static List<Standard> standardList = null;
+    private static List<String> paramTypeList = null;
+    private static List<String> unitList = null;
+    private static List<String> formulaParamList = null;
+
+    //操作
+    private static String OPERATION = null;
+    private static Standard selectedStandard = null;
 
 
     public void display() throws SQLException, ClassNotFoundException {
@@ -200,6 +208,8 @@ public class UIParam {
         initData();
         //初始化组件状态
         initComp();
+        //注册事件
+        registEvent();
         return main;
     }
 
@@ -232,26 +242,6 @@ public class UIParam {
                 return null;
             }
         });
-        choiceBoxStandard.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                if(newValue.intValue()>-1) {
-                    Standard s = standardList.get(newValue.intValue());
-                    //设置标准名称显示
-                    labelStandardNameText.setText(s.getName());
-                    //左侧参数列表
-                    try {
-                        List<Param> params = paramService.listByStandId(s.getId());
-                        paramListView.setItems(FXCollections.observableArrayList(params));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    //每次选择标准后清空组件并重置组件状态
-                    reset();
-                }
-            }
-        });
-
 
         //listView绑定对象
         paramListView.setCellFactory(lv -> new ListCell<Param>(){
@@ -309,6 +299,78 @@ public class UIParam {
                 setGraphic(null);
             }
         });
+
+        //用户参数和结果参数
+        choiceBoxParamType.setItems(FXCollections.observableArrayList(ParamType.listType()));
+        choiceBoxParamUnit.setItems(FXCollections.observableArrayList(BaseUnit.listUnit()));
+    }
+
+    /**
+     * 注册事件
+     */
+    private void registEvent(){
+        choiceBoxStandard.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1) {
+                    selectedStandard = standardList.get(newValue.intValue());
+                    //设置标准名称显示
+                    labelStandardNameText.setText(selectedStandard.getName());
+                    //左侧参数列表
+                    try {
+                        List<Param> params = paramService.listByStandId(selectedStandard.getId());
+                        paramListView.setItems(FXCollections.observableArrayList(params));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    //每次选择标准后清空组件并重置组件状态
+                    reset();
+                }
+            }
+        });
+
+        btnAddParam.setOnAction(event -> {
+            ableParam();
+            btnAddParam.setDisable(true);
+            btnSave.setDisable(false);
+            btnReset.setDisable(false);
+            OPERATION = Constants.ADD_PARAM;
+        });
+        btnAddFormula.setOnAction(event -> {
+            ableFormula();
+            btnAddFormula.setDisable(true);
+            btnSave.setDisable(false);
+            btnReset.setDisable(false);
+            OPERATION = Constants.ADD_FORMULA;
+        });
+        btnEdit.setOnAction(event -> {
+
+        });
+        btnSave.setOnAction(event -> {
+            if(Constants.ADD_PARAM.equals(OPERATION)){
+                String name = textParamName.getText();
+                String type = choiceBoxParamType.getValue();
+                String unit = choiceBoxParamUnit.getValue();
+                if(!validataParam(name,type,unit)){
+                    return;
+                }
+                Param param = new Param();
+                param.setStandard(selectedStandard);
+                param.setName(name);
+                param.setType(type);
+                param.setUnit(unit);
+                try {
+                    int result = paramService.insert(param);
+                    if(result>0){
+                        AlertUtils.alertInfo("添加参数成功");
+                    }
+                } catch (Exception e) {
+                }
+            }
+        });
+        btnReset.setOnAction(event -> {
+            reset();
+        });
     }
 
     /**
@@ -331,16 +393,38 @@ public class UIParam {
         btnAddParam.setDisable(false);
     }
 
+    /**
+     * 参数编辑控件不可用
+     */
     private void disableParam(){
         textParamName.setDisable(true);
         choiceBoxParamType.setDisable(true);
         choiceBoxParamUnit.setDisable(true);
     }
 
+    /**
+     * 参数编辑控件可用
+     */
+    private void ableParam(){
+        textParamName.setDisable(false);
+        choiceBoxParamType.setDisable(false);
+        choiceBoxParamUnit.setDisable(false);
+    }
+
     private void clearParam(){
         textParamName.clear();
         choiceBoxParamType.setValue(null);
         choiceBoxParamUnit.setValue(null);
+    }
+
+    private void ableFormula(){
+        choiceBoxParamType1.setDisable(false);
+        choiceBoxParamName1.setDisable(false);
+        textParamName1.setDisable(false);
+        choiceBoxOpChar.setDisable(false);
+        choiceBoxParamType2.setDisable(false);
+        choiceBoxParamName2.setDisable(false);
+        textParamName2.setDisable(false);
     }
 
     private void disableFormula(){
@@ -370,6 +454,27 @@ public class UIParam {
         btnEdit.setDisable(true);
         btnDel.setDisable(true);
         btnReset.setDisable(true);
+    }
+
+
+    private boolean validataParam(String name,String type,String unit){
+        if(selectedStandard==null){
+            AlertUtils.alertError("请选择标准");
+            return false;
+        }
+        if(StringUtils.isBlank(name)){
+            AlertUtils.alertError("请输入参数名称");
+            return false;
+        }
+        if(StringUtils.isBlank(type)){
+            AlertUtils.alertError("请选择参数类型");
+            return false;
+        }
+        if(StringUtils.isBlank(unit)){
+            AlertUtils.alertError("请选择参数单位");
+            return false;
+        }
+        return true;
     }
 
 }

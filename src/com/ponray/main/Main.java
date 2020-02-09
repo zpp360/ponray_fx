@@ -194,7 +194,6 @@ public class Main extends Application {
         vBox3.setSpacing(5);
         vBox3.setPadding(new Insets(0,5,0,10));
         vBox3.getChildren().addAll(labelN3,labelName3);
-
         Button button3 = new Button(Constants.language.getProperty("clear"));
         button3.setMinSize(40,53);
 

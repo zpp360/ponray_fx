@@ -16,7 +16,7 @@ public class ParamService {
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,param.getStandard().getId());
         pstmt.setString(2,param.getName());
-        pstmt.setInt(3,param.getType());
+        pstmt.setString(3,param.getType());
         pstmt.setString(4,param.getUnit());
         int res = pstmt.executeUpdate();
         if(res>0){
@@ -40,7 +40,7 @@ public class ParamService {
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,param.getStandard().getId());
         pstmt.setString(2,param.getName());
-        pstmt.setInt(3,param.getType());
+        pstmt.setString(3,param.getType());
         pstmt.setString(4,param.getUnit());
         pstmt.setLong(5,param.getID());
         int res = pstmt.executeUpdate();
@@ -67,7 +67,7 @@ public class ParamService {
             Param param = new Param();
             param.setID(set.getLong("ID"));
             param.setName(set.getString("name"));
-            param.setType(set.getInt("type"));
+            param.setType(set.getString("type"));
             param.setUnit(set.getString("unit"));
             list.add(param);
         }
