@@ -13,6 +13,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
@@ -21,8 +22,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import org.apache.commons.lang.StringUtils;
-
-import javax.swing.text.DefaultEditorKit;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -92,8 +91,16 @@ public class UIParam {
 
     //操作
     private static String OPERATION = null;
+    //选中的标准
     private static Standard selectedStandard = null;
-
+    //选中的参数
+    private static Param selectedParam = null;
+    //选中的公式
+    private static Formula selectedFormula = null;
+    //参数列表
+    private static List<Param> paramList = null;
+    //公式列表
+    private static List<Formula> formulaList = null;
 
     public void display() throws SQLException, ClassNotFoundException {
         Stage window = new Stage();
@@ -136,6 +143,13 @@ public class UIParam {
         VBox vBox2 = new VBox();
         tableColumnTempVari.setPrefWidth(60);
         tableColumnSymbol.setPrefWidth(40);
+        tableColumnTempVari.setCellValueFactory(new PropertyValueFactory<>("tempVari"));
+        tableColumnSymbol.setCellValueFactory(new PropertyValueFactory<>("symbol"));
+        tableColumnParamType1.setCellValueFactory(new PropertyValueFactory<>("paramTypeOne"));
+        tableColumnParamName1.setCellValueFactory(new PropertyValueFactory<>("paramNameOne"));
+        tableColumnOpChar.setCellValueFactory(new PropertyValueFactory<>("opChar"));
+        tableColumnParamType2.setCellValueFactory(new PropertyValueFactory<>("paramTypeTwo"));
+        tableColumnParamName2.setCellValueFactory(new PropertyValueFactory<>("paramNameTwo"));
         tableViewFormula.getColumns().addAll(tableColumnTempVari,tableColumnSymbol,tableColumnParamType1,tableColumnParamName1,tableColumnOpChar,tableColumnParamType2,tableColumnParamName2);
         tableViewFormula.setPrefSize(600,180);
         labelFormulaList.setPadding(new Insets(5,0,0,0));
@@ -318,13 +332,40 @@ public class UIParam {
                     labelStandardNameText.setText(selectedStandard.getName());
                     //左侧参数列表
                     try {
-                        List<Param> params = paramService.listByStandId(selectedStandard.getId());
-                        paramListView.setItems(FXCollections.observableArrayList(params));
+                        paramList = paramService.listByStandId(selectedStandard.getId());
+                        refreshParamListView();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     //每次选择标准后清空组件并重置组件状态
                     reset();
+                    //清空选中的param
+                    selectedParam = null;
+                }
+            }
+        });
+        /**
+         * 左侧参数列表选择事件
+         */
+        paramListView.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue() > -1){
+                    selectedParam = paramList.get(newValue.intValue());
+                    //更新参数框
+                    updateParamComp();
+                    //设置按钮状态
+                    setParamSelectBtn();
+                    //更新公式列表
+                    try {
+                        formulaList = formulaService.listByParamId(selectedParam.getID());
+                        tableViewFormula.getItems().clear();
+                        tableViewFormula.getItems().addAll(formulaList);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    //选中的formula置空
+                    selectedFormula = null;
                 }
             }
         });
@@ -344,7 +385,16 @@ public class UIParam {
             OPERATION = Constants.ADD_FORMULA;
         });
         btnEdit.setOnAction(event -> {
-
+            disableBtn();
+            btnSave.setDisable(false);
+            btnReset.setDisable(false);
+            if(selectedFormula!=null){
+                OPERATION = Constants.EDIT_FORMULA;
+                ableFormula();
+            }else{
+                OPERATION = Constants.EDIT_PARAM;
+                ableParam();
+            }
         });
         btnSave.setOnAction(event -> {
             if(Constants.ADD_PARAM.equals(OPERATION)){
@@ -362,15 +412,82 @@ public class UIParam {
                 try {
                     int result = paramService.insert(param);
                     if(result>0){
+                        //添加成功 重置文本及操作按钮，并刷新左侧参数框
+                        reset();
+                        refreshParamListView();
                         AlertUtils.alertInfo("添加参数成功");
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
+        });
+        btnDel.setOnAction(event -> {
+            if(selectedFormula!=null){
+                //删除公式
+                try {
+                    int result = formulaService.del(selectedFormula.getID());
+                    if(result>0){
+                        //清空formula输入框
+                        clearFormula();
+                        //更新formula表格
+                        formulaList = formulaService.listByParamId(selectedParam.getID());
+                        tableViewFormula.getItems().clear();
+                        tableViewFormula.getItems().addAll(formulaList);
+                        AlertUtils.alertInfo("删除公式成功");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }else if(selectedParam!=null){
+                //删除参数
+                try {
+                    int result = paramService.del(selectedParam.getID());
+                    if(result>0){
+                        //删除成功
+                        clearParam();
+                        //清空公式表格
+                        tableViewFormula.getItems().clear();
+                        //更新左侧列表
+                        paramList = paramService.listByStandId(selectedStandard.getId());
+                        paramListView.getItems().clear();
+                        paramListView.getItems().addAll(paramList);
+                        AlertUtils.alertInfo("删除参数成功");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
         });
         btnReset.setOnAction(event -> {
             reset();
         });
+    }
+
+    /**
+     * 设置选择参数后的按钮状态
+     */
+    private void setParamSelectBtn() {
+        btnAddParam.setDisable(false);
+        btnEdit.setDisable(false);
+        btnDel.setDisable(false);
+        btnAddFormula.setDisable(false);
+        btnSave.setDisable(true);
+        btnReset.setDisable(true);
+    }
+
+    /**
+     * 更新参数框组件
+     */
+    private void updateParamComp() {
+        textParamName.setText(selectedParam.getName());
+        choiceBoxParamType.setValue(selectedParam.getType());
+        choiceBoxParamUnit.setValue(selectedParam.getUnit());
+        disableParam();
+        clearFormula();
+        disableParam();
     }
 
     /**
@@ -454,6 +571,18 @@ public class UIParam {
         btnEdit.setDisable(true);
         btnDel.setDisable(true);
         btnReset.setDisable(true);
+    }
+
+    private void refreshParamListView(){
+        if(selectedStandard!=null){
+            try {
+                paramList = paramService.listByStandId(selectedStandard.getId());
+                paramListView.getItems().clear();
+                paramListView.setItems(FXCollections.observableArrayList(paramList));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
