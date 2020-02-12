@@ -317,6 +317,9 @@ public class UIParam {
         //用户参数和结果参数
         choiceBoxParamType.setItems(FXCollections.observableArrayList(ParamType.listType()));
         choiceBoxParamUnit.setItems(FXCollections.observableArrayList(BaseUnit.listUnit()));
+        choiceBoxParamType1.setItems(FXCollections.observableArrayList(FormulaParamType.listType()));
+        choiceBoxParamType2.setItems(FXCollections.observableArrayList(FormulaParamType.listType()));
+
     }
 
     /**
@@ -370,6 +373,33 @@ public class UIParam {
             }
         });
 
+        choiceBoxParamType1.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    String value = choiceBoxParamType1.getValue();
+                    if(FormulaParamType.TEMP.getName().equals(value)){
+                        //temp，输入框和选择框都隐藏
+                        textParamName1.setVisible(false);
+                        choiceBoxParamName1.setVisible(false);
+                    }
+                    if(FormulaParamType.CONSTANT.equals(value)){
+                        //常量，显示输入框
+                        textParamName1.setVisible(true);
+                        choiceBoxParamName1.setVisible(false);
+                    }
+                    if(FormulaParamType.BASE_PARAM.equals(value)){
+                        //基本参数
+                    }
+                    if(FormulaParamType.EXTEND_PARAM.equals(value)){
+                        //扩展参数
+                    }
+                }
+            }
+        });
+
+
+
         btnAddParam.setOnAction(event -> {
             ableParam();
             btnAddParam.setDisable(true);
@@ -421,6 +451,35 @@ public class UIParam {
                     e.printStackTrace();
                 }
             }
+            if(Constants.EDIT_PARAM.equals(OPERATION)){
+                //参数修改
+                String name = textParamName.getText();
+                String type = choiceBoxParamType.getValue();
+                String unit = choiceBoxParamUnit.getValue();
+                if(!validataParam(name,type,unit)){
+                    return;
+                }
+                Param param = new Param();
+                param.setID(selectedParam.getID());
+                param.setStandard(selectedStandard);
+                param.setName(name);
+                param.setType(type);
+                param.setUnit(unit);
+                try {
+                    int result = paramService.update(param);
+                    if(result>0){
+                        //更新成功 重置文本及操作按钮，并刷新左侧参数框
+                        reset();
+                        refreshParamListView();
+                        AlertUtils.alertInfo("修改参数成功");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if(Constants.ADD_FORMULA.equals(OPERATION)){
+
+            }
         });
         btnDel.setOnAction(event -> {
             if(selectedFormula!=null){
@@ -434,6 +493,7 @@ public class UIParam {
                         formulaList = formulaService.listByParamId(selectedParam.getID());
                         tableViewFormula.getItems().clear();
                         tableViewFormula.getItems().addAll(formulaList);
+                        reset();
                         AlertUtils.alertInfo("删除公式成功");
                     }
                 } catch (Exception e) {
@@ -453,6 +513,7 @@ public class UIParam {
                         paramList = paramService.listByStandId(selectedStandard.getId());
                         paramListView.getItems().clear();
                         paramListView.getItems().addAll(paramList);
+                        reset();
                         AlertUtils.alertInfo("删除参数成功");
                     }
                 } catch (Exception e) {

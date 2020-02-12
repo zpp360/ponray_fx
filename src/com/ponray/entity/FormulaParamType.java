@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum FormulaParamType {
-    USERPARAM("用户参数",0),resultParam("结果参数",1);
+    TEMP("temp",0),CONSTANT("常量",1),BASE_PARAM("基本参数",2),EXTEND_PARAM("扩展参数",3);
 
     private String name;
 
