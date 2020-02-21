@@ -89,4 +89,25 @@ public class ParamService {
         return result;
     }
 
+    /**
+     * 基本参数
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
+    public List<Param> listBaseParam() throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select * from t_base_param";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet set = pstmt.executeQuery();
+        List<Param> list = new ArrayList<>();
+        while(set.next()){
+            Param param = new Param();
+            param.setID(set.getLong("ID"));
+            param.setName(set.getString("name"));
+            list.add(param);
+        }
+        return list;
+    }
+
 }

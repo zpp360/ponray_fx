@@ -96,6 +96,7 @@ public class UIStandard {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         remarkColumn = new TableColumn<Standard,String>("备注");
         remarkColumn.setCellValueFactory(new PropertyValueFactory<>("remark"));
+        tableView.getColumns().clear();
         tableView.getColumns().addAll(numColumn,codeColumn,nameColumn,remarkColumn);
         tableView.setPrefHeight(300);
 

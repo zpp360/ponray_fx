@@ -440,9 +440,7 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
                 try {
                     new UIParamSet().display();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -461,14 +459,19 @@ public class Main extends Application {
         MenuItem createStandard = new MenuItem("定义标准");
         MenuItem createParam = new MenuItem("定义参数");
         experimentMenu.getItems().addAll(createExp,createStandard,createParam);
+        createExp.setOnAction(event -> {
+            try {
+                new UITestProgram().display();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
         createStandard.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
                     new UIStandard().display();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -478,9 +481,7 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
                 try {
                     new UIParam().display();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

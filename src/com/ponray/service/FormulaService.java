@@ -40,7 +40,7 @@ public class FormulaService {
      */
     public int update(Formula formula) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
-        String sql ="update t_formula set param_id=?,temp_vari=?,symbol=?,param_type1=?, param_name1=?,op_char=?, remark=?,param_type2=?,param_name2=? where ID = ?";
+        String sql ="update t_formula set param_id=?,temp_vari=?,symbol=?,param_type1=?, param_name1=?,op_char=?,param_type2=?,param_name2=? where ID = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,formula.getParam().getID());
         pstmt.setString(2,formula.getTempVari());
@@ -101,4 +101,13 @@ public class FormulaService {
         return result;
     }
 
+    public int deleteByParamId(Long paramId) throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "delete from t_formula where param_id = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setLong(1,paramId);
+        int result = pstmt.executeUpdate();
+        pstmt.close();
+        return result;
+    }
 }

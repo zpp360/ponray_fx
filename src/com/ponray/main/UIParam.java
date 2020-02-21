@@ -62,14 +62,14 @@ public class UIParam {
     private static Label labelTemp = new Label("temp=");
     private static ChoiceBox<String> choiceBoxParamType1 = new ChoiceBox<>();
     private static TextField textParamName1 = new TextField();
-    private static ChoiceBox<String> choiceBoxParamName1 = new ChoiceBox<>();
+    private static ChoiceBox<Param> choiceBoxParamName1 = new ChoiceBox<>();
     private static Label labelSymbol = new Label("运算符");
     private static Label labelParamType2 = new Label("参数类型2");
     private static Label labelParamName2 = new Label("参数名称2");
     private static ChoiceBox<String> choiceBoxOpChar = new ChoiceBox<>();
     private static ChoiceBox<String> choiceBoxParamType2 = new ChoiceBox<>();
     private static TextField textParamName2 = new TextField();
-    private static ChoiceBox<String> choiceBoxParamName2 = new ChoiceBox<>();
+    private static ChoiceBox<Param> choiceBoxParamName2 = new ChoiceBox<>();
 
     private static Button btnAddParam = new Button("添加参数");
     private static Button btnAddFormula = new Button("添加公式");
@@ -101,6 +101,8 @@ public class UIParam {
     private static List<Param> paramList = null;
     //公式列表
     private static List<Formula> formulaList = null;
+    //基本参数
+    private static List<Param> baseParamList = null;
 
     public void display() throws SQLException, ClassNotFoundException {
         Stage window = new Stage();
@@ -150,6 +152,7 @@ public class UIParam {
         tableColumnOpChar.setCellValueFactory(new PropertyValueFactory<>("opChar"));
         tableColumnParamType2.setCellValueFactory(new PropertyValueFactory<>("paramTypeTwo"));
         tableColumnParamName2.setCellValueFactory(new PropertyValueFactory<>("paramNameTwo"));
+        tableViewFormula.getColumns().clear();
         tableViewFormula.getColumns().addAll(tableColumnTempVari,tableColumnSymbol,tableColumnParamType1,tableColumnParamName1,tableColumnOpChar,tableColumnParamType2,tableColumnParamName2);
         tableViewFormula.setPrefSize(600,180);
         labelFormulaList.setPadding(new Insets(5,0,0,0));
@@ -234,6 +237,8 @@ public class UIParam {
 
         try {
             standardList = standardService.list();
+            //基本参数列表
+            baseParamList = paramService.listBaseParam();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -251,6 +256,58 @@ public class UIParam {
                 for (Standard s: standardList){
                     if(string.equals(s.getCode())){
                         return s;
+                    }
+                }
+                return null;
+            }
+        });
+
+        choiceBoxParamName1.converterProperty().set(new StringConverter<Param>() {
+            @Override
+            public String toString(Param object) {
+                return object.getName();
+            }
+
+            @Override
+            public Param fromString(String string) {
+                if(FormulaParamType.BASE_PARAM.getName().equals(choiceBoxParamType1.getValue())){
+                    for (Param p: baseParamList){
+                        if(string.equals(p.getName())){
+                            return p;
+                        }
+                    }
+                }
+                if(FormulaParamType.EXTEND_PARAM.getName().equals(choiceBoxParamType1.getValue())){
+                    for (Param p: paramList){
+                        if(string.equals(p.getName())){
+                            return p;
+                        }
+                    }
+                }
+                return null;
+            }
+        });
+
+        choiceBoxParamName2.converterProperty().set(new StringConverter<Param>() {
+            @Override
+            public String toString(Param object) {
+                return object.getName();
+            }
+
+            @Override
+            public Param fromString(String string) {
+                if(FormulaParamType.BASE_PARAM.getName().equals(choiceBoxParamType2.getValue())){
+                    for (Param p: baseParamList){
+                        if(string.equals(p.getName())){
+                            return p;
+                        }
+                    }
+                }
+                if(FormulaParamType.EXTEND_PARAM.getName().equals(choiceBoxParamType2.getValue())){
+                    for (Param p: paramList){
+                        if(string.equals(p.getName())){
+                            return p;
+                        }
                     }
                 }
                 return null;
@@ -317,8 +374,11 @@ public class UIParam {
         //用户参数和结果参数
         choiceBoxParamType.setItems(FXCollections.observableArrayList(ParamType.listType()));
         choiceBoxParamUnit.setItems(FXCollections.observableArrayList(BaseUnit.listUnit()));
-        choiceBoxParamType1.setItems(FXCollections.observableArrayList(FormulaParamType.listType()));
-        choiceBoxParamType2.setItems(FXCollections.observableArrayList(FormulaParamType.listType()));
+
+        formulaParamList = FormulaParamType.listType();
+        choiceBoxParamType1.setItems(FXCollections.observableArrayList(formulaParamList));
+        choiceBoxParamType2.setItems(FXCollections.observableArrayList(formulaParamList));
+        choiceBoxOpChar.setItems(FXCollections.observableArrayList("","+","-","*","/","Param","Sqrt","Ln","Sin","Cos","Asin","Acos","tan","Atan"));
 
     }
 
@@ -377,23 +437,32 @@ public class UIParam {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if(newValue.intValue()>-1){
-                    String value = choiceBoxParamType1.getValue();
-                    if(FormulaParamType.TEMP.getName().equals(value)){
-                        //temp，输入框和选择框都隐藏
-                        textParamName1.setVisible(false);
-                        choiceBoxParamName1.setVisible(false);
-                    }
-                    if(FormulaParamType.CONSTANT.equals(value)){
-                        //常量，显示输入框
-                        textParamName1.setVisible(true);
-                        choiceBoxParamName1.setVisible(false);
-                    }
-                    if(FormulaParamType.BASE_PARAM.equals(value)){
-                        //基本参数
-                    }
-                    if(FormulaParamType.EXTEND_PARAM.equals(value)){
-                        //扩展参数
-                    }
+                    setParamName(newValue.intValue(),choiceBoxParamType1,textParamName1,choiceBoxParamName1);
+                }
+            }
+        });
+
+        choiceBoxParamType2.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    setParamName(newValue.intValue(),choiceBoxParamType2,textParamName2,choiceBoxParamName2);
+                }
+            }
+        });
+
+        tableViewFormula.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    Formula formula = formulaList.get(newValue.intValue());
+                    //选中的formula置空
+                    selectedFormula = formula;
+                    //更新参数框
+                    updateFormulaComp();
+                    //设置按钮状态
+                    setFormulaSelectBtn();
+
                 }
             }
         });
@@ -402,14 +471,16 @@ public class UIParam {
 
         btnAddParam.setOnAction(event -> {
             ableParam();
-            btnAddParam.setDisable(true);
+            clearParam();
+            disableBtn();
             btnSave.setDisable(false);
             btnReset.setDisable(false);
             OPERATION = Constants.ADD_PARAM;
         });
         btnAddFormula.setOnAction(event -> {
             ableFormula();
-            btnAddFormula.setDisable(true);
+            clearFormula();
+            disableBtn();
             btnSave.setDisable(false);
             btnReset.setDisable(false);
             OPERATION = Constants.ADD_FORMULA;
@@ -445,6 +516,7 @@ public class UIParam {
                         //添加成功 重置文本及操作按钮，并刷新左侧参数框
                         reset();
                         refreshParamListView();
+                        refreshFormulaTableView();
                         AlertUtils.alertInfo("添加参数成功");
                     }
                 } catch (Exception e) {
@@ -478,7 +550,98 @@ public class UIParam {
                 }
             }
             if(Constants.ADD_FORMULA.equals(OPERATION)){
+                if(selectedParam!=null){
+                    String tempVari = "temp";
+                    String symbol = "=";
+                    String paramType1 = choiceBoxParamType1.getValue();
+                    System.out.println(paramType1);
+                    String paramName1 = null;
+                    if(FormulaParamType.CONSTANT.getName().equals(paramType1)){
+                        paramName1 = textParamName1.getText().trim();
+                    }
+                    if(FormulaParamType.BASE_PARAM.getName().equals(paramType1) ||FormulaParamType.EXTEND_PARAM.getName().equals(paramType1)){
+                        paramName1 = choiceBoxParamName1.getValue().getName();
+                    }
 
+                    String opChar = choiceBoxOpChar.getValue();
+                    String paramType2 = choiceBoxParamType2.getValue();
+                    String paramName2 = null;
+                    if(FormulaParamType.CONSTANT.getName().equals(paramType2)){
+                        paramName2 = textParamName2.getText().trim();
+                    }
+                    if(FormulaParamType.BASE_PARAM.getName().equals(paramType2) ||FormulaParamType.EXTEND_PARAM.getName().equals(paramType2)){
+                        paramName2 = choiceBoxParamName2.getValue().getName();
+                    }
+                    Formula formula = new Formula();
+                    formula.setTempVari(tempVari);
+                    formula.setSymbol(symbol);
+                    formula.setParamTypeOne(paramType1);
+                    formula.setParamNameOne(paramName1);
+                    formula.setOpChar(opChar);
+                    formula.setParamTypeTwo(paramType2);
+                    formula.setParamNameTwo(paramName2);
+                    formula.setParam(selectedParam);
+                    if(!validataFormula(formula)){
+                        return;
+                    }
+
+                    try {
+                        int result = formulaService.insert(formula);
+                        if(result>0){
+                            reset();
+                            refreshFormulaTableView();
+                            AlertUtils.alertInfo("添加公式成功");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+            if(Constants.EDIT_FORMULA.equals(OPERATION)){
+                String tempVari = "temp";
+                String symbol = "=";
+                String paramType1 = choiceBoxParamType1.getValue();
+                String paramName1 = null;
+                if(FormulaParamType.CONSTANT.getName().equals(paramType1)){
+                    paramName1 = textParamName1.getText().trim();
+                }
+                if(FormulaParamType.BASE_PARAM.getName().equals(paramType1) ||FormulaParamType.EXTEND_PARAM.getName().equals(paramType1)){
+                    paramName1 = choiceBoxParamName1.getValue().getName();
+                }
+
+                String opChar = choiceBoxOpChar.getValue();
+                String paramType2 = choiceBoxParamType2.getValue();
+                String paramName2 = null;
+                if(FormulaParamType.CONSTANT.getName().equals(paramType2)){
+                    paramName2 = textParamName2.getText().trim();
+                }
+                if(FormulaParamType.BASE_PARAM.getName().equals(paramType2) ||FormulaParamType.EXTEND_PARAM.getName().equals(paramType2)){
+                    paramName2 = choiceBoxParamName2.getValue().getName();
+                }
+                Formula formula = new Formula();
+                formula.setID(selectedFormula.getID());
+                formula.setTempVari(tempVari);
+                formula.setSymbol(symbol);
+                formula.setParamTypeOne(paramType1);
+                formula.setParamNameOne(paramName1);
+                formula.setOpChar(opChar);
+                formula.setParamTypeTwo(paramType2);
+                formula.setParamNameTwo(paramName2);
+                formula.setParam(selectedParam);
+                if(!validataFormula(formula)){
+                    return;
+                }
+                try {
+                    int result = formulaService.update(formula);
+                    if(result>0){
+                        reset();
+                        refreshFormulaTableView();
+                        AlertUtils.alertInfo("修改公式成功");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         btnDel.setOnAction(event -> {
@@ -514,6 +677,8 @@ public class UIParam {
                         paramListView.getItems().clear();
                         paramListView.getItems().addAll(paramList);
                         reset();
+                        //删除参数关联的公式
+                        formulaService.deleteByParamId(selectedParam.getID());
                         AlertUtils.alertInfo("删除参数成功");
                     }
                 } catch (Exception e) {
@@ -527,10 +692,51 @@ public class UIParam {
         });
     }
 
+
+    private void setParamName(int index,ChoiceBox<String> typeBox,TextField textName,ChoiceBox<Param> nameBox){
+        String value = formulaParamList.get(index);
+        if(FormulaParamType.TEMP.getName().equals(value)){
+            //temp，输入框和选择框都隐藏
+            textName.setVisible(false);
+            nameBox.setVisible(false);
+        }
+        if(FormulaParamType.CONSTANT.getName().equals(value)){
+            //常量，显示输入框
+            textName.setVisible(true);
+            nameBox.setVisible(false);
+        }
+        if(FormulaParamType.BASE_PARAM.getName().equals(value)){
+            //基本参数
+            nameBox.getItems().clear();
+            nameBox.getItems().addAll(baseParamList);
+            textName.setVisible(false);
+            nameBox.setVisible(true);
+        }
+        if(FormulaParamType.EXTEND_PARAM.getName().equals(value)){
+            //扩展参数
+            nameBox.getItems().clear();
+            nameBox.getItems().addAll(paramList);
+            textName.setVisible(false);
+            nameBox.setVisible(true);
+        }
+    }
+
     /**
      * 设置选择参数后的按钮状态
      */
     private void setParamSelectBtn() {
+        btnAddParam.setDisable(false);
+        btnEdit.setDisable(false);
+        btnDel.setDisable(false);
+        btnAddFormula.setDisable(false);
+        btnSave.setDisable(true);
+        btnReset.setDisable(true);
+    }
+
+    /**
+     * 设置选择公式后的按钮状态
+     */
+    private void setFormulaSelectBtn(){
         btnAddParam.setDisable(false);
         btnEdit.setDisable(false);
         btnDel.setDisable(false);
@@ -551,6 +757,63 @@ public class UIParam {
         disableParam();
     }
 
+
+    /**
+     * 更新公式框组件
+     */
+    private void updateFormulaComp(){
+        choiceBoxParamType1.setValue(selectedFormula.getParamTypeOne());
+        if(FormulaParamType.CONSTANT.getName().equals(selectedFormula.getParamTypeOne())){
+            textParamName1.setText(selectedFormula.getParamNameOne());
+            choiceBoxParamName1.setVisible(false);
+            textParamName1.setVisible(true);
+        }
+        if(FormulaParamType.BASE_PARAM.getName().equals(selectedFormula.getParamTypeOne())){
+            for(Param p:baseParamList){
+                if(p.getName().equals(selectedFormula.getParamNameOne())){
+                    choiceBoxParamName1.setValue(p);
+                }
+            }
+            choiceBoxParamName1.setVisible(true);
+            textParamName1.setVisible(false);
+        }
+        if(FormulaParamType.EXTEND_PARAM.getName().equals(selectedFormula.getParamTypeOne())){
+            for(Param p:paramList){
+                if(p.getName().equals(selectedFormula.getParamNameOne())){
+                    choiceBoxParamName1.setValue(p);
+                }
+            }
+            choiceBoxParamName1.setVisible(true);
+            textParamName1.setVisible(false);
+        }
+        choiceBoxOpChar.setValue(selectedFormula.getOpChar());
+        choiceBoxParamType2.setValue(selectedFormula.getParamTypeTwo());
+        if(FormulaParamType.CONSTANT.getName().equals(selectedFormula.getParamTypeTwo())){
+            textParamName2.setText(selectedFormula.getParamNameTwo());
+            textParamName2.setVisible(true);
+            choiceBoxParamName2.setVisible(false);
+        }
+        if(FormulaParamType.BASE_PARAM.getName().equals(selectedFormula.getParamTypeTwo())){
+            for(Param p:baseParamList){
+                if(p.getName().equals(selectedFormula.getParamNameTwo())){
+                    choiceBoxParamName2.setValue(p);
+                }
+            }
+            textParamName2.setVisible(false);
+            choiceBoxParamName2.setVisible(true);
+        }
+        if(FormulaParamType.EXTEND_PARAM.getName().equals(selectedFormula.getParamTypeTwo())){
+            for(Param p:paramList){
+                if(p.getName().equals(selectedFormula.getParamNameTwo())){
+                    choiceBoxParamName2.setValue(p);
+                }
+            }
+            textParamName2.setVisible(false);
+            choiceBoxParamName2.setVisible(true);
+        }
+
+    }
+
     /**
      * 加载页面的时候所有组件设置为不可用
      */
@@ -567,7 +830,9 @@ public class UIParam {
         disableFormula();
         disableBtn();
         textParamName1.setVisible(false);
+        choiceBoxParamName1.setVisible(true);
         textParamName2.setVisible(false);
+        choiceBoxParamName2.setVisible(true);
         btnAddParam.setDisable(false);
     }
 
@@ -646,6 +911,20 @@ public class UIParam {
         }
     }
 
+    private void refreshFormulaTableView(){
+        if(selectedParam!=null){
+
+            try {
+                formulaList = formulaService.listByParamId(selectedParam.getID());
+                tableViewFormula.getItems().clear();
+                tableViewFormula.setItems(FXCollections.observableArrayList(formulaList));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
 
     private boolean validataParam(String name,String type,String unit){
         if(selectedStandard==null){
@@ -663,6 +942,40 @@ public class UIParam {
         if(StringUtils.isBlank(unit)){
             AlertUtils.alertError("请选择参数单位");
             return false;
+        }
+        return true;
+    }
+
+    private boolean validataFormula(Formula formula) {
+        if(selectedParam==null){
+            AlertUtils.alertError("请选择参数");
+            return false;
+        }
+        if(StringUtils.isBlank(formula.getParamTypeOne())){
+            AlertUtils.alertError("请选择参数类型1");
+            return false;
+        }
+        if(!FormulaParamType.TEMP.getName().equals(formula.getParamTypeOne())){
+            if(StringUtils.isBlank(formula.getParamNameOne())){
+                AlertUtils.alertError("请选择参数名称1");
+                return false;
+            }
+        }
+
+        if(StringUtils.isBlank(formula.getOpChar())){
+            AlertUtils.alertError("请选择运算符");
+            return false;
+        }
+
+        if(StringUtils.isBlank(formula.getParamTypeTwo())){
+            AlertUtils.alertError("请选择参数类型2");
+            return false;
+        }
+        if(!FormulaParamType.TEMP.getName().equals(formula.getParamTypeOne())){
+            if(StringUtils.isBlank(formula.getParamNameTwo())){
+                AlertUtils.alertError("请选择参数名称2");
+                return false;
+            }
         }
         return true;
     }
