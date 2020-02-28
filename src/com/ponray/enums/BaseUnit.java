@@ -1,6 +1,5 @@
-package com.ponray.entity;
+package com.ponray.enums;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 

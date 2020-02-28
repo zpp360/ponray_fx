@@ -363,6 +363,8 @@ public class Main extends Application {
         stage.setScene(scene);
         //控制窗口是否可以缩放
         stage.setResizable(true);
+        //全屏
+        stage.setMaximized(true);
         stage.show();
 
     }
@@ -458,7 +460,8 @@ public class Main extends Application {
         MenuItem createExp = new MenuItem("编辑实验方案");
         MenuItem createStandard = new MenuItem("定义标准");
         MenuItem createParam = new MenuItem("定义参数");
-        experimentMenu.getItems().addAll(createExp,createStandard,createParam);
+        MenuItem createUnit = new MenuItem("单位设定");
+        experimentMenu.getItems().addAll(createExp,createStandard,createParam,createUnit);
         createExp.setOnAction(event -> {
             try {
                 new UITestProgram().display();
@@ -481,6 +484,16 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
                 try {
                     new UIParam().display();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        createUnit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    new UIUnit().display();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

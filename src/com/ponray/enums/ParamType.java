@@ -1,4 +1,4 @@
-package com.ponray.entity;
+package com.ponray.enums;
 
 import java.util.ArrayList;
 import java.util.List;

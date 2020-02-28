@@ -1,6 +1,7 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constants;
+import com.ponray.entity.Param;
 import com.ponray.entity.Standard;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -8,6 +9,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -132,11 +135,79 @@ public class UITestProgram {
     private static Button tab2BtnSave = new Button("保存");
 
     //-----------------------------------tab2 end-----------------------------------
+    //-----------------------------------tab3 start---------------------------------
+    private static Label labelTab3_1 = new Label("主画面");
+    private static Label labelTab3_2 = new Label("第二画面");
+    private static Label labelTab3_3 = new Label("第三画面");
+    private static Label labelTab3_4 = new Label("第四画面");
+    private static ChoiceBox<String> choiceBox11 = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBox12 = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBox21 = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBox22 = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBox31 = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBox32 = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBox41 = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBox42 = new ChoiceBox<>();
 
+    private static Label labelUnitSelect = new Label("曲线单位选择");
+    private static ChoiceBox<String> choiceBoxUnitN = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBoxUnitTransform = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBoxUnitYL = new ChoiceBox<>();
 
+    private static Button tab3BtnSave = new Button("保存");
 
+    //-----------------------------------tab3 end-----------------------------------
 
+    //-----------------------------------tab4 start---------------------------------
+    private static Label labelUserParam = new Label("用户参数");
+    private static Label labelParamName = new Label("参数名称：");
+    private static ChoiceBox<Param> choiceBoxParam = new ChoiceBox<>();
+    private static Label labelUnit = new Label("单位");
+    private static ChoiceBox<String> choiceBoxUnit = new ChoiceBox<>();
+    private static CheckBox checkBoxDefaultValue = new CheckBox("默认值：");
+    private static TextField textDefaultValue = new TextField();
 
+    private static Button paramBtnAdd = new Button("添加");
+    private static Button paramBtnDel = new Button("删除");
+    private static Button paramBtnEdit = new Button("修改");
+    private static Button paramBtnUp = new Button("上移");
+    private static Button paramBtnDown = new Button("下移");
+
+    private static TableView<String> tableViewParam = new TableView();
+    private static TableColumn columnParamNo = new TableColumn("序号");
+    private static TableColumn columnParamName = new TableColumn("参数名称");
+    private static TableColumn columnParamValue = new TableColumn("默认值");
+    private static TableColumn columnParamUnit = new TableColumn("单位");
+
+    private static Button tab4BtnSave = new Button("保存");
+
+    //-----------------------------------tab4 end-----------------------------------
+
+    //-----------------------------------tab5 start---------------------------------
+    private static Label labelParamResult = new Label("结果参数");
+    private static Label labelParamResultName = new Label("结果参数");
+    private static ChoiceBox<String> choiceBoxParamResultName = new ChoiceBox<>();
+    private static CheckBox checkBoxResult = new CheckBox("结果判定");
+    private static ChoiceBox<String> choiceBoxParamResultUnit = new ChoiceBox<>();
+    private static TextField textParamResultTop = new TextField();
+    private static TextField textParamResultBottom = new TextField();
+
+    private static Button btnResultAdd = new Button("添加");
+    private static Button btnResultDel = new Button("删除");
+    private static Button btnResultEdit = new Button("修改");
+    private static Button btnResultUp = new Button("上移");
+    private static Button btnResultDown = new Button("下移");
+
+    private static TableView<String> tableViewResult = new TableView<>();
+    private static TableColumn columnResultNo = new TableColumn("序号");
+    private static TableColumn columnResultName = new TableColumn("参数名");
+    private static TableColumn columnResultTop = new TableColumn("上限值");
+    private static TableColumn columnResultBottom = new TableColumn("下限值");
+    private static TableColumn columnResultUnit = new TableColumn("单位");
+
+    private static Button tab5BtnSave = new Button("保存");
+
+    //-----------------------------------tab5 end-----------------------------------
     //默认边框
     private static Border defaultBorder = new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT, Insets.EMPTY));
     private static Insets insets5 = new Insets(5);
@@ -160,20 +231,182 @@ public class UITestProgram {
         tabPane = new TabPane();
         tab1 = new Tab("基本参数");
         tab1.setClosable(false);
-        initTab1Comp();
         tab1.setContent(createTab1());
         tab2 = new Tab("速度设置");
         tab2.setClosable(false);
         tab2.setContent(createTab2());
-        initTab2Comp();
         tab3 = new Tab("曲线坐标");
         tab3.setClosable(false);
+        tab3.setContent(createTab3());
         tab4 = new Tab("用户参数");
         tab4.setClosable(false);
+        tab4.setContent(createTab4());
         tab5 = new Tab("结果参数");
         tab5.setClosable(false);
+        tab5.setContent(createTab5());
+        initComp();
         tabPane.getTabs().addAll(tab1,tab2,tab3,tab4,tab5);
         return tabPane;
+    }
+
+    private BorderPane createTab5(){
+        BorderPane main = new BorderPane();
+
+        VBox top = new VBox();
+        GridPane grid = new GridPane();
+        grid.add(labelParamResult,0,0,5,1);
+        grid.add(labelParamResultName,0,1);
+        grid.add(choiceBoxParamResultName,1,1);
+        grid.add(checkBoxResult,2,1);
+        grid.add(new Label("上限值"),3,1);
+        grid.add(textParamResultTop,4,1);
+        grid.add(new Label("单位"),0,2);
+        grid.add(choiceBoxParamResultUnit,1,2);
+        grid.add(new Label("下限值"),3,2);
+        grid.add(textParamResultBottom,4,2);
+        grid.setBorder(defaultBorder);
+        grid.setPadding(insets5);
+        grid.setHgap(10);
+        grid.setVgap(5);
+
+        HBox hBoxBtn = new HBox();
+        hBoxBtn.getChildren().addAll(btnResultAdd,btnResultDel,btnResultEdit,btnResultUp,btnResultDown);
+        hBoxBtn.setSpacing(10);
+        hBoxBtn.setAlignment(Pos.CENTER);
+        hBoxBtn.setPadding(new Insets(10));
+
+        top.getChildren().addAll(grid,hBoxBtn);
+
+        HBox bottom = new HBox();
+        bottom.getChildren().addAll(tab5BtnSave);
+        bottom.setAlignment(Pos.CENTER);
+        bottom.setPadding(new Insets(10));
+
+        main.setTop(top);
+        main.setCenter(tableViewResult);
+        main.setBottom(bottom);
+        main.setPadding(new Insets(10));
+        return main;
+    }
+
+
+    /**
+     * 创建tab4
+     * @return
+     */
+    private BorderPane createTab4(){
+        BorderPane main = new BorderPane();
+
+        VBox top = new VBox();
+        GridPane grid = new GridPane();
+        grid.add(labelUserParam,0,0,4,1);
+        grid.add(labelParamName,0,1);
+        grid.add(choiceBoxParam,1,1,1,1);
+        grid.add(labelUnit,0,2);
+        grid.add(choiceBoxUnit,1,2);
+        grid.add(checkBoxDefaultValue,2,2);
+        grid.add(textDefaultValue,3,2);
+        grid.setBorder(defaultBorder);
+        grid.setPadding(insets5);
+        grid.setHgap(10);
+        grid.setVgap(5);
+
+        HBox hBoxBtn = new HBox();
+        hBoxBtn.getChildren().addAll(paramBtnAdd,paramBtnDel,paramBtnEdit,paramBtnUp,paramBtnDown);
+        hBoxBtn.setSpacing(10);
+        hBoxBtn.setAlignment(Pos.CENTER);
+        hBoxBtn.setPadding(new Insets(10));
+
+        top.getChildren().addAll(grid,hBoxBtn);
+
+        HBox bottom = new HBox();
+        bottom.getChildren().addAll(tab4BtnSave);
+        bottom.setAlignment(Pos.CENTER);
+        bottom.setPadding(new Insets(10));
+
+        main.setTop(top);
+        main.setCenter(tableViewParam);
+        main.setBottom(bottom);
+        main.setPadding(new Insets(10));
+        return main;
+    }
+
+    /**
+     * 创建tab3
+     * @return
+     */
+    private BorderPane createTab3(){
+        BorderPane main = new BorderPane();
+        VBox top =  new VBox();
+        HBox hBox1 = new HBox();
+        HBox hBox2 = new HBox();
+        GridPane grid1 = new GridPane();
+        grid1.add(labelTab3_1,0,0,2,1);
+        grid1.add(new Label("X："),0,1);
+        grid1.add(choiceBox11,1,1);
+        grid1.add(new Label("Y："),0,2);
+        grid1.add(choiceBox12,1,2);
+        grid1.setBorder(defaultBorder);
+        grid1.setPadding(new Insets(10));
+        grid1.setVgap(10);
+        grid1.setHgap(10);
+        GridPane grid2 = new GridPane();
+        grid2.add(labelTab3_2,0,0,2,1);
+        grid2.add(new Label("X："),0,1);
+        grid2.add(choiceBox21,1,1);
+        grid2.add(new Label("Y："),0,2);
+        grid2.add(choiceBox22,1,2);
+        grid2.setBorder(defaultBorder);
+        grid2.setPadding(new Insets(10));
+        grid2.setVgap(10);
+        grid2.setHgap(10);
+        hBox1.setSpacing(10);
+        hBox1.getChildren().addAll(grid1,grid2);
+
+        GridPane grid3 = new GridPane();
+        grid3.add(labelTab3_3,0,0,2,1);
+        grid3.add(new Label("X："),0,1);
+        grid3.add(choiceBox31,1,1);
+        grid3.add(new Label("Y："),0,2);
+        grid3.add(choiceBox32,1,2);
+        grid3.setBorder(defaultBorder);
+        grid3.setPadding(new Insets(10));
+        grid3.setVgap(10);
+        grid3.setHgap(10);
+        GridPane grid4 = new GridPane();
+        grid4.add(labelTab3_4,0,0,2,1);
+        grid4.add(new Label("X："),0,1);
+        grid4.add(choiceBox41,1,1);
+        grid4.add(new Label("Y："),0,2);
+        grid4.add(choiceBox42,1,2);
+        grid4.setBorder(defaultBorder);
+        grid4.setPadding(new Insets(10));
+        grid4.setVgap(10);
+        grid4.setHgap(10);
+        hBox2.setSpacing(10);
+        hBox2.getChildren().addAll(grid3,grid4);
+
+        GridPane grid5 = new GridPane();
+        grid5.add(labelUnitSelect,0,0,6,1);
+        grid5.add(new Label("力："),0,1);
+        grid5.add(choiceBoxUnitN,1,1);
+        grid5.add(new Label("变形："),2,1);
+        grid5.add(choiceBoxUnitTransform,3,1);
+        grid5.add(new Label("应力："),4,1);
+        grid5.add(choiceBoxUnitYL,5,1);
+        grid5.setBorder(defaultBorder);
+        grid5.setPadding(new Insets(10));
+        grid5.setVgap(10);
+        grid5.setHgap(10);
+        top.setSpacing(10);
+        top.getChildren().addAll(hBox1,hBox2,grid5);
+        main.setPadding(new Insets(10));
+        main.setTop(top);
+        HBox hBox = new HBox();
+        hBox.getChildren().addAll(tab3BtnSave);
+        hBox.setAlignment(Pos.CENTER);
+        main.setBottom(hBox);
+        return  main;
     }
 
     /**
@@ -234,7 +467,7 @@ public class UITestProgram {
         programGrid.setBorder(defaultBorder);
         programGrid.add(labelProgramEdit,0,0,2,1);
         programGrid.add(labelProgramName,0,1);
-        StackPane programStck = new StackPane();
+        HBox programStck = new HBox();
         programStck.getChildren().addAll(textProgramName,choiceBoxProgramName);
         programGrid.add(programStck,1,1);
         programGrid.add(labelStanderdSelect,0,2);
@@ -381,9 +614,10 @@ public class UITestProgram {
         return main;
     }
 
-    private void initTab1Comp(){
-        textProgramName.setPrefSize(200,20);
-        choiceBoxProgramName.setPrefSize(200,20);
+    private void initComp(){
+        textProgramName.setPrefSize(170,20);
+        choiceBoxProgramName.setPrefSize(10,20);
+        choiceBoxProgramName.setBackground(new Background(new BackgroundFill(Paint.valueOf("#ccc"),CornerRadii.EMPTY,null)));
         choiceBoxStanderdSelect.setPrefSize(200,20);
         textAreaStanderdName.setPrefSize(200,30);
         choiceBoxShape.setPrefSize(130,20);
@@ -398,9 +632,33 @@ public class UITestProgram {
         textFixDisplacement.setPrefSize(100,20);
         textLoadN.setPrefSize(80,20);
         textLoadSpeed.setPrefSize(80,20);
+
+        //tab3
+        choiceBox11.setPrefSize(150,20);
+        choiceBox12.setPrefSize(150,20);
+        choiceBox21.setPrefSize(150,20);
+        choiceBox22.setPrefSize(150,20);
+        choiceBox31.setPrefSize(150,20);
+        choiceBox32.setPrefSize(150,20);
+        choiceBox41.setPrefSize(150,20);
+        choiceBox42.setPrefSize(150,20);
+
+        //tab4
+        choiceBoxParam.setPrefSize(200,20);
+        choiceBoxUnit.setPrefSize(80,20);
+        textDefaultValue.setPrefSize(80,20);
+        tableViewParam.setPrefHeight(300);
+        tableViewParam.getColumns().clear();
+        tableViewParam.getColumns().addAll(columnParamNo,columnParamName,columnParamValue,columnParamUnit);
+
+        //tab5
+        choiceBoxParamResultName.setPrefSize(200,20);
+        choiceBoxParamResultUnit.setPrefSize(80,20);
+        textParamResultTop.setPrefSize(80,20);
+        textParamResultBottom.setPrefSize(80,20);
+        tableViewResult.setPrefHeight(300);
+        tableViewResult.getColumns().clear();
+        tableViewResult.getColumns().addAll(columnResultNo,columnResultName,columnResultTop,columnResultBottom,columnResultUnit);
     }
 
-    private void initTab2Comp(){
-
-    }
 }
