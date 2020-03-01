@@ -111,4 +111,26 @@ public class StandardService {
         }
         return list;
     }
+
+    /**
+     * 根据code查询
+     * @param code
+     * @return
+     */
+    public Standard findByCode(String code) throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select * from t_standard where code = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1,code);
+        ResultSet set = pstmt.executeQuery();
+        Standard standard = null;
+        while(set.next()){
+            standard = new Standard();
+            standard.setId(set.getLong("ID"));
+            standard.setCode(set.getString("code"));
+            standard.setName(set.getString("name"));
+            standard.setRemark(set.getString("remark"));
+        }
+        return standard;
+    }
 }

@@ -11,7 +11,7 @@ public class ProgramService {
     public int insert(Program p) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
         //先将其它设置为未选中
-        String sql = "insert into t_program(name,standard_id,dirct,shape_name," +
+        String sql = "insert into t_program(name,standard_code,dirct,shape_name," +
                 "transform_sensor,clear_dot,tansform_change,abandon_extend," +
                 "deform_extend,auto_breakage,gt_force,lt_rate,lt_mearure," +
                 "is_time,time_value,is_load,load_value,is_transform,transform_value," +
@@ -19,7 +19,7 @@ public class ProgramService {
                 "is_default,is_clear_disp,is_clear_transform,is_clear_n) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1,p.getName());
-        pstmt.setLong(2,p.getStandard().getId());
+        pstmt.setString(2,p.getStandard());
         pstmt.setInt(3,p.getDirect());
         pstmt.setString(4,p.getShapeName());
         pstmt.setString(5,p.getTransformSensor());
@@ -66,7 +66,7 @@ public class ProgramService {
      */
     public int updateBase(Program p) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
-        String sql ="update t_program set name=?,standard_id=?,dirct=?,shape_name=?," +
+        String sql ="update t_program set name=?,standard_code=?,dirct=?,shape_name=?," +
                 "transform_sensor=?,clear_dot=?,transform_change=?,abandon_extend=?," +
                 "deform_extend=?,auto_breakage=?,gt_force=?,lt_rate=?,lt_mearure=?," +
                 "is_time=?,time_value=?,is_load=?,load_value=?,is_transform=?,transform_value=?," +
@@ -74,7 +74,7 @@ public class ProgramService {
                 "is_default=?,is_clear_disp=?,is_clear_transform=?,is_clear_n=? where ID = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1,p.getName());
-        pstmt.setLong(2,p.getStandard().getId());
+        pstmt.setString(2,p.getStandard());
         pstmt.setInt(3,p.getDirect());
         pstmt.setString(4,p.getShapeName());
         pstmt.setString(5,p.getTransformSensor());
@@ -153,11 +153,11 @@ public class ProgramService {
      */
     public List<Program> createList(ResultSet set) throws SQLException {
         List<Program> list = new ArrayList<>();
-        while(set.next()){
+        while (set.next()) {
             Program p = new Program();
             p.setID(set.getLong("ID"));
             p.setName(set.getString("name"));
-            p.getStandard().setId(set.getLong("standard_id"));
+            p.setStandard(set.getString("standard_code"));
             p.setDirect(set.getInt("dirct"));
             p.setShapeName(set.getString("shape_name"));
             p.setTransformSensor(set.getString("transform_sensor"));

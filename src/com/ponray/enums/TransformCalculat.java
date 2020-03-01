@@ -3,7 +3,7 @@ package com.ponray.enums;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum ShapeCalculat {
+public enum TransformCalculat {
 
     WY(1,"位移"),BX(2,"变形"),KZSB(3,"扩展设备"),BQFB(4,"百/千分表");
 
@@ -11,7 +11,7 @@ public enum ShapeCalculat {
     private int index;
     private String name;
 
-    private ShapeCalculat(int index, String name) {
+    private TransformCalculat(int index, String name) {
         this.index = index;
         this.name = name;
     }
@@ -33,7 +33,7 @@ public enum ShapeCalculat {
     }
 
     public static int getIndex(String name) {
-        for (ShapeCalculat c : ShapeCalculat.values()) {
+        for (TransformCalculat c : TransformCalculat.values()) {
             if (c.getName() == name) {
                 return c.index;
             }
@@ -43,7 +43,7 @@ public enum ShapeCalculat {
 
     public static List<String> listName() {
         List<String> list = new ArrayList<>();
-        for (ShapeCalculat c : ShapeCalculat.values()) {
+        for (TransformCalculat c : TransformCalculat.values()) {
             list.add(c.getName());
         }
         return list;

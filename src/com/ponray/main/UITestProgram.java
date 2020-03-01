@@ -2,7 +2,14 @@ package com.ponray.main;
 
 import com.ponray.constans.Constants;
 import com.ponray.entity.Param;
+import com.ponray.entity.Program;
 import com.ponray.entity.Standard;
+import com.ponray.enums.MaterialShape;
+import com.ponray.enums.TransformCalculat;
+import com.ponray.service.ProgramService;
+import com.ponray.service.StandardService;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,11 +17,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class UITestProgram {
     private static TabPane tabPane = null;
@@ -35,7 +43,7 @@ public class UITestProgram {
     //方案编辑/选择
     private static Label labelProgramEdit = new Label("方案编辑/选择");
     private static Label labelProgramName = new Label("方案名称：");
-    private static ChoiceBox<String> choiceBoxProgramName = new ChoiceBox<>();
+    private static ChoiceBox<Program> choiceBoxProgramName = new ChoiceBox<>();
     private static TextField textProgramName = new TextField();
     private static Label labelStanderdSelect = new Label("标准选择：");
     private static ChoiceBox<Standard> choiceBoxStanderdSelect = new ChoiceBox<>();
@@ -116,11 +124,10 @@ public class UITestProgram {
     private static Label labelPoint2 = new Label("个（最多50个点）");
 
     //按钮
-    private static Button btnAdd = new Button("添加");
-    private static Button btnEdit = new Button("修改");
-    private static Button btnDel = new Button("删除");
+    private static Button btnAdd = new Button("添加方案");
+    private static Button btnEdit = new Button("修改方案");
+    private static Button btnDel = new Button("删除方案");
     private static Button btnSave = new Button("保存");
-    private static Button btnReset = new Button("重置");
 
     //-----------------------------------tab2 start---------------------------------
     private static Label labelControl = new Label("控制方式");
@@ -212,6 +219,22 @@ public class UITestProgram {
     private static Border defaultBorder = new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT, Insets.EMPTY));
     private static Insets insets5 = new Insets(5);
 
+    private static StandardService standardService = new StandardService();
+    private static ProgramService programService = new ProgramService();
+
+    //方案列表
+    private static List<Program> programList = null;
+    //标准列表list
+    private static List<Standard> standardList = null;
+    //实验材料形状list
+    private static List<String> shapeList = null;
+    //变形计算list
+    private static List<String> transformList = null;
+    //选中的实验方案program
+    private static Program selectedProgram = null;
+
+
+
 
     public void display() throws SQLException, ClassNotFoundException {
         Stage window = new Stage();
@@ -245,6 +268,8 @@ public class UITestProgram {
         tab5.setClosable(false);
         tab5.setContent(createTab5());
         initComp();
+        initData();
+        registEvent();
         tabPane.getTabs().addAll(tab1,tab2,tab3,tab4,tab5);
         return tabPane;
     }
@@ -604,7 +629,8 @@ public class UITestProgram {
         right.setSpacing(7);
 
         HBox bottom = new HBox();
-        bottom.getChildren().addAll(btnAdd,btnEdit,btnDel,btnSave,btnReset);
+        bottom.getChildren().addAll(btnAdd,btnEdit,btnDel,btnSave);
+        bottom.setSpacing(20);
         bottom.setAlignment(Pos.CENTER);
         bottom.setSpacing(10);
 
@@ -620,6 +646,7 @@ public class UITestProgram {
         choiceBoxProgramName.setBackground(new Background(new BackgroundFill(Paint.valueOf("#ccc"),CornerRadii.EMPTY,null)));
         choiceBoxStanderdSelect.setPrefSize(200,20);
         textAreaStanderdName.setPrefSize(200,30);
+        textAreaStanderdName.setDisable(true);
         choiceBoxShape.setPrefSize(130,20);
         choiceBoxTransform.setPrefSize(130,20);
         labelTransform.setPrefHeight(20);
@@ -632,6 +659,12 @@ public class UITestProgram {
         textFixDisplacement.setPrefSize(100,20);
         textLoadN.setPrefSize(80,20);
         textLoadSpeed.setPrefSize(80,20);
+
+        disableBreakage();
+        disablePreload();
+        disableTestEnd();
+        disableTransform();
+        textBackSpeed.setDisable(true);
 
         //tab3
         choiceBox11.setPrefSize(150,20);
@@ -659,6 +692,148 @@ public class UITestProgram {
         tableViewResult.setPrefHeight(300);
         tableViewResult.getColumns().clear();
         tableViewResult.getColumns().addAll(columnResultNo,columnResultName,columnResultTop,columnResultBottom,columnResultUnit);
+    }
+
+    private void initData(){
+        try {
+            programList = programService.list();
+            standardList = standardService.list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        choiceBoxProgramName.converterProperty().set(new StringConverter<Program>() {
+            @Override
+            public String toString(Program object) {
+                return object.getName();
+            }
+
+            @Override
+            public Program fromString(String string) {
+                for(Program p:programList){
+                    if(p.getName().equals(string)){
+                        return p;
+                    }
+                }
+                return null;
+            }
+        });
+        choiceBoxProgramName.getItems().clear();
+        choiceBoxProgramName.getItems().addAll(programList);
+        choiceBoxStanderdSelect.converterProperty().set(new StringConverter<Standard>() {
+            @Override
+            public String toString(Standard object) {
+                return object.getCode();
+            }
+
+            @Override
+            public Standard fromString(String string) {
+                for (Standard s:standardList){
+                    if(string.equals(s.getCode())){
+                        return s;
+                    }
+                }
+                return null;
+            }
+        });
+        choiceBoxStanderdSelect.getItems().clear();
+        choiceBoxStanderdSelect.getItems().addAll(standardList);
+        choiceBoxShape.getItems().clear();
+        shapeList = MaterialShape.listName();
+        choiceBoxShape.getItems().addAll(shapeList);
+        transformList = TransformCalculat.listName();
+        choiceBoxTransform.getItems().clear();
+        choiceBoxTransform.getItems().addAll(transformList);
+    }
+
+    private void registEvent(){
+        choiceBoxProgramName.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    selectedProgram = programList.get(newValue.intValue());
+                    textProgramName.setText(selectedProgram.getName());
+                    //标准
+                    Standard s = null;
+                    try {
+                        s = standardService.findByCode(selectedProgram.getStandard());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    choiceBoxStanderdSelect.setValue(s);
+                }
+            }
+        });
+        choiceBoxStanderdSelect.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    textAreaStanderdName.setText(standardList.get(newValue.intValue()).getName());
+                }
+            }
+        });
+    }
+
+    /**
+     *自动断裂输入框不可用
+     */
+    private void disableBreakage(){
+        textBreakage1.setDisable(true);
+        textBreakage2.setDisable(true);
+        textBreakage3.setDisable(true);
+    }
+
+    /**
+     * 自动断裂输入框可用
+     */
+
+    private void ableBreakage(){
+        textBreakage1.setDisable(true);
+        textBreakage2.setDisable(true);
+        textBreakage3.setDisable(true);
+    }
+
+    /**
+     * 变形切换不可用
+     */
+    private void disableTransform(){
+        radioTransformChange1.setDisable(true);
+        radioTransformChange2.setDisable(true);
+        textTransformchange.setDisable(true);
+    }
+
+    /**
+     * 变形切换不可用
+     */
+    private void ableTransform(){
+        radioTransformChange1.setDisable(false);
+        radioTransformChange2.setDisable(false);
+        textTransformchange.setDisable(false);
+    }
+
+    /**
+     * 实验结束参数输入框不可用
+     */
+    private void disableTestEnd(){
+        textFixTime.setDisable(true);
+        textFixN.setDisable(true);
+        textFixDisplacement.setDisable(true);
+        textFixTransform.setDisable(true);
+    }
+
+    /**
+     * 预加载不可用
+     */
+    private void disablePreload(){
+        textLoadN.setDisable(true);
+        textLoadSpeed.setDisable(true);
+    }
+
+    /**
+     * 预加载可用
+     */
+    private void ablePreload(){
+        textLoadN.setDisable(false);
+        textLoadSpeed.setDisable(false);
     }
 
 }

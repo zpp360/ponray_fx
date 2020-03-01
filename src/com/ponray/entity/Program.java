@@ -7,7 +7,7 @@ public class Program {
     //试验方案名
     private String  name;
     //标准
-    private Standard standard;
+    private String standard;
     //试验方向,拉向为0,压向为1
     private Integer direct;
     //试样形状名称
@@ -110,11 +110,11 @@ public class Program {
         this.name = name;
     }
 
-    public Standard getStandard() {
+    public String getStandard() {
         return standard;
     }
 
-    public void setStandard(Standard standard) {
+    public void setStandard(String standard) {
         this.standard = standard;
     }
 
