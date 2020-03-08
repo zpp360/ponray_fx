@@ -1,10 +1,12 @@
 package com.ponray.service;
 
 import com.ponray.entity.Program;
+import com.ponray.entity.ProgramControl;
 import com.ponray.utils.AccessHelper;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ProgramService {
@@ -12,7 +14,7 @@ public class ProgramService {
         Connection conn = AccessHelper.getConnection();
         //先将其它设置为未选中
         String sql = "insert into t_program(name,standard_code,dirct,shape_name," +
-                "transform_sensor,clear_dot,tansform_change,abandon_extend," +
+                "transform_sensor,clear_dot,transform_change,abandon_extend," +
                 "deform_extend,auto_breakage,gt_force,lt_rate,lt_mearure," +
                 "is_time,time_value,is_load,load_value,is_transform,transform_value," +
                 "is_pos,pos_value,is_preload,preload_value,preload_speed,is_return,return_speed," +
@@ -112,6 +114,25 @@ public class ProgramService {
         return res;
     }
 
+    /**
+     * 更新程控方式
+     * @param p
+     * @return
+     */
+    public int updateControl(Program p) throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "update t_program set is_pro_control = ?,general_speed=? where ID=?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setBoolean(1,p.isControl());
+        pstmt.setFloat(2,p.getGeneralSpeed());
+        pstmt.setLong(3,p.getID());
+        int res = pstmt.executeUpdate();
+        if(res>0){
+            System.out.println("更新实验方案位移方式成功");
+        }
+        pstmt.close();
+        return res;
+    }
 
 
 
@@ -143,7 +164,35 @@ public class ProgramService {
         return createList(set);
     }
 
-
+    /**
+     * 更新坐标轴 tab3
+     * @param p
+     * @return
+     */
+    public int updateAxis(Program p) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "update t_program set screen_one_x = ?,screen_one_y=?,screen_two_x=?,screen_two_y=?,screen_three_x=?,screen_three_y=?,screen_four_x=?,screen_four_y=?" +
+                ",unit_n=?,unit_transform=?,unit_load=? where ID=?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1,p.getOneX());
+        pstmt.setString(2,p.getOneY());
+        pstmt.setString(3,p.getTwoX());
+        pstmt.setString(4,p.getTwoY());
+        pstmt.setString(5,p.getThreeX());
+        pstmt.setString(6,p.getThreeY());
+        pstmt.setString(7,p.getFourX());
+        pstmt.setString(8,p.getFourY());
+        pstmt.setString(9,p.getUnitN());
+        pstmt.setString(10,p.getUnitTransform());
+        pstmt.setString(11,p.getUnitLoad());
+        pstmt.setLong(12,p.getID());
+        int res = pstmt.executeUpdate();
+        if(res>0){
+            System.out.println("更新实验方案区县坐标成功");
+        }
+        pstmt.close();
+        return res;
+    }
 
     /**
      * 根据set返回实体list
@@ -174,7 +223,7 @@ public class ProgramService {
             p.setLoad(set.getBoolean("is_load"));
             p.setLoadValue(set.getFloat("load_value"));
             p.setTransform(set.getBoolean("is_transform"));
-            p.setTimeValue(set.getFloat("transform_value"));
+            p.setTransformValue(set.getFloat("transform_value"));
             p.setPos(set.getBoolean("is_pos"));
             p.setPosValue(set.getFloat("pos_value"));
             p.setPreload(set.getBoolean("is_preload"));
@@ -186,9 +235,25 @@ public class ProgramService {
             p.setClearDisp(set.getBoolean("is_clear_disp"));
             p.setClearTransform(set.getBoolean("is_clear_transform"));
             p.setClearN(set.getBoolean("is_clear_n"));
+            p.setControl(set.getBoolean("is_pro_control"));
+            p.setGeneralSpeed(set.getFloat("general_speed"));
+            p.setOneX(set.getString("screen_one_x"));
+            p.setOneY(set.getString("screen_one_y"));
+            p.setTwoX(set.getString("screen_two_x"));
+            p.setTwoY(set.getString("screen_two_y"));
+            p.setThreeX(set.getString("screen_three_x"));
+            p.setThreeY(set.getString("screen_three_y"));
+            p.setFourX(set.getString("screen_four_x"));
+            p.setFourY(set.getString("screen_four_y"));
+            p.setUnitN(set.getString("unit_n"));
+            p.setUnitTransform(set.getString("unit_transform"));
+            p.setUnitLoad(set.getString("unit_load"));
             list.add(p);
         }
         return list;
     }
+
+
+
 }
 

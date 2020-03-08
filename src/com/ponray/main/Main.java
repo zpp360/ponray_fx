@@ -364,7 +364,7 @@ public class Main extends Application {
         //控制窗口是否可以缩放
         stage.setResizable(true);
         //全屏
-        stage.setMaximized(true);
+//        stage.setMaximized(true);
         stage.show();
 
     }

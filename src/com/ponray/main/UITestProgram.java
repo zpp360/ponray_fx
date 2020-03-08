@@ -1,13 +1,11 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constants;
-import com.ponray.entity.Param;
-import com.ponray.entity.Program;
-import com.ponray.entity.Standard;
-import com.ponray.enums.MaterialShape;
-import com.ponray.enums.TransformCalculat;
-import com.ponray.service.ProgramService;
-import com.ponray.service.StandardService;
+import com.ponray.entity.*;
+import com.ponray.enums.*;
+import com.ponray.service.*;
+import com.ponray.utils.AlertUtils;
+import com.ponray.utils.ValidateUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -20,8 +18,10 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
+import org.apache.commons.lang.StringUtils;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UITestProgram {
@@ -125,7 +125,6 @@ public class UITestProgram {
 
     //按钮
     private static Button btnAdd = new Button("添加方案");
-    private static Button btnEdit = new Button("修改方案");
     private static Button btnDel = new Button("删除方案");
     private static Button btnSave = new Button("保存");
 
@@ -139,7 +138,33 @@ public class UITestProgram {
     private static Label labelTestSpend = new Label("试验速度");
     private static TextField textTestSpend = new TextField();
 
+    private static Label labelProgramControl = new Label("程控方式");
+    private static Label labelStartControl = new Label("始控方式：");
+    private static Label labelEndControl = new Label("终控方式：");
+    private static ChoiceBox<String> choiceBoxStartControl = new ChoiceBox<>();
+    private static ChoiceBox<String> choiceBoxEndControl = new ChoiceBox<>();
+    private static TextField textStartControl = new TextField();
+    private static TextField textEndControl =new TextField();
+    private static Label labelStartControlUnit = new Label();
+    private static Label labelEndControlUnit = new Label();
+    private static Label labelStartControlTip = new Label();
+    private static Label labelEndControlTip = new Label();
+    private static Button btnCAdd = new Button("添加");
+    private static Button btnCDel = new Button("删除");
+    private static Button btnCInsert = new Button("插入");
+    private static Button btnCEdit = new Button("修改");
+    private static Button btnCSave = new Button("保存");
+    private static Button btnCReset = new Button("重置");
+    private static TreeView<String> treeView = new TreeView<>();
+    private static TreeItem<String> treeRoot = new TreeItem<>("根节点");
+
     private static Button tab2BtnSave = new Button("保存");
+
+    private static GridPane displacementGrid = new GridPane();
+    private static GridPane programGrid = new GridPane();
+    //程控树列表
+    private static List<ProgramControl> programControlList = new ArrayList<>();
+    private static ProgramControl selectedControl = null;
 
     //-----------------------------------tab2 end-----------------------------------
     //-----------------------------------tab3 start---------------------------------
@@ -162,6 +187,13 @@ public class UITestProgram {
     private static ChoiceBox<String> choiceBoxUnitYL = new ChoiceBox<>();
 
     private static Button tab3BtnSave = new Button("保存");
+    //坐标列表
+    private static List<String> axisList = null;
+    //曲线单位选择 力
+    private static List<String> unitNList = null;
+    private static List<String> unitTransformList = null;
+    private static List<String> unitYLList = null;
+
 
     //-----------------------------------tab3 end-----------------------------------
 
@@ -188,12 +220,15 @@ public class UITestProgram {
 
     private static Button tab4BtnSave = new Button("保存");
 
+    private static List<Param> userParamList = null;
+    private static List<ProgramUserParam> programUserParamList = null;
+
     //-----------------------------------tab4 end-----------------------------------
 
     //-----------------------------------tab5 start---------------------------------
     private static Label labelParamResult = new Label("结果参数");
     private static Label labelParamResultName = new Label("结果参数");
-    private static ChoiceBox<String> choiceBoxParamResultName = new ChoiceBox<>();
+    private static ChoiceBox<Param> choiceBoxParamResultName = new ChoiceBox<>();
     private static CheckBox checkBoxResult = new CheckBox("结果判定");
     private static ChoiceBox<String> choiceBoxParamResultUnit = new ChoiceBox<>();
     private static TextField textParamResultTop = new TextField();
@@ -214,6 +249,9 @@ public class UITestProgram {
 
     private static Button tab5BtnSave = new Button("保存");
 
+    private static List<Param> resultParamList = null;
+    private static List<ProgramResultParam> programResultParamList = null;
+
     //-----------------------------------tab5 end-----------------------------------
     //默认边框
     private static Border defaultBorder = new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT, Insets.EMPTY));
@@ -221,6 +259,9 @@ public class UITestProgram {
 
     private static StandardService standardService = new StandardService();
     private static ProgramService programService = new ProgramService();
+    private static ProgramControlService programControlService = new ProgramControlService();
+    private static UnitService unitService = new UnitService();
+    private static ParamService paramService = new ParamService();
 
     //方案列表
     private static List<Program> programList = null;
@@ -233,8 +274,17 @@ public class UITestProgram {
     //选中的实验方案program
     private static Program selectedProgram = null;
 
+    //选中的标准
+    private static Standard selectedStandard = null;
 
+    private static String operateTab1 = null;
 
+    //始控方式list
+    private static List<String> startControlList = null;
+    //终控方式list
+    private static List<String> endControlList = null;
+
+    private static String operateControl = null;
 
     public void display() throws SQLException, ClassNotFoundException {
         Stage window = new Stage();
@@ -270,6 +320,10 @@ public class UITestProgram {
         initComp();
         initData();
         registEvent();
+        //选择第一个
+        if(programList!=null && programList.size()>0){
+            choiceBoxProgramName.setValue(programList.get(0));
+        }
         tabPane.getTabs().addAll(tab1,tab2,tab3,tab4,tab5);
         return tabPane;
     }
@@ -425,7 +479,7 @@ public class UITestProgram {
         grid5.setHgap(10);
         top.setSpacing(10);
         top.getChildren().addAll(hBox1,hBox2,grid5);
-        main.setPadding(new Insets(10));
+        main.setPadding(new Insets(20));
         main.setTop(top);
         HBox hBox = new HBox();
         hBox.getChildren().addAll(tab3BtnSave);
@@ -454,7 +508,7 @@ public class UITestProgram {
         controlGrid.setVgap(10);
 
         //位移方式
-        GridPane displacementGrid = new GridPane();
+        displacementGrid.getChildren().clear();
         displacementGrid.add(labelDisplacement,0,0,3,1);
         displacementGrid.add(labelTestSpend,0,1);
         displacementGrid.add(textTestSpend,1,1);
@@ -464,7 +518,33 @@ public class UITestProgram {
         displacementGrid.setBorder(defaultBorder);
         displacementGrid.setPadding(new Insets(10));
 
-        vBox.getChildren().addAll(controlGrid,displacementGrid);
+        //程控方式
+        programGrid.getChildren().clear();
+        programGrid.add(labelProgramControl,0,0,5,1);
+        programGrid.add(labelStartControl,0,1);
+        programGrid.add(choiceBoxStartControl,1,1);
+        programGrid.add(labelStartControlTip,2,1);
+        programGrid.add(textStartControl,3,1);
+        programGrid.add(labelStartControlUnit,4,1);
+        programGrid.add(labelEndControl,0,2);
+        programGrid.add(choiceBoxEndControl,1,2);
+        programGrid.add(labelEndControlTip,2,2);
+        programGrid.add(textEndControl,3,2);
+        programGrid.add(labelEndControlUnit,4,2);
+        HBox hBoxBtn = new HBox();
+        hBoxBtn.getChildren().addAll(btnCAdd,btnCDel,btnCInsert,btnCEdit,btnCSave,btnCReset);
+        hBoxBtn.setSpacing(5);
+        programGrid.add(hBoxBtn,0,3,5,1);
+        programGrid.add(treeView,0,4,5,1);
+        programGrid.setVgap(10);
+        programGrid.setHgap(5);
+        programGrid.setBorder(defaultBorder);
+        programGrid.setPadding(new Insets(10));
+
+        StackPane stackPane = new StackPane();
+        stackPane.getChildren().addAll(displacementGrid,programGrid);
+
+        vBox.getChildren().addAll(controlGrid,stackPane);
         vBox.setSpacing(10);
         //按钮
         HBox hBox = new HBox();
@@ -629,7 +709,7 @@ public class UITestProgram {
         right.setSpacing(7);
 
         HBox bottom = new HBox();
-        bottom.getChildren().addAll(btnAdd,btnEdit,btnDel,btnSave);
+        bottom.getChildren().addAll(btnAdd,btnDel,btnSave);
         bottom.setSpacing(20);
         bottom.setAlignment(Pos.CENTER);
         bottom.setSpacing(10);
@@ -665,7 +745,38 @@ public class UITestProgram {
         disableTestEnd();
         disableTransform();
         textBackSpeed.setDisable(true);
+        textTransformchange.setDisable(true);
+        textProgramName.setDisable(true);
 
+        //tab2
+        choiceBoxStartControl.setPrefSize(120,20);
+        choiceBoxEndControl.setPrefSize(120,20);
+        textStartControl.setPrefSize(100,20);
+        textEndControl.setPrefSize(100,20);
+        labelStartControlTip.setPrefSize(130,20);
+        labelEndControlTip.setPrefSize(130,20);
+        labelStartControlTip.setAlignment(Pos.CENTER_RIGHT);
+        labelEndControlTip.setAlignment(Pos.CENTER_RIGHT);
+        treeView.setPrefSize(600,200);
+        treeView.setRoot(treeRoot);
+        treeRoot.setExpanded(true);
+//        treeView.setCellFactory(new Callback<TreeView<ProgramControl>, TreeCell<ProgramControl>>() {
+//            @Override
+//            public TreeCell<ProgramControl> call(TreeView<ProgramControl> param) {
+//                return new TreeCell<ProgramControl>(){
+//                    @Override
+//                    protected void updateItem(final ProgramControl p,boolean empty) {
+//                        super.updateItem(p, empty);
+//                        if (!empty && p != null) {
+//                            setText(p.toString());
+//                        } else {
+//                            setText(null);
+//                            setGraphic(null);
+//                        }
+//                    }
+//                };
+//            }
+//        });
         //tab3
         choiceBox11.setPrefSize(150,20);
         choiceBox12.setPrefSize(150,20);
@@ -675,9 +786,28 @@ public class UITestProgram {
         choiceBox32.setPrefSize(150,20);
         choiceBox41.setPrefSize(150,20);
         choiceBox42.setPrefSize(150,20);
+        choiceBoxUnitN.setPrefSize(90,20);
+        choiceBoxUnitTransform.setPrefSize(90,20);
+        choiceBoxUnitYL.setPrefSize(90,20);
 
         //tab4
         choiceBoxParam.setPrefSize(200,20);
+        choiceBoxParam.setConverter(new StringConverter<Param>() {
+            @Override
+            public String toString(Param object) {
+                return object.getName();
+            }
+
+            @Override
+            public Param fromString(String string) {
+                for(Param p : userParamList){
+                    if(string.equals(p.getName())){
+                        return p;
+                    }
+                }
+                return null;
+            }
+        });
         choiceBoxUnit.setPrefSize(80,20);
         textDefaultValue.setPrefSize(80,20);
         tableViewParam.setPrefHeight(300);
@@ -686,6 +816,22 @@ public class UITestProgram {
 
         //tab5
         choiceBoxParamResultName.setPrefSize(200,20);
+        choiceBoxParamResultName.setConverter(new StringConverter<Param>() {
+            @Override
+            public String toString(Param object) {
+                return object.getName();
+            }
+
+            @Override
+            public Param fromString(String string) {
+                for (Param p : resultParamList){
+                    if(string.equals(p.getName())){
+                        return p;
+                    }
+                }
+                return null;
+            }
+        });
         choiceBoxParamResultUnit.setPrefSize(80,20);
         textParamResultTop.setPrefSize(80,20);
         textParamResultBottom.setPrefSize(80,20);
@@ -698,6 +844,10 @@ public class UITestProgram {
         try {
             programList = programService.list();
             standardList = standardService.list();
+            axisList = Axis.listName();
+            unitNList = unitService.listByBaseCode(Constants.BASE_UNIT_N);
+            unitTransformList = unitService.listByBaseCode(Constants.BASE_UNIT_TRANSFORM);
+            unitYLList = unitService.listByBaseCode(Constants.BASE_UNIT_YL);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -735,6 +885,7 @@ public class UITestProgram {
                 return null;
             }
         });
+
         choiceBoxStanderdSelect.getItems().clear();
         choiceBoxStanderdSelect.getItems().addAll(standardList);
         choiceBoxShape.getItems().clear();
@@ -743,34 +894,764 @@ public class UITestProgram {
         transformList = TransformCalculat.listName();
         choiceBoxTransform.getItems().clear();
         choiceBoxTransform.getItems().addAll(transformList);
+        //始控方式
+        startControlList = ControlStart.listName();
+        choiceBoxStartControl.getItems().clear();
+        choiceBoxStartControl.getItems().addAll(startControlList);
+        //终控方式
+        endControlList = ControlEnd.listName();
+        choiceBoxEndControl.getItems().clear();
+        choiceBoxEndControl.getItems().addAll(endControlList);
+        //主画面
+        choiceBox11.getItems().clear();
+        choiceBox11.getItems().addAll(axisList);
+        choiceBox12.getItems().clear();
+        choiceBox12.getItems().addAll(axisList);
+        //第二画面
+        choiceBox21.getItems().clear();
+        choiceBox21.getItems().addAll(axisList);
+        choiceBox22.getItems().clear();
+        choiceBox22.getItems().addAll(axisList);
+        //第三画面
+        choiceBox31.getItems().clear();
+        choiceBox31.getItems().addAll(axisList);
+        choiceBox32.getItems().clear();
+        choiceBox32.getItems().addAll(axisList);
+        //第四画面
+        choiceBox41.getItems().clear();
+        choiceBox41.getItems().addAll(axisList);
+        choiceBox42.getItems().clear();
+        choiceBox42.getItems().addAll(axisList);
+        //曲线单位选择
+        choiceBoxUnitN.getItems().clear();
+        choiceBoxUnitN.getItems().addAll(unitNList);
+        choiceBoxUnitTransform.getItems().clear();
+        choiceBoxUnitTransform.getItems().addAll(unitTransformList);
+        choiceBoxUnitYL.getItems().clear();
+        choiceBoxUnitYL.getItems().addAll(unitYLList);
     }
 
     private void registEvent(){
         choiceBoxProgramName.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                if(newValue.intValue()>-1){
+                if (newValue.intValue() > -1) {
                     selectedProgram = programList.get(newValue.intValue());
                     textProgramName.setText(selectedProgram.getName());
                     //标准
-                    Standard s = null;
                     try {
-                        s = standardService.findByCode(selectedProgram.getStandard());
+                        selectedStandard = standardService.findByCode(selectedProgram.getStandard());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    choiceBoxStanderdSelect.setValue(s);
+                    choiceBoxStanderdSelect.setValue(selectedStandard);
+                    operateTab1 = null;
+                    initTab1Data();
                 }
             }
         });
         choiceBoxStanderdSelect.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                if(newValue.intValue()>-1){
-                    textAreaStanderdName.setText(standardList.get(newValue.intValue()).getName());
+                if (newValue.intValue() > -1) {
+                    selectedStandard = standardList.get(newValue.intValue());
+                    textAreaStanderdName.setText(selectedStandard.getName());
                 }
             }
         });
+        //自动判断断裂
+        checkBoxBreakage.setOnAction(event -> {
+            System.out.println(checkBoxBreakage.isSelected());
+           if(checkBoxBreakage.isSelected()){
+               ableBreakage();
+           }else{
+               disableBreakage();
+           }
+        });
+        //变形切换
+        checkBoxTransformChange.setOnAction(event -> {
+            if(checkBoxTransformChange.isSelected()){
+                ableTransform();
+            }else{
+                disableTransform();
+            }
+        });
+        radioTransformChange1.setOnAction(event -> {
+            textTransformchange.setDisable(true);
+        });
+        //变形  mm后去掉引伸计
+        radioTransformChange2.setOnAction(event -> {
+            if(radioTransformChange2.isSelected()){
+                textTransformchange.setDisable(false);
+            }
+        });
+        //定时间
+        checkBoxFixTime.setOnAction(event -> {
+            textFixTime.setDisable(!checkBoxFixTime.isSelected());
+        });
+        //定力值
+        checkBoxFixN.setOnAction(event -> {
+            textFixN.setDisable(!checkBoxFixN.isSelected());
+        });
+        //定变形
+        checkBoxFixTransform.setOnAction(event -> {
+            textFixTransform.setDisable(!checkBoxFixTransform.isSelected());
+        });
+        //定位移
+        checkBoxFixDisplacement.setOnAction(event -> {
+            textFixDisplacement.setDisable(!checkBoxFixDisplacement.isSelected());
+        });
+        //预加载
+        checkBoxLoad.setOnAction(event -> {
+            if(checkBoxLoad.isSelected()){
+                ablePreload();
+            }else{
+                disablePreload();
+            }
+        });
+        //实验结束自动返回
+        checkBoxTestEnd.setOnAction(event -> {
+            textBackSpeed.setDisable(!checkBoxTestEnd.isSelected());
+        });
+        //添加方案
+        btnAdd.setOnAction(event -> {
+            operateTab1 = Constants.ADD;
+            textProgramName.setDisable(false);
+        });
+        //保存
+        btnSave.setOnAction(event -> {
+            if(Constants.ADD.equals(operateTab1)){
+                Program p = getProgram();
+                if(!validata(p)){
+                    return;
+                }
+                try {
+                    int result = programService.insert(p);
+                    if(result>0){
+                        programList = programService.list();
+                        choiceBoxProgramName.getItems().clear();
+                        choiceBoxProgramName.getItems().addAll(programList);
+                        if(programList!=null && programList.size()>0){
+                            choiceBoxProgramName.setValue(programList.get(programList.size()-1));
+                        }
+                        AlertUtils.alertInfo("添加实验方案成功");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }else{
+                //更新
+                Program p = getProgram();
+                p.setID(selectedProgram.getID());
+                if(!validata(p)){
+                    return;
+                }
+                try {
+                    int result = programService.updateBase(p);
+                    if(result>0){
+                        programList = programService.list();
+                        choiceBoxProgramName.getItems().clear();
+                        choiceBoxProgramName.getItems().addAll(programList);
+                        if(programList!=null && programList.size()>0){
+                            choiceBoxProgramName.setValue(selectedProgram);
+                        }
+                        AlertUtils.alertInfo("更新实验方案成功");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        //删除
+        btnDel.setOnAction(event -> {
+            if(selectedProgram==null){
+                AlertUtils.alertError("请选择实验方案");
+                return;
+            }
+            try {
+               int result = programService.del(selectedProgram.getID());
+               if(result>0){
+                   programList.remove(selectedProgram);
+                   choiceBoxProgramName.getItems().remove(selectedProgram);
+                   if(programList!=null && programList.size()>0){
+                       choiceBoxProgramName.setValue(programList.get(0));
+                   }
+               }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        //位移方式
+        radioDisplacement.setOnAction(event -> {
+            if(radioDisplacement.isSelected()){
+                displacementGrid.setVisible(true);
+                programGrid.setVisible(false);
+            }
+        });
+        //程控方式
+        radioControl.setOnAction(event -> {
+            if(radioControl.isSelected()){
+                displacementGrid.setVisible(false);
+                programGrid.setVisible(true);
+                resetControl();
+            }
+        });
+
+        tab2.setOnSelectionChanged(event -> {
+            //选中tab2
+            if(tab2.isSelected()){
+                if(selectedProgram!=null){
+                   if(selectedProgram.isControl()){
+                        //程序控制
+                       radioControl.setSelected(true);
+                       displacementGrid.setVisible(false);
+                       programGrid.setVisible(true);
+                       //初始化程控treeview数据
+                       try {
+                           programControlList = programControlService.listByProgramId(selectedProgram.getID());
+                       } catch (Exception e) {
+                           e.printStackTrace();
+                       }
+                       resetControl();
+                       refreshControlTree();
+                   }else{
+                       radioDisplacement.setSelected(true);
+                       if(selectedProgram.getGeneralSpeed()!=null){
+                           textTestSpend.setText(selectedProgram.getGeneralSpeed()+Constants.BLANK);
+                       }
+                       displacementGrid.setVisible(true);
+                       programGrid.setVisible(false);
+                   }
+                }else{
+                    radioDisplacement.setSelected(true);
+                    displacementGrid.setVisible(true);
+                    programGrid.setVisible(false);
+                }
+            }
+        });
+
+        //始控方式
+        choiceBoxStartControl.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    String start = startControlList.get(newValue.intValue());
+                    labelStartControlTip.setText(start);
+                    labelStartControlUnit.setText(ControlStart.getUnit(start));
+                }
+            }
+        });
+        //中控方式
+        choiceBoxEndControl.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    String end = endControlList.get(newValue.intValue());
+                    labelEndControlTip.setText(end);
+                    labelEndControlUnit.setText(ControlStart.getUnit(end));
+                }
+            }
+        });
+        //程控添加
+        btnCAdd.setOnAction(event -> {
+            ableControl();
+            clearControl();
+            btnAddControl();
+            operateControl = Constants.ADD;
+        });
+        //插入
+        btnCInsert.setOnAction(event -> {
+            ableControl();
+            clearControl();
+            btnAddControl();
+            operateControl = Constants.INSERT;
+        });
+        btnCDel.setOnAction(event -> {
+            if(selectedControl==null){
+                AlertUtils.alertError("请选择程控过程");
+                return;
+            }
+            programControlList.remove(selectedControl);
+            refreshControlTree();
+            resetControl();
+            AlertUtils.alertInfo("删除成功");
+        });
+        btnCEdit.setOnAction(event -> {
+            ableControl();
+            btnAddControl();
+            operateControl = Constants.EDIT;
+        });
+        //程控保存
+        btnCSave.setOnAction(event -> {
+            if(Constants.ADD.equals(operateControl)){
+                //添加
+                ProgramControl p = getProgramControl();
+                if(!validataProgramControl(p)){
+                    return;
+                }
+                programControlList.add(p);
+            }
+            if(Constants.INSERT.equals(operateControl)){
+                //插入
+                ProgramControl p = getProgramControl();
+                if(!validataProgramControl(p)){
+                    return;
+                }
+                int index = programControlList.indexOf(selectedControl);
+                programControlList.add(index,p);
+            }
+            if(Constants.EDIT.equals(operateControl)){
+                //修改
+                ProgramControl p = getProgramControl();
+                if(!validataProgramControl(p)){
+                    return;
+                }
+                int index = programControlList.indexOf(selectedControl);
+                programControlList.remove(selectedControl);
+                programControlList.add(index,p);
+            }
+            refreshControlTree();
+            resetControl();
+        });
+
+        //程控重置
+        btnCReset.setOnAction(event -> {
+            resetControl();
+        });
+
+        //treeview选择
+        treeView.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>0 && programControlList.size()>0){
+                    selectedControl = programControlList.get(newValue.intValue()-1);
+                    initControlData();
+                    btnCAdd.setDisable(true);
+                    btnCEdit.setDisable(false);
+                    btnCDel.setDisable(false);
+                    btnCInsert.setDisable(false);
+                    btnCSave.setDisable(true);
+                    btnCReset.setDisable(false);
+                }
+            }
+        });
+
+        //tab2中的save
+        tab2BtnSave.setOnAction(event -> {
+            if(radioDisplacement.isSelected()){
+                //位移方式
+                selectedProgram.setControl(false);
+                String speed = textTestSpend.getText();
+                if(StringUtils.isBlank(speed)){
+                    AlertUtils.alertError("请输入实验速度");
+                    return;
+                }
+                if(!ValidateUtils.zIndex(speed) && !ValidateUtils.posttiveFloat(speed)){
+                    AlertUtils.alertError("实验速度值为数字");
+                    return ;
+                }
+                selectedProgram.setGeneralSpeed(Float.valueOf(speed.trim()));
+                try {
+                    int result = programService.updateControl(selectedProgram);
+                    if(result>0){
+                        AlertUtils.alertInfo("保存位移方式成功");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if(radioControl.isSelected()){
+                //程控方式
+                selectedProgram.setControl(true);
+                selectedProgram.setGeneralSpeed(0F);
+                try {
+                    programService.updateControl(selectedProgram);
+                    programControlService.delByProgramId(selectedProgram.getID());
+                    programControlService.insertControl(programControlList,selectedProgram.getID());
+                    resetControl();
+                    AlertUtils.alertInfo("保存程控方式成功");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+        //选中tab3
+        tab3.setOnSelectionChanged(event -> {
+            if(tab3.isSelected()){
+                choiceBox11.setValue(selectedProgram.getOneX());
+                choiceBox12.setValue(selectedProgram.getOneY());
+                choiceBox21.setValue(selectedProgram.getTwoX());
+                choiceBox22.setValue(selectedProgram.getTwoY());
+                choiceBox31.setValue(selectedProgram.getThreeX());
+                choiceBox32.setValue(selectedProgram.getThreeY());
+                choiceBox41.setValue(selectedProgram.getFourX());
+                choiceBox42.setValue(selectedProgram.getFourY());
+                choiceBoxUnitN.setValue(selectedProgram.getUnitN());
+                choiceBoxUnitTransform.setValue(selectedProgram.getUnitTransform());
+                choiceBoxUnitYL.setValue(selectedProgram.getUnitLoad());
+            }
+        });
+        //tab3保存
+        tab3BtnSave.setOnAction(event -> {
+            String oneX = choiceBox11.getValue();
+            String oneY = choiceBox12.getValue();
+            String twoX = choiceBox21.getValue();
+            String twoY = choiceBox22.getValue();
+            String threeX = choiceBox31.getValue();
+            String threeY = choiceBox32.getValue();
+            String fourX = choiceBox41.getValue();
+            String fourY = choiceBox42.getValue();
+            String unitN = choiceBoxUnitN.getValue();
+            String unitTransform = choiceBoxUnitTransform.getValue();
+            String unitYL = choiceBoxUnitYL.getValue();
+            if(StringUtils.isBlank(oneX) || StringUtils.isBlank(oneY) || StringUtils.isBlank(twoX) || StringUtils.isBlank(twoY) || StringUtils.isBlank(threeX) || StringUtils.isBlank(threeY)
+                    || StringUtils.isBlank(fourX) || StringUtils.isBlank(fourY) || StringUtils.isBlank(unitN) || StringUtils.isBlank(unitTransform) || StringUtils.isBlank(unitYL)){
+                AlertUtils.alertError("请选择未选择项");
+                return;
+            }
+            selectedProgram.setOneX(oneX);
+            selectedProgram.setOneY(oneY);
+            selectedProgram.setTwoX(twoX);
+            selectedProgram.setTwoY(twoY);
+            selectedProgram.setThreeX(threeX);
+            selectedProgram.setThreeY(threeY);
+            selectedProgram.setFourX(fourX);
+            selectedProgram.setFourY(fourY);
+            selectedProgram.setUnitN(unitN);
+            selectedProgram.setUnitTransform(unitTransform);
+            selectedProgram.setUnitLoad(unitYL);
+            try {
+                int res = programService.updateAxis(selectedProgram);
+                if(res>0){
+                    //更新selectProgram
+                    //selectedProgram = programService.findById(selectedProgram.getID());
+                    AlertUtils.alertInfo("保存成功");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+
+        tab4.setOnSelectionChanged(event -> {
+            //tab4选中
+            if(tab4.isSelected()){
+                //用户参数
+                try {
+                    userParamList = paramService.listUserParamByStandId(selectedStandard.getId());
+                    choiceBoxParam.getItems().clear();
+                    choiceBoxParam.getItems().addAll(userParamList);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+        tab5.setOnSelectionChanged(event -> {
+            //tab5选中
+            if(tab5.isSelected()){
+                //用户参数
+                try {
+                    resultParamList = paramService.listResultParamByStandId(selectedStandard.getId());
+                    choiceBoxParamResultName.getItems().clear();
+                    choiceBoxParamResultName.getItems().addAll(resultParamList);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
+
+    private void initControlData() {
+        choiceBoxStartControl.setValue(selectedControl.getStart());
+        textStartControl.setText(selectedControl.getStartValue());
+
+        choiceBoxEndControl.setValue(selectedControl.getEnd());
+        textEndControl.setText(selectedControl.getEndValue());
+    }
+
+    /**
+     * 校验程控添加
+     * @param p
+     * @return
+     */
+    private boolean validataProgramControl(ProgramControl p) {
+        if(StringUtils.isBlank(p.getStart())){
+            AlertUtils.alertError("请选择始控方式");
+            return false;
+        }
+        if(StringUtils.isBlank(p.getStartValue())){
+            AlertUtils.alertError("请输入始控方式值");
+            return false;
+        }
+        if(!ValidateUtils.zIndex(p.getStartValue()) && !ValidateUtils.posttiveFloat(p.getStartValue())){
+            AlertUtils.alertError("始控方式值为数字");
+            return false;
+        }
+        if(StringUtils.isNotBlank(p.getEnd()) && StringUtils.isBlank(p.getEndValue())){
+            AlertUtils.alertError("请输入终控方式值");
+            return false;
+        }
+        if(StringUtils.isNotBlank(p.getEndValue()) && !ValidateUtils.zIndex(p.getEndValue()) && !ValidateUtils.posttiveFloat(p.getEndValue())){
+            AlertUtils.alertError("终控方式值为数字");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取程控组件值
+     * @return
+     */
+    private ProgramControl getProgramControl() {
+        ProgramControl p = new ProgramControl();
+        p.setNum(programControlList.size()+1);
+        p.setProgram(selectedProgram);
+        p.setStart(choiceBoxStartControl.getValue());
+        if(StringUtils.isNotBlank(textStartControl.getText())){
+            p.setStartValue(textStartControl.getText().trim());
+        }
+        p.setStartUnit(labelStartControlUnit.getText());
+        p.setEnd(choiceBoxEndControl.getValue());
+        if(StringUtils.isNotBlank(textEndControl.getText())){
+            p.setEndValue(textEndControl.getText().trim());
+        }
+        p.setEndUnit(labelEndControlUnit.getText());
+        System.out.println(p);
+        return p;
+    }
+
+    /**
+     * 初始化tab1数据
+     */
+    private void initTab1Data() {
+        if(selectedProgram!=null){
+            if(Constants.INT_ZERO == selectedProgram.getDirect()){
+                radioLa.setSelected(true);
+            }
+            if(Constants.INT_ONE == selectedProgram.getDirect()){
+                radioYa.setSelected(true);
+            }
+            choiceBoxShape.setValue(selectedProgram.getShapeName());
+            choiceBoxTransform.setValue(selectedProgram.getTransformSensor());
+            checkBoxBreakage.setSelected(selectedProgram.isAutoBreakage());
+            if(selectedProgram.isAutoBreakage()){
+                ableBreakage();
+            }else{
+                disableBreakage();
+            }
+            if(selectedProgram.getGtForce()!=null && selectedProgram.getGtForce()!=0F){
+                textBreakage1.setText(selectedProgram.getGtForce()+Constants.BLANK);
+            }else{
+                textBreakage1.setText(null);
+            }
+            if(selectedProgram.getLtRate()!=null && selectedProgram.getLtRate()!=0F){
+                textBreakage2.setText(selectedProgram.getLtRate()+Constants.BLANK);
+            }else{
+                textBreakage2.setText(null);
+            }
+            if(selectedProgram.getLtMearure()!=null && selectedProgram.getLtMearure()!=0F){
+                textBreakage3.setText(selectedProgram.getLtMearure()+Constants.BLANK);
+            }else{
+                textBreakage3.setText(null);
+            }
+            checkBoxTransformChange.setSelected(selectedProgram.isTransformChange());
+            if(selectedProgram.isTransformChange()){
+                ableTransform();
+            }else{
+                disableTransform();
+            }
+            radioTransformChange1.setSelected(selectedProgram.isAbandonExtend());
+            if(selectedProgram.getDeformExtend()!=null && selectedProgram.getDeformExtend()!=0F){
+                radioTransformChange2.setSelected(true);
+                textTransformchange.setDisable(false);
+                textTransformchange.setText(selectedProgram.getDeformExtend()+Constants.BLANK);
+            }else{
+                textTransformchange.setDisable(true);
+                textTransformchange.setText(null);
+            }
+            if(selectedProgram.isTime()){
+                textFixTime.setDisable(false);
+                checkBoxFixTime.setSelected(true);
+            }
+            if(selectedProgram.getTimeValue()!=null && selectedProgram.getTimeValue()!=0F){
+                textFixTime.setText(selectedProgram.getTimeValue()+Constants.BLANK);
+            }else {
+                textFixTime.setText(null);
+            }
+            if(selectedProgram.isLoad()){
+                textFixN.setDisable(false);
+                checkBoxFixN.setSelected(true);
+            }
+            if(selectedProgram.getLoadValue()!=null && selectedProgram.getLoadValue()!=0F){
+                textFixN.setText(selectedProgram.getLoadValue()+Constants.BLANK);
+            }else{
+                textFixN.setText(null);
+            }
+            if(selectedProgram.isTransform()){
+                textFixTransform.setDisable(false);
+                checkBoxFixTransform.setSelected(true);
+            }
+            if(selectedProgram.getTransformValue()!=null && selectedProgram.getTransformValue()!=0F){
+                textFixTransform.setText(selectedProgram.getTransformValue()+Constants.BLANK);
+            }else {
+                textFixTransform.setText(null);
+            }
+            if(selectedProgram.isPos()){
+                textFixDisplacement.setDisable(false);
+                checkBoxFixDisplacement.setSelected(true);
+            }
+            if(selectedProgram.getPosValue()!=null && selectedProgram.getPosValue()!=0F){
+                textFixDisplacement.setText(selectedProgram.getPosValue()+Constants.BLANK);
+            }else{
+                textFixDisplacement.setText(null);
+            }
+            checkBoxLoad.setSelected(selectedProgram.isPreload());
+            if(selectedProgram.isPreload()){
+                ablePreload();
+            }else{
+                disablePreload();
+            }
+            if(selectedProgram.getPreloadValue()!=null && selectedProgram.getPreloadValue()!=0F){
+                textLoadN.setText(selectedProgram.getPreloadValue()+Constants.BLANK);
+            }else{
+                textLoadN.setText(null);
+            }
+            if(selectedProgram.getPreloadSpeed()!=null && selectedProgram.getPreloadSpeed()!=0F){
+                textLoadSpeed.setText(selectedProgram.getPreloadSpeed()+Constants.BLANK);
+            }else{
+                textLoadSpeed.setText(null);
+            }
+            checkBoxDisplacement.setSelected(selectedProgram.isClearDisp());
+            checkBoxTransform.setSelected(selectedProgram.isClearTransform());
+            checkBoxN.setSelected(selectedProgram.isClearN());
+            checkBoxTestEnd.setSelected(selectedProgram.isReturn());
+            if(selectedProgram.isReturn()){
+                textBackSpeed.setDisable(false);
+            }else{
+                textBackSpeed.setDisable(true);
+            }
+            if(selectedProgram.getReturnSpeed()!=null && selectedProgram.getReturnSpeed()!=0F){
+                textBackSpeed.setText(selectedProgram.getReturnSpeed()+Constants.BLANK);
+            }else {
+                textBackSpeed.setText(null);
+            }
+            if(selectedProgram.getClearDot()!=null && selectedProgram.getClearDot()!=0F){
+                textPoint.setText(selectedProgram.getClearDot()+Constants.BLANK);
+            }else{
+                textPoint.setText(null);
+            }
+        }
+    }
+
+    private boolean validata(Program p) {
+        if(StringUtils.isBlank(p.getName())){
+            AlertUtils.alertError("方案名称不能为空");
+            return false;
+        }
+        if(StringUtils.isBlank(p.getStandard())){
+            AlertUtils.alertError("请选择标准");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 获取组件值
+     * @return
+     */
+    private Program getProgram() {
+        Program p = new Program();
+        p.setName(textProgramName.getText().trim());
+        p.setStandard(choiceBoxStanderdSelect.getValue().getCode());
+        if (radioLa.isSelected()) {
+            p.setDirect(Constants.INT_ZERO);
+        }
+        if (radioYa.isSelected()) {
+            p.setDirect(Constants.INT_ONE);
+        }
+        p.setShapeName(choiceBoxShape.getValue());
+        p.setTransformSensor(choiceBoxTransform.getValue());
+        p.setAutoBreakage(checkBoxBreakage.isSelected());
+        if (StringUtils.isBlank(textBreakage1.getText())) {
+            p.setGtForce(0F);
+        } else {
+            p.setGtForce(Float.valueOf(textBreakage1.getText().trim()));
+        }
+        if (StringUtils.isBlank(textBreakage2.getText())) {
+            p.setLtRate(0F);
+        } else {
+            p.setLtRate(Float.valueOf(textBreakage2.getText().trim()));
+        }
+        if (StringUtils.isBlank(textBreakage3.getText())) {
+            p.setLtMearure(0F);
+        } else {
+            p.setLtMearure(Float.valueOf(textBreakage3.getText().trim()));
+        }
+        p.setTransformChange(checkBoxTransformChange.isSelected());
+        p.setAbandonExtend(radioTransformChange1.isSelected());
+        if (StringUtils.isBlank(textTransformchange.getText())) {
+            p.setDeformExtend(0F);
+        } else {
+            p.setDeformExtend(Float.valueOf(textTransformchange.getText().trim()));
+        }
+        p.setTime(checkBoxFixTime.isSelected());
+        if (StringUtils.isBlank(textFixTime.getText())) {
+            p.setTimeValue(0F);
+        } else {
+            p.setTimeValue(Float.valueOf(textFixTime.getText().trim()));
+        }
+        p.setLoad(checkBoxFixN.isSelected());
+        if (StringUtils.isBlank(textFixN.getText())) {
+            p.setLoadValue(0F);
+        } else {
+            p.setLoadValue(Float.valueOf(textFixN.getText().trim()));
+        }
+        p.setTransform(checkBoxFixTransform.isSelected());
+        if (StringUtils.isBlank(textFixTransform.getText())) {
+            p.setTransformValue(0F);
+        } else {
+            p.setTransformValue(Float.valueOf(textFixTransform.getText().trim()));
+        }
+        p.setPos(checkBoxFixDisplacement.isSelected());
+        if (StringUtils.isBlank(textFixDisplacement.getText())) {
+            p.setPosValue(0F);
+        } else {
+            p.setPosValue(Float.valueOf(textFixDisplacement.getText().trim()));
+        }
+        p.setPreload(checkBoxLoad.isSelected());
+        if (StringUtils.isBlank(textLoadN.getText())) {
+            p.setPreloadValue(0F);
+        } else {
+            p.setPreloadValue(Float.valueOf(textLoadN.getText().trim()));
+        }
+        if (StringUtils.isBlank(textLoadSpeed.getText())) {
+            p.setPreloadSpeed(0F);
+        } else {
+            p.setPreloadSpeed(Float.valueOf(textLoadSpeed.getText().trim()));
+        }
+        p.setClearDisp(checkBoxDisplacement.isSelected());
+        p.setClearTransform(checkBoxTransform.isSelected());
+        p.setClearN(checkBoxN.isSelected());
+        p.setReturn(checkBoxTestEnd.isSelected());
+        if (StringUtils.isBlank(textBackSpeed.getText())) {
+            p.setReturnSpeed(0F);
+        } else {
+            p.setReturnSpeed(Float.valueOf(textBackSpeed.getText().trim()));
+        }
+        if (StringUtils.isBlank(textPoint.getText())) {
+            p.setClearDot(0);
+        } else {
+            p.setClearDot(Integer.valueOf(textPoint.getText().trim()));
+        }
+        p.setDefault(false);
+        return p;
     }
 
     /**
@@ -787,9 +1668,9 @@ public class UITestProgram {
      */
 
     private void ableBreakage(){
-        textBreakage1.setDisable(true);
-        textBreakage2.setDisable(true);
-        textBreakage3.setDisable(true);
+        textBreakage1.setDisable(false);
+        textBreakage2.setDisable(false);
+        textBreakage3.setDisable(false);
     }
 
     /**
@@ -798,7 +1679,6 @@ public class UITestProgram {
     private void disableTransform(){
         radioTransformChange1.setDisable(true);
         radioTransformChange2.setDisable(true);
-        textTransformchange.setDisable(true);
     }
 
     /**
@@ -807,7 +1687,6 @@ public class UITestProgram {
     private void ableTransform(){
         radioTransformChange1.setDisable(false);
         radioTransformChange2.setDisable(false);
-        textTransformchange.setDisable(false);
     }
 
     /**
@@ -836,4 +1715,72 @@ public class UITestProgram {
         textLoadSpeed.setDisable(false);
     }
 
+    /**
+     * 程控方式组件不可用
+     */
+    private void disableControl(){
+        choiceBoxStartControl.setDisable(true);
+        choiceBoxEndControl.setDisable(true);
+        textStartControl.setDisable(true);
+        textEndControl.setDisable(true);
+    }
+
+    private void ableControl(){
+        choiceBoxStartControl.setDisable(false);
+        choiceBoxEndControl.setDisable(false);
+        textStartControl.setDisable(false);
+        textEndControl.setDisable(false);
+    }
+
+    private void clearControl(){
+        choiceBoxStartControl.setValue(null);
+        choiceBoxEndControl.setValue(null);
+        textStartControl.setText(null);
+        textEndControl.setText(null);
+        labelStartControlUnit.setText(null);
+        labelStartControlTip.setText(null);
+        labelEndControlUnit.setText(null);
+        labelEndControlTip.setText(null);
+    }
+
+    /**
+     * 程控按钮保存状态
+     */
+    private void btnAddControl(){
+        btnCAdd.setDisable(true);
+        btnCInsert.setDisable(true);
+        btnCEdit.setDisable(true);
+        btnCDel.setDisable(true);
+        btnCSave.setDisable(false);
+        btnCReset.setDisable(false);
+    }
+
+    /**
+     * 程控重置
+     */
+    private void resetControl(){
+        disableControl();
+        clearControl();
+        btnCAdd.setDisable(false);
+        btnCDel.setDisable(true);
+        btnCInsert.setDisable(true);
+        btnCEdit.setDisable(true);
+        btnCSave.setDisable(true);
+        btnCReset.setDisable(true);
+    }
+
+    /**
+     * 刷新程控树
+     */
+    private void refreshControlTree(){
+        treeView.getRoot().getChildren().clear();
+        List<TreeItem<String>> treeItems = new ArrayList<>();
+        if(programControlList!=null && programControlList.size()>0){
+            int i=1;
+            for (ProgramControl p:programControlList){
+                treeItems.add(new TreeItem<>(i++ + p.toString()));
+            }
+        }
+        treeView.getRoot().getChildren().addAll(treeItems);
+    }
 }

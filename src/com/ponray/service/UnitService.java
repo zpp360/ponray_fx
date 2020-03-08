@@ -88,13 +88,17 @@ public class UnitService {
      * @throws SQLException
      * @throws ClassNotFoundException
      */
-    public List<Unit> listByBaseCode(String baseCode) throws SQLException, ClassNotFoundException {
+    public List<String> listByBaseCode(String baseCode) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
         String sql = "select * from t_unit where base_unit_code = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1,baseCode);
         ResultSet set = pstmt.executeQuery();
-        return createList(set);
+        List<String> list = new ArrayList<>();
+        while (set.next()){
+            list.add(set.getString("unit_code"));
+        }
+        return list;
     }
 
     /**

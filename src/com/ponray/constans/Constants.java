@@ -13,6 +13,10 @@ public class Constants {
      */
     public final static String ADD = "add";
     /**
+     * 插入
+     */
+    public final static String INSERT = "insert";
+    /**
      * 修改操作
      */
     public final static String EDIT = "edit";
@@ -37,4 +41,20 @@ public class Constants {
      * 修改公式
      */
     public final static String EDIT_FORMULA = "edit_formula";
+
+    /**
+     * 基本单位 力
+     */
+    public final static String BASE_UNIT_N = "N";
+    /**
+     * 基本单位 变形
+     */
+    public final static String BASE_UNIT_TRANSFORM = "mm";
+    /**
+     * 基本单位 应力
+     */
+    public final static String BASE_UNIT_YL = "MPa";
+
+    public final static int INT_ZERO = 0;
+    public final static int INT_ONE = 1;
 }

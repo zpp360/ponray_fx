@@ -1,6 +1,5 @@
 package com.ponray.entity;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 public class Program {
     private Long ID;
@@ -56,8 +55,8 @@ public class Program {
     private Boolean isReturn;
     //返回速度
     private Float returnSpeed;
-    //是否为程序控制，如果是程序控制为1,否则为0
-    private Float proControl;
+    //是否为程序控制，如果是程序控制为true,否则为false
+    private Boolean isControl;
     //位移方式的试验运行速度
     private Float generalSpeed;
     //是否为默认方案
@@ -310,12 +309,12 @@ public class Program {
         this.returnSpeed = returnSpeed;
     }
 
-    public Float getProControl() {
-        return proControl;
+    public Boolean isControl() {
+        return isControl;
     }
 
-    public void setProControl(Float proControl) {
-        this.proControl = proControl;
+    public void setControl(Boolean control) {
+        isControl = control;
     }
 
     public Float getGeneralSpeed() {

@@ -56,22 +56,14 @@ public class ParamService {
      * 传感器列表
      * @return
      */
-    public List<Param> listByStandId(Long  standardId) throws SQLException, ClassNotFoundException {
+    public List<Param> listByStandId(Long  standardId) throws Exception {
         Connection conn = AccessHelper.getConnection();
         String sql = "select * from t_param where standard_id = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,standardId);
         ResultSet set = pstmt.executeQuery();
         List<Param> list = new ArrayList<>();
-        while(set.next()){
-            Param param = new Param();
-            param.setID(set.getLong("ID"));
-            param.setName(set.getString("name"));
-            param.setType(set.getString("type"));
-            param.setUnit(set.getString("unit"));
-            list.add(param);
-        }
-        return list;
+        return createList(set);
     }
 
 
@@ -110,4 +102,45 @@ public class ParamService {
         return list;
     }
 
+    /**
+     * 根据stand id查询用户参数
+     * @param id
+     * @return
+     */
+    public List<Param> listUserParamByStandId(Long id) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select * from t_param where type='用户参数' and standard_id = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setLong(1,id);
+        ResultSet set = pstmt.executeQuery();
+        return createList(set);
+    }
+
+    /**
+     * 根据stand id查询结果参数
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    public List<Param> listResultParamByStandId(Long id) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select * from t_param where type='结果参数' and standard_id = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setLong(1,id);
+        ResultSet set = pstmt.executeQuery();
+        return createList(set);
+    }
+
+    private List<Param> createList(ResultSet set) throws Exception{
+        List<Param> list = new ArrayList<>();
+        while(set.next()){
+            Param param = new Param();
+            param.setID(set.getLong("ID"));
+            param.setName(set.getString("name"));
+            param.setType(set.getString("type"));
+            param.setUnit(set.getString("unit"));
+            list.add(param);
+        }
+        return list;
+    }
 }
