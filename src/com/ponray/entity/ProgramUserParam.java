@@ -10,6 +10,16 @@ public class ProgramUserParam {
     private String unit;
     private String defaultVal;
 
+    private Param param;
+
+    public Param getParam() {
+        return param;
+    }
+
+    public void setParam(Param param) {
+        this.param = param;
+    }
+
     public Long getID() {
         return ID;
     }
@@ -49,4 +59,6 @@ public class ProgramUserParam {
     public void setDefaultVal(String defaultVal) {
         this.defaultVal = defaultVal;
     }
+
+
 }
