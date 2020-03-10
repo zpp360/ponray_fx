@@ -10,6 +10,16 @@ public class ProgramResultParam {
     private String up;
     private String low;
 
+    private Param param;
+
+    public Param getParam() {
+        return param;
+    }
+
+    public void setParam(Param param) {
+        this.param = param;
+    }
+
     public Long getID() {
         return ID;
     }

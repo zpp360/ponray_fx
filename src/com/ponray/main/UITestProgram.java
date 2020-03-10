@@ -242,17 +242,18 @@ public class UITestProgram {
     private static Button btnResultUp = new Button("上移");
     private static Button btnResultDown = new Button("下移");
 
-    private static TableView<String> tableViewResult = new TableView<>();
-    private static TableColumn columnResultNo = new TableColumn("序号");
-    private static TableColumn columnResultName = new TableColumn("参数名");
-    private static TableColumn columnResultTop = new TableColumn("上限值");
-    private static TableColumn columnResultBottom = new TableColumn("下限值");
-    private static TableColumn columnResultUnit = new TableColumn("单位");
+    private static TableView<ProgramResultParam> tableViewResult = new TableView<>();
+    private static TableColumn<ProgramResultParam,Integer> columnResultNo = new TableColumn("序号");
+    private static TableColumn<ProgramResultParam,String> columnResultName = new TableColumn("参数名");
+    private static TableColumn<ProgramResultParam,String> columnResultTop = new TableColumn("上限值");
+    private static TableColumn<ProgramResultParam,String> columnResultBottom = new TableColumn("下限值");
+    private static TableColumn<ProgramResultParam,String> columnResultUnit = new TableColumn("单位");
 
     private static Button tab5BtnSave = new Button("保存");
 
     private static List<Param> resultParamList = null;
-    private static List<ProgramResultParam> programResultParamList = null;
+    private static List<ProgramResultParam> programResultParamList = new ArrayList<>();
+    private static ProgramResultParam selectedResultParam = null;
 
     //-----------------------------------tab5 end-----------------------------------
     //默认边框
@@ -843,6 +844,11 @@ public class UITestProgram {
         textParamResultBottom.setPrefSize(80,20);
         tableViewResult.setPrefHeight(300);
         tableViewResult.getColumns().clear();
+        columnResultNo.setCellValueFactory(new PropertyValueFactory<>("num"));
+        columnResultName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        columnResultTop.setCellValueFactory(new PropertyValueFactory<>("up"));
+        columnResultBottom.setCellValueFactory(new PropertyValueFactory<>("low"));
+        columnResultUnit.setCellValueFactory(new PropertyValueFactory<>("unit"));
         tableViewResult.getColumns().addAll(columnResultNo,columnResultName,columnResultTop,columnResultBottom,columnResultUnit);
     }
 
@@ -1368,6 +1374,9 @@ public class UITestProgram {
                 choiceBoxUnit.getItems().clear();
                 if(unitList!=null && unitList.size()>0) {
                     choiceBoxUnit.getItems().addAll(unitList);
+                    if(unitList.size()==1){
+                        choiceBoxUnit.setValue(unitList.get(0));
+                    }
                 }else{
                     choiceBoxUnit.getItems().add(param.getUnit());
                     choiceBoxUnit.setValue(param.getUnit());
@@ -1467,6 +1476,7 @@ public class UITestProgram {
         tab5.setOnSelectionChanged(event -> {
             //tab5选中
             if(tab5.isSelected()){
+                resetResultParam();
                 //用户参数
                 try {
                     resultParamList = paramService.listResultParamByStandId(selectedStandard.getId());
@@ -1490,6 +1500,9 @@ public class UITestProgram {
                 choiceBoxParamResultUnit.getItems().clear();
                 if(unitList!=null && unitList.size()>0){
                     choiceBoxParamResultUnit.getItems().addAll(unitList);
+                    if(unitList.size()==1){
+                        choiceBoxParamResultUnit.setValue(unitList.get(0));
+                    }
                 }else{
                     choiceBoxParamResultUnit.getItems().add(param.getUnit());
                     choiceBoxParamResultUnit.setValue(param.getUnit());
@@ -1506,31 +1519,33 @@ public class UITestProgram {
                 textParamResultBottom.setDisable(true);
             }
         });
-        //用户参数列表选择
-        tableViewParam.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue.intValue()>-1 && programUserParamList!=null && programUserParamList.size()>0){
-                selectedUserParam = programUserParamList.get(newValue.intValue());
-                choiceBoxParam.setValue(selectedUserParam.getParam());
-                choiceBoxUnit.setValue(selectedUserParam.getUnit());
-                if(StringUtils.isNotBlank(selectedUserParam.getDefaultVal())){
-                    checkBoxDefaultValue.setSelected(true);
-                    textDefaultValue.setDisable(false);
+        //结果参数列表选择
+        tableViewResult.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.intValue()>-1 && programResultParamList!=null && programResultParamList.size()>0){
+                selectedResultParam = programResultParamList.get(newValue.intValue());
+                choiceBoxParamResultName.setValue(selectedResultParam.getParam());
+                choiceBoxParamResultUnit.setValue(selectedResultParam.getUnit());
+                if(StringUtils.isNotBlank(selectedResultParam.getUp()) && StringUtils.isNotBlank(selectedResultParam.getLow())){
+                    checkBoxResult.setSelected(true);
+                    textParamResultBottom.setDisable(false);
+                    textParamResultTop.setDisable(false);
                 }else{
-                    checkBoxDefaultValue.setSelected(false);
+                    checkBoxResult.setSelected(false);
                 }
-                textDefaultValue.setText(selectedUserParam.getDefaultVal());
-                paramBtnAdd.setDisable(false);
-                paramBtnEdit.setDisable(false);
-                paramBtnDel.setDisable(false);
-                paramBtnUp.setDisable(false);
-                paramBtnDown.setDisable(false);
+                textParamResultBottom.setText(selectedResultParam.getLow());
+                textParamResultTop.setText(selectedResultParam.getUp());
+                btnResultAdd.setDisable(false);
+                btnResultEdit.setDisable(false);
+                btnResultDel.setDisable(false);
+                btnResultUp.setDisable(false);
+                btnResultDown.setDisable(false);
             }
         });
         //用户参数添加
-        paramBtnAdd.setOnAction(event -> {
-            ProgramUserParam  p = getUserParam();
+        btnResultAdd.setOnAction(event -> {
+            ProgramResultParam  p = getResultParam();
             boolean flag = false;
-            for (ProgramUserParam up : programUserParamList){
+            for (ProgramResultParam up : programResultParamList){
                 if(up.getName().equals(p.getName())){
                     flag = true;
                 }
@@ -1539,46 +1554,46 @@ public class UITestProgram {
                 AlertUtils.alertError("参数已存在");
                 return;
             }
-            programUserParamList.add(p);
-            resetUserParam();
+            programResultParamList.add(p);
+            resetResultParam();
         });
         //用户参数删除
-        paramBtnDel.setOnAction(event -> {
-            programUserParamList.remove(selectedUserParam);
-            resetUserParam();
-            selectedUserParam = null;
+        btnResultDel.setOnAction(event -> {
+            programResultParamList.remove(selectedResultParam);
+            resetResultParam();
+            selectedResultParam = null;
         });
         //用户参数修改
-        paramBtnEdit.setOnAction(event -> {
-            ProgramUserParam  p = getUserParam();
-            int index = programUserParamList.indexOf(selectedUserParam);
-            programUserParamList.remove(selectedUserParam);
-            programUserParamList.add(index,p);
-            resetUserParam();
+        btnResultEdit.setOnAction(event -> {
+            ProgramResultParam  p = getResultParam();
+            int index = programResultParamList.indexOf(selectedResultParam);
+            programResultParamList.remove(selectedResultParam);
+            programResultParamList.add(index,p);
+            resetResultParam();
         });
         //用户参数上移
-        paramBtnUp.setOnAction(event -> {
-            int index = programUserParamList.indexOf(selectedUserParam);
+        btnResultUp.setOnAction(event -> {
+            int index = programResultParamList.indexOf(selectedResultParam);
             if(index>0){
                 int last = index - 1;
-                ProgramUserParam lastP = programUserParamList.get(last);
-                programUserParamList.remove(lastP);
-                programUserParamList.add(last,selectedUserParam);
-                programUserParamList.remove(selectedUserParam);
-                programUserParamList.add(index,lastP);
+                ProgramResultParam lastP = programResultParamList.get(last);
+                programResultParamList.remove(lastP);
+                programResultParamList.add(last,selectedResultParam);
+                programResultParamList.remove(selectedResultParam);
+                programResultParamList.add(index,lastP);
             }
-            resetUserParam();
+            resetResultParam();
         });
         //用户参数下移
-        paramBtnDown.setOnAction(event -> {
-            int index = programUserParamList.indexOf(selectedUserParam);
-            if(index < (programUserParamList.size()-1)){
+        btnResultDown.setOnAction(event -> {
+            int index = programResultParamList.indexOf(selectedResultParam);
+            if(index < (programResultParamList.size()-1)){
                 int next = index+1;
-                ProgramUserParam nextP = programUserParamList.get(next);
-                programUserParamList.remove(nextP);
-                programUserParamList.add(next,selectedUserParam);
-                programUserParamList.remove(selectedUserParam);
-                programUserParamList.add(index,nextP);
+                ProgramResultParam nextP = programResultParamList.get(next);
+                programResultParamList.remove(nextP);
+                programResultParamList.add(next,selectedResultParam);
+                programResultParamList.remove(selectedResultParam);
+                programResultParamList.add(index,nextP);
             }
         });
 
@@ -2030,6 +2045,40 @@ public class UITestProgram {
         p.setDefaultVal(textDefaultValue.getText().trim());
         p.setNum(programUserParamList.size()+1);
         return p;
+    }
+
+    private ProgramResultParam getResultParam(){
+        ProgramResultParam p = new ProgramResultParam();
+        p.setParam(choiceBoxParamResultName.getValue());
+        p.setName(choiceBoxParamResultName.getValue().getName());
+        p.setUnit(choiceBoxParamResultUnit.getValue());
+        p.setUp(textParamResultTop.getText().trim());
+        p.setLow(textParamResultBottom.getText().trim());
+        p.setNum(programResultParamList.size()+1);
+        return p;
+    }
+
+    /**
+     * 重置结果参数界面
+     */
+    private void resetResultParam(){
+        choiceBoxParamResultName.setValue(null);
+        choiceBoxParamResultUnit.setValue(null);
+        checkBoxResult.setSelected(false);
+        textParamResultBottom.clear();
+        textParamResultBottom.setDisable(true);
+        textParamResultTop.clear();
+        textParamResultTop.setDisable(true);
+        btnResultAdd.setDisable(false);
+        btnResultDel.setDisable(true);
+        btnResultEdit.setDisable(true);
+        btnResultUp.setDisable(true);
+        btnResultDown.setDisable(true);
+        //刷新列表
+        tableViewResult.getItems().clear();
+        if(programResultParamList!=null && programResultParamList.size()>0){
+            tableViewResult.getItems().addAll(programResultParamList);
+        }
     }
 
 }
