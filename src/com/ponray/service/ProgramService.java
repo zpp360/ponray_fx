@@ -261,7 +261,7 @@ public class ProgramService {
      * @return
      * @throws Exception
      */
-    private int delUserParamByProgramId(Long id) throws Exception{
+    public int delUserParamByProgramId(Long id) throws Exception{
         Connection conn = AccessHelper.getConnection();
         String sql = "delete from t_program_user_param where program_id = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -277,7 +277,7 @@ public class ProgramService {
      * @param programId
      * @throws Exception
      */
-    private void batchSaveUserParam(List<ProgramUserParam> list,Long programId) throws Exception{
+    public void batchSaveUserParam(List<ProgramUserParam> list,Long programId) throws Exception{
         Connection conn = AccessHelper.getConnection();
         String sql = "insert into t_program_user_param(program_id,num,name,unit,default_val) values (?,?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -302,7 +302,7 @@ public class ProgramService {
      * @return
      * @throws Exception
      */
-    private List<ProgramUserParam> listUserParam(Long programId) throws Exception{
+    public List<ProgramUserParam> listUserParam(Long programId) throws Exception{
             Connection conn = AccessHelper.getConnection();
             String sql = "select * from t_program_user_param where program_id = ? order by num asc";
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -329,7 +329,7 @@ public class ProgramService {
      * @return
      * @throws Exception
      */
-    private int delResultParamByProgramId(Long id) throws Exception{
+    public int delResultParamByProgramId(Long id) throws Exception{
         Connection conn = AccessHelper.getConnection();
         String sql = "delete from t_program_result_param where program_id = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -345,9 +345,9 @@ public class ProgramService {
      * @param programId
      * @throws Exception
      */
-    private void batchSaveResultParam(List<ProgramResultParam> list, Long programId) throws Exception{
+    public void batchSaveResultParam(List<ProgramResultParam> list, Long programId) throws Exception{
         Connection conn = AccessHelper.getConnection();
-        String sql = "insert into t_program_user_param(program_id,num,name,unit,result_flag,up,low) values (?,?,?,?,?,?,?)";
+        String sql = "insert into t_program_result_param(program_id,num,name,unit,result_flag,up,low) values (?,?,?,?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         if(list!=null && list.size()>0){
             for(int i=0;i<list.size();i++){
@@ -372,7 +372,7 @@ public class ProgramService {
      * @return
      * @throws Exception
      */
-    private List<ProgramResultParam> listResultParam(Long programId) throws Exception{
+    public List<ProgramResultParam> listResultParam(Long programId) throws Exception{
         Connection conn = AccessHelper.getConnection();
         String sql = "select * from t_program_result_param where program_id = ? order by num asc";
         PreparedStatement pstmt = conn.prepareStatement(sql);

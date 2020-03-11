@@ -1353,6 +1353,11 @@ public class UITestProgram {
             //tab4选中
             if(tab4.isSelected()){
                 //用户参数
+                try {
+                    programUserParamList = programService.listUserParam(selectedProgram.getID());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 resetUserParam();
                 try {
                     userParamList = paramService.listUserParamByStandId(selectedStandard.getId());
@@ -1468,7 +1473,16 @@ public class UITestProgram {
         });
         //tab4 save
         tab4BtnSave.setOnAction(event -> {
-
+            if(programUserParamList==null && programUserParamList.size()==0){
+                AlertUtils.alertError("请先添加用户参数");
+                return;
+            }
+            try {
+                programService.batchSaveUserParam(programUserParamList,selectedProgram.getID());
+                AlertUtils.alertInfo("保存用户参数成功");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
 
@@ -1476,6 +1490,11 @@ public class UITestProgram {
         tab5.setOnSelectionChanged(event -> {
             //tab5选中
             if(tab5.isSelected()){
+                try {
+                    programResultParamList = programService.listResultParam(selectedProgram.getID());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 resetResultParam();
                 //用户参数
                 try {
@@ -1541,7 +1560,7 @@ public class UITestProgram {
                 btnResultDown.setDisable(false);
             }
         });
-        //用户参数添加
+        //结果参数添加
         btnResultAdd.setOnAction(event -> {
             ProgramResultParam  p = getResultParam();
             boolean flag = false;
@@ -1557,13 +1576,13 @@ public class UITestProgram {
             programResultParamList.add(p);
             resetResultParam();
         });
-        //用户参数删除
+        //结果参数删除
         btnResultDel.setOnAction(event -> {
             programResultParamList.remove(selectedResultParam);
             resetResultParam();
             selectedResultParam = null;
         });
-        //用户参数修改
+        //结果参数修改
         btnResultEdit.setOnAction(event -> {
             ProgramResultParam  p = selectedResultParam;
             p.setParam(choiceBoxParamResultName.getValue());
@@ -1577,7 +1596,7 @@ public class UITestProgram {
             programResultParamList.add(index,p);
             resetResultParam();
         });
-        //用户参数上移
+        //结果参数上移
         btnResultUp.setOnAction(event -> {
             int index = programResultParamList.indexOf(selectedResultParam);
             if(index>0){
@@ -1588,7 +1607,7 @@ public class UITestProgram {
                 refreshResultParam();
             }
         });
-        //用户参数下移
+        //结果参数下移
         btnResultDown.setOnAction(event -> {
             int index = programResultParamList.indexOf(selectedResultParam);
             if(index < (programResultParamList.size()-1)){
@@ -1597,6 +1616,19 @@ public class UITestProgram {
                 programResultParamList.get(next).setNum(index+1);
                 Collections.swap(programResultParamList,index,next);
                 refreshResultParam();
+            }
+        });
+
+        tab5BtnSave.setOnAction(event -> {
+            if(programResultParamList==null || programResultParamList.size()==0){
+                AlertUtils.alertError("请先添加结果参数");
+                return;
+            }
+            try {
+                programService.batchSaveResultParam(programResultParamList,selectedProgram.getID());
+                AlertUtils.alertInfo("保存结果参数成功");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
