@@ -10,7 +10,6 @@ import java.util.List;
 public class ParamService {
     public int insert(Param param) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
-        Statement statement = conn.createStatement();
         //先将其它设置为未选中
         String sql = "insert into t_param(standard_id,name,type,unit) values (?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);

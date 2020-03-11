@@ -2,6 +2,8 @@ package com.ponray.service;
 
 import com.ponray.entity.Program;
 import com.ponray.entity.ProgramControl;
+import com.ponray.entity.ProgramResultParam;
+import com.ponray.entity.ProgramUserParam;
 import com.ponray.utils.AccessHelper;
 
 import java.sql.*;
@@ -253,6 +255,144 @@ public class ProgramService {
         return list;
     }
 
+    /**
+     * 删除用户参数
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    private int delUserParamByProgramId(Long id) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "delete from t_program_user_param where program_id = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setLong(1,id);
+        int result = pstmt.executeUpdate();
+        pstmt.close();
+        return result;
+    }
+
+    /**
+     * 批量保存用户参数
+     * @param list
+     * @param programId
+     * @throws Exception
+     */
+    private void batchSaveUserParam(List<ProgramUserParam> list,Long programId) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "insert into t_program_user_param(program_id,num,name,unit,default_val) values (?,?,?,?,?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        if(list!=null && list.size()>0){
+            for(int i=0;i<list.size();i++){
+                ProgramUserParam p = list.get(i);
+                pstmt.setLong(1,programId);
+                pstmt.setInt(2,p.getNum());
+                pstmt.setString(3,p.getName());
+                pstmt.setString(4,p.getUnit());
+                pstmt.setString(5,p.getDefaultVal());
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+            pstmt.clearBatch();
+        }
+        pstmt.close();
+    }
+
+    /**
+     * 用户参数列表
+     * @return
+     * @throws Exception
+     */
+    private List<ProgramUserParam> listUserParam(Long programId) throws Exception{
+            Connection conn = AccessHelper.getConnection();
+            String sql = "select * from t_program_user_param where program_id = ? order by num asc";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setLong(1,programId);
+            ResultSet set = pstmt.executeQuery();
+            List<ProgramUserParam> list = new ArrayList<>();
+            while(set.next()){
+                ProgramUserParam p = new ProgramUserParam();
+                p.setID(set.getLong("ID"));
+                p.setNum(set.getInt("num"));
+                p.setName(set.getString("name"));
+                p.setUnit(set.getString("unit"));
+                p.setDefaultVal(set.getString("default_val"));
+                list.add(p);
+            }
+            pstmt.close();
+            return list;
+    }
+
+
+    /**
+     * 删除结果参数
+     * @param id
+     * @return
+     * @throws Exception
+     */
+    private int delResultParamByProgramId(Long id) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "delete from t_program_result_param where program_id = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setLong(1,id);
+        int result = pstmt.executeUpdate();
+        pstmt.close();
+        return result;
+    }
+
+    /**
+     * 批量保存用户参数
+     * @param list
+     * @param programId
+     * @throws Exception
+     */
+    private void batchSaveResultParam(List<ProgramResultParam> list, Long programId) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "insert into t_program_user_param(program_id,num,name,unit,result_flag,up,low) values (?,?,?,?,?,?,?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        if(list!=null && list.size()>0){
+            for(int i=0;i<list.size();i++){
+                ProgramResultParam p = list.get(i);
+                pstmt.setLong(1,programId);
+                pstmt.setInt(2,p.getNum());
+                pstmt.setString(3,p.getName());
+                pstmt.setString(4,p.getUnit());
+                pstmt.setBoolean(5,p.getResultFlag());
+                pstmt.setString(6,p.getUp());
+                pstmt.setString(7,p.getLow());
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+            pstmt.clearBatch();
+        }
+        pstmt.close();
+    }
+
+    /**
+     * 用户参数列表
+     * @return
+     * @throws Exception
+     */
+    private List<ProgramResultParam> listResultParam(Long programId) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select * from t_program_result_param where program_id = ? order by num asc";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setLong(1,programId);
+        ResultSet set = pstmt.executeQuery();
+        List<ProgramResultParam> list = new ArrayList<>();
+        while(set.next()){
+            ProgramResultParam p = new ProgramResultParam();
+            p.setID(set.getLong("ID"));
+            p.setNum(set.getInt("num"));
+            p.setName(set.getString("name"));
+            p.setUnit(set.getString("unit"));
+            p.setResultFlag(set.getBoolean("default_val"));
+            p.setUp(set.getString("up"));
+            p.setLow(set.getString("low"));
+            list.add(p);
+        }
+        pstmt.close();
+        return list;
+    }
 
 
 }

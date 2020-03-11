@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class UITestProgram {
@@ -222,7 +223,7 @@ public class UITestProgram {
     private static Button tab4BtnSave = new Button("保存");
 
     private static List<Param> userParamList = null;
-    private static List<ProgramUserParam> programUserParamList = new ArrayList<>();
+    private static List<ProgramUserParam> programUserParamList = new ArrayList<>(20);
     private static ProgramUserParam selectedUserParam = null;
 
     //-----------------------------------tab4 end-----------------------------------
@@ -1374,9 +1375,7 @@ public class UITestProgram {
                 choiceBoxUnit.getItems().clear();
                 if(unitList!=null && unitList.size()>0) {
                     choiceBoxUnit.getItems().addAll(unitList);
-                    if(unitList.size()==1){
-                        choiceBoxUnit.setValue(unitList.get(0));
-                    }
+                    choiceBoxUnit.setValue(param.getUnit());
                 }else{
                     choiceBoxUnit.getItems().add(param.getUnit());
                     choiceBoxUnit.setValue(param.getUnit());
@@ -1435,7 +1434,11 @@ public class UITestProgram {
         });
         //用户参数修改
         paramBtnEdit.setOnAction(event -> {
-            ProgramUserParam  p = getUserParam();
+            ProgramUserParam  p = selectedUserParam;
+            p.setParam(choiceBoxParam.getValue());
+            p.setName(choiceBoxParam.getValue().getName());
+            p.setUnit(choiceBoxUnit.getValue());
+            p.setDefaultVal(textDefaultValue.getText().trim());
             int index = programUserParamList.indexOf(selectedUserParam);
             programUserParamList.remove(selectedUserParam);
             programUserParamList.add(index,p);
@@ -1446,24 +1449,21 @@ public class UITestProgram {
             int index = programUserParamList.indexOf(selectedUserParam);
             if(index>0){
                 int last = index - 1;
-                ProgramUserParam lastP = programUserParamList.get(last);
-                programUserParamList.remove(lastP);
-                programUserParamList.add(last,selectedUserParam);
-                programUserParamList.remove(selectedUserParam);
-                programUserParamList.add(index,lastP);
+                programUserParamList.get(last).setNum(index+1);
+                programUserParamList.get(index).setNum(last+1);
+                Collections.swap(programUserParamList,index,last);
+                refreshUserParam();
             }
-            resetUserParam();
         });
         //用户参数下移
         paramBtnDown.setOnAction(event -> {
             int index = programUserParamList.indexOf(selectedUserParam);
             if(index < (programUserParamList.size()-1)){
                 int next = index+1;
-                ProgramUserParam nextP = programUserParamList.get(next);
-                programUserParamList.remove(nextP);
-                programUserParamList.add(next,selectedUserParam);
-                programUserParamList.remove(selectedUserParam);
-                programUserParamList.add(index,nextP);
+                programUserParamList.get(index).setNum(next+1);
+                programUserParamList.get(next).setNum(index+1);
+                Collections.swap(programUserParamList,next,index);
+                refreshUserParam();
             }
         });
         //tab4 save
@@ -1500,9 +1500,7 @@ public class UITestProgram {
                 choiceBoxParamResultUnit.getItems().clear();
                 if(unitList!=null && unitList.size()>0){
                     choiceBoxParamResultUnit.getItems().addAll(unitList);
-                    if(unitList.size()==1){
-                        choiceBoxParamResultUnit.setValue(unitList.get(0));
-                    }
+                    choiceBoxParamResultUnit.setValue(param.getUnit());
                 }else{
                     choiceBoxParamResultUnit.getItems().add(param.getUnit());
                     choiceBoxParamResultUnit.setValue(param.getUnit());
@@ -1525,12 +1523,14 @@ public class UITestProgram {
                 selectedResultParam = programResultParamList.get(newValue.intValue());
                 choiceBoxParamResultName.setValue(selectedResultParam.getParam());
                 choiceBoxParamResultUnit.setValue(selectedResultParam.getUnit());
-                if(StringUtils.isNotBlank(selectedResultParam.getUp()) && StringUtils.isNotBlank(selectedResultParam.getLow())){
+                if(selectedResultParam.getResultFlag()){
                     checkBoxResult.setSelected(true);
                     textParamResultBottom.setDisable(false);
                     textParamResultTop.setDisable(false);
                 }else{
                     checkBoxResult.setSelected(false);
+                    textParamResultBottom.setDisable(true);
+                    textParamResultTop.setDisable(true);
                 }
                 textParamResultBottom.setText(selectedResultParam.getLow());
                 textParamResultTop.setText(selectedResultParam.getUp());
@@ -1565,7 +1565,13 @@ public class UITestProgram {
         });
         //用户参数修改
         btnResultEdit.setOnAction(event -> {
-            ProgramResultParam  p = getResultParam();
+            ProgramResultParam  p = selectedResultParam;
+            p.setParam(choiceBoxParamResultName.getValue());
+            p.setName(choiceBoxParamResultName.getValue().getName());
+            p.setUnit(choiceBoxParamResultUnit.getValue());
+            p.setResultFlag(checkBoxResult.isSelected());
+            p.setUp(textParamResultTop.getText().trim());
+            p.setLow(textParamResultBottom.getText().trim());
             int index = programResultParamList.indexOf(selectedResultParam);
             programResultParamList.remove(selectedResultParam);
             programResultParamList.add(index,p);
@@ -1576,24 +1582,21 @@ public class UITestProgram {
             int index = programResultParamList.indexOf(selectedResultParam);
             if(index>0){
                 int last = index - 1;
-                ProgramResultParam lastP = programResultParamList.get(last);
-                programResultParamList.remove(lastP);
-                programResultParamList.add(last,selectedResultParam);
-                programResultParamList.remove(selectedResultParam);
-                programResultParamList.add(index,lastP);
+                programResultParamList.get(last).setNum(index+1);
+                programResultParamList.get(index).setNum(last+1);
+                Collections.swap(programResultParamList,last,index);
+                refreshResultParam();
             }
-            resetResultParam();
         });
         //用户参数下移
         btnResultDown.setOnAction(event -> {
             int index = programResultParamList.indexOf(selectedResultParam);
             if(index < (programResultParamList.size()-1)){
                 int next = index+1;
-                ProgramResultParam nextP = programResultParamList.get(next);
-                programResultParamList.remove(nextP);
-                programResultParamList.add(next,selectedResultParam);
-                programResultParamList.remove(selectedResultParam);
-                programResultParamList.add(index,nextP);
+                programResultParamList.get(index).setNum(next+1);
+                programResultParamList.get(next).setNum(index+1);
+                Collections.swap(programResultParamList,index,next);
+                refreshResultParam();
             }
         });
 
@@ -2031,9 +2034,20 @@ public class UITestProgram {
         paramBtnUp.setDisable(true);
         paramBtnDown.setDisable(true);
         //刷新列表
+        refreshUserParam();
+    }
+
+    private void refreshUserParam(){
         tableViewParam.getItems().clear();
         if(programUserParamList!=null && programUserParamList.size()>0){
             tableViewParam.getItems().addAll(programUserParamList);
+        }
+    }
+
+    private void refreshResultParam(){
+        tableViewResult.getItems().clear();
+        if(programResultParamList!=null && programResultParamList.size()>0){
+            tableViewResult.getItems().addAll(programResultParamList);
         }
     }
 
@@ -2052,6 +2066,7 @@ public class UITestProgram {
         p.setParam(choiceBoxParamResultName.getValue());
         p.setName(choiceBoxParamResultName.getValue().getName());
         p.setUnit(choiceBoxParamResultUnit.getValue());
+        p.setResultFlag(checkBoxResult.isSelected());
         p.setUp(textParamResultTop.getText().trim());
         p.setLow(textParamResultBottom.getText().trim());
         p.setNum(programResultParamList.size()+1);
@@ -2075,10 +2090,7 @@ public class UITestProgram {
         btnResultUp.setDisable(true);
         btnResultDown.setDisable(true);
         //刷新列表
-        tableViewResult.getItems().clear();
-        if(programResultParamList!=null && programResultParamList.size()>0){
-            tableViewResult.getItems().addAll(programResultParamList);
-        }
+        refreshResultParam();
     }
 
 }
