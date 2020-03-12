@@ -1,11 +1,15 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constants;
+import com.ponray.entity.Program;
+import com.ponray.service.ProgramService;
 import com.ponray.utils.AccessHelper;
 import com.ponray.utils.FontUtil;
 import com.ponray.utils.PropertiesUtils;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -20,6 +24,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 
 import java.io.IOException;
@@ -28,13 +33,34 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class Main extends Application {
 
     private static Stage stage = null;
 
+    private static Tab tab1 = null;
+    private static Tab tab2 = null;
+    private static Tab tab3 = null;
+    private static Tab tab4 = null;
 
+    //--------------------------------tab1 start-----------------------------------
+    private static ChoiceBox<Program> choiceBoxProgram = new ChoiceBox<>();
+    private static TextField textFileName = new TextField();
+    private static TreeView<String> treeView = new TreeView<>();
+    private static TreeItem<String> treeRoot = new TreeItem<>("方案简略信息：");
+    private static Button btnAddTest = new Button("添加试样");
+    private static Button btnDelTest = new Button("删除试样");
+    private static Button btnSaveParam = new Button("保存参数");
+    private static TableView<String> tableView = new TableView<>();
+    private static List<Program> programList = null;
+    private static Program selectedProgram = null;
+    //--------------------------------tab1 end-------------------------------------
+
+
+    private static ProgramService programService = new ProgramService();
     public static void main(String[] args) {
         launch(args);
     }
@@ -57,10 +83,10 @@ public class Main extends Application {
         }
 
         TabPane tabPane = new TabPane();
-        Tab tab1 = new Tab(Constants.language.getProperty("user_param"));
-        Tab tab2 = new Tab(Constants.language.getProperty("single_picture"));
-        Tab tab3 = new Tab(Constants.language.getProperty("more_picture"));
-        Tab tab4 = new Tab(Constants.language.getProperty("search"));
+        tab1 = new Tab(Constants.language.getProperty("user_param"));
+        tab2 = new Tab(Constants.language.getProperty("single_picture"));
+        tab3 = new Tab(Constants.language.getProperty("more_picture"));
+        tab4 = new Tab(Constants.language.getProperty("search"));
 
         //力 显示框布局
         Label lableNum1 = new Label("0.00000");
@@ -354,6 +380,8 @@ public class Main extends Application {
         tabPane.prefWidthProperty().bind(root.widthProperty().subtract(280));
         tabPane.prefHeightProperty().bind(root.heightProperty().subtract(150));
 
+        intiComp();
+        registEvent();
 
         Scene scene = new Scene(root);
         stage.setTitle("拉力试验工具软件");
@@ -517,31 +545,88 @@ public class Main extends Application {
         HBox hBox1 = new HBox();
         Label label1 = new Label("请选择实验方案:");
         label1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 18));
-        ChoiceBox cb = new ChoiceBox();
-        cb.setItems(FXCollections.observableArrayList(
-                "New Document", "Open ",
-                new Separator(), "Save", "Save as")
-        );
-        cb.setMinWidth(150);
+        try {
+            programList = programService.list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        choiceBoxProgram.converterProperty().set(new StringConverter<Program>() {
+            @Override
+            public String toString(Program object) {
+                return object.getName();
+            }
+
+            @Override
+            public Program fromString(String string) {
+                for(Program p : programList){
+                    if(string.equals(p.getName())){
+                        return p;
+                    }
+                }
+                return null;
+            }
+        });
+        choiceBoxProgram.setItems(FXCollections.observableArrayList(programList));
+        choiceBoxProgram.setMinWidth(150);
 
         Label label2 = new Label("数据保存名称:");
         label2.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 18));
-        TextField textField = new TextField(System.currentTimeMillis()+"");
 
-        hBox1.getChildren().addAll(label1,cb,label2,textField);
+        hBox1.getChildren().addAll(label1,choiceBoxProgram,label2,textFileName);
         hBox1.setPadding(new Insets(20));
         hBox1.setSpacing(50);
 
         Separator separator = new Separator();
         separator.setMaxHeight(1200);
 
-
-
-        vBox.getChildren().add(hBox1);
-        vBox.getChildren().add(separator);
+        HBox hBox2 = new HBox();
+        VBox rightVBox = new VBox();
+        HBox btnHbox = new HBox();
+        btnHbox.getChildren().addAll(btnAddTest,btnDelTest,btnSaveParam);
+        btnHbox.setSpacing(30);
+        btnHbox.setPadding(new Insets(10));
+        rightVBox.getChildren().addAll(btnHbox,tableView);
+        tableView.prefWidthProperty().bind(hBox2.widthProperty().subtract(220));
+        hBox2.getChildren().addAll(treeView,rightVBox);
+        hBox2.setSpacing(20);
+        vBox.getChildren().addAll(hBox1,separator,hBox2);
         vBox.setSpacing(20);
 
         return vBox;
+    }
+
+    private void intiComp(){
+        textFileName.setPrefSize(200,20);
+        treeView.setPrefSize(200,400);
+    }
+
+    private void registEvent(){
+        choiceBoxProgram.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    //给保存文件名赋值
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+                    textFileName.setText(sdf.format(new Date()));
+                    //选中的方案
+                    selectedProgram = programList.get(newValue.intValue());
+                    //刷新数（方案简略信息）
+                    refreshTree(selectedProgram);
+                }
+            }
+        });
+    }
+
+    /**
+     * 刷新简略信息树
+     * @param selectedProgram
+     */
+    private void refreshTree(Program selectedProgram) {
+        treeView.setRoot(treeRoot);
+        treeRoot.getChildren().clear();
+        TreeItem<String> item = new TreeItem<>("4545");
+        treeRoot.getChildren().add(item);
+        treeRoot.setExpanded(true);
     }
 
 
