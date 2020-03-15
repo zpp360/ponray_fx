@@ -2,6 +2,7 @@ package com.ponray.main;
 
 import com.ponray.constans.Constants;
 import com.ponray.entity.Program;
+import com.ponray.entity.ProgramUserParam;
 import com.ponray.service.ProgramService;
 import com.ponray.utils.AccessHelper;
 import com.ponray.utils.FontUtil;
@@ -11,12 +12,15 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.MapValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -24,6 +28,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 
@@ -34,8 +39,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class Main extends Application {
 
@@ -54,13 +58,18 @@ public class Main extends Application {
     private static Button btnAddTest = new Button("添加试样");
     private static Button btnDelTest = new Button("删除试样");
     private static Button btnSaveParam = new Button("保存参数");
-    private static TableView<String> tableView = new TableView<>();
+    private static TableView tableView = new TableView<>();
     private static List<Program> programList = null;
     private static Program selectedProgram = null;
+    //选中的实验方案用户参数列表
+    private static List<ProgramUserParam> userParamList = null;
+    //实验参数列表
+    private ObservableList<HashMap<String,String>> allData = FXCollections.observableArrayList();
     //--------------------------------tab1 end-------------------------------------
 
 
     private static ProgramService programService = new ProgramService();
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -586,7 +595,7 @@ public class Main extends Application {
         btnHbox.setSpacing(30);
         btnHbox.setPadding(new Insets(10));
         rightVBox.getChildren().addAll(btnHbox,tableView);
-        tableView.prefWidthProperty().bind(hBox2.widthProperty().subtract(220));
+        tableView.prefWidthProperty().bind(hBox2.widthProperty().subtract(270));
         hBox2.getChildren().addAll(treeView,rightVBox);
         hBox2.setSpacing(20);
         vBox.getChildren().addAll(hBox1,separator,hBox2);
@@ -597,7 +606,7 @@ public class Main extends Application {
 
     private void intiComp(){
         textFileName.setPrefSize(200,20);
-        treeView.setPrefSize(200,400);
+        treeView.setPrefSize(250,400);
     }
 
     private void registEvent(){
@@ -612,6 +621,13 @@ public class Main extends Application {
                     selectedProgram = programList.get(newValue.intValue());
                     //刷新数（方案简略信息）
                     refreshTree(selectedProgram);
+                    //用户参数
+                    try {
+                        userParamList = programService.listUserParam(selectedProgram.getID());
+                        refreshTable();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -624,10 +640,65 @@ public class Main extends Application {
     private void refreshTree(Program selectedProgram) {
         treeView.setRoot(treeRoot);
         treeRoot.getChildren().clear();
-        TreeItem<String> item = new TreeItem<>("4545");
-        treeRoot.getChildren().add(item);
         treeRoot.setExpanded(true);
+        treeRoot.getChildren().add(new TreeItem<>("引用标准："+selectedProgram.getName()));
+        treeRoot.getChildren().add(new TreeItem<>("试验方向："+(selectedProgram.getDirect()==0?"拉向":"压向")));
+        treeRoot.getChildren().add(new TreeItem<>("试样材料："+selectedProgram.getShapeName()));
+        treeRoot.getChildren().add(new TreeItem<>("变形计算："+selectedProgram.getTransformSensor()));
+        treeRoot.getChildren().add(new TreeItem<>("变形切换："+(selectedProgram.isTransformChange()?"是":"否")));
+        if(selectedProgram.isAutoBreakage()){
+            TreeItem<String> itemBreak = new TreeItem<>("判断断裂方式："+(selectedProgram.isAutoBreakage()?"是":"否"));
+            treeRoot.getChildren().add(itemBreak);
+            if(selectedProgram.isAutoBreakage()){
+                if(selectedProgram.getGtForce()!=null && selectedProgram.getGtForce()!=0F){
+                    itemBreak.getChildren().add(new TreeItem<>("当力值大于"+selectedProgram.getGtForce()+"N开始判断断裂"));
+                }
+                if(selectedProgram.getLtRate()!=null && selectedProgram.getLtRate()!=0F){
+                    itemBreak.getChildren().add(new TreeItem<>("后前力值之比下于"+selectedProgram.getLtRate()+"%为断裂"));
+                }
+                if(selectedProgram.getLtMearure()!=null && selectedProgram.getLtMearure()!=0F){
+                    itemBreak.getChildren().add(new TreeItem<>("力值小于最大力的"+selectedProgram.getLtMearure()+"%为断裂"));
+                }
+                itemBreak.setExpanded(true);
+            }
+        }
+        treeRoot.getChildren().add(new TreeItem<>("程控方式："+(selectedProgram.isControl()?"程控":"位移"+selectedProgram.getReturnSpeed()+"mm/min")));
     }
+
+    /**
+     * 刷新用户参数
+     */
+    private void refreshTable(){
+        tableView.setEditable(true);
+        tableView.getSelectionModel().setCellSelectionEnabled(true);
+        tableView.getColumns().clear();
+        if(userParamList!=null && userParamList.size()>0){
+            TableColumn<HashMap<String,String>,String> numColumn = new TableColumn("序号");
+            numColumn.setCellValueFactory(new MapValueFactory("序号"));
+            tableView.getColumns().add(numColumn);
+            HashMap<String, String> dataRow = new HashMap<>();
+            dataRow.put("序号","1");
+            for (int i=0;i<userParamList.size();i++){
+                ProgramUserParam p = userParamList.get(i);
+                TableColumn tableColumn = new TableColumn(p.getName()+"\n"+"("+p.getUnit()+")");
+                tableColumn.setCellValueFactory(new MapValueFactory<>(p.getName()));
+                tableColumn.setCellFactory(TextFieldTableCell.<HashMap<String,String>>forTableColumn());
+                tableColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<HashMap<String,String>,String>>() {
+                    @Override
+                    public void handle(TableColumn.CellEditEvent<HashMap<String, String>, String> event) {
+                        System.out.println(event.getNewValue());
+                        System.out.println(event.getTableColumn().getText());
+                    }
+                });
+                tableColumn.setPrefWidth(150);
+                tableView.getColumns().add(tableColumn);
+                dataRow.put(p.getName(),"1");
+            }
+            allData.add(dataRow);
+            tableView.getItems().addAll(allData);
+        }
+    }
+
 
 
     /**
