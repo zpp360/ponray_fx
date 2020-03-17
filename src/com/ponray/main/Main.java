@@ -591,7 +591,7 @@ public class Main extends Application {
         HBox hBox2 = new HBox();
         VBox rightVBox = new VBox();
         HBox btnHbox = new HBox();
-        btnHbox.getChildren().addAll(btnAddTest,btnDelTest,btnSaveParam);
+        btnHbox.getChildren().addAll(btnAddTest,btnDelTest,btnSaveParam,new Label("按回车键保存参数信息"));
         btnHbox.setSpacing(30);
         btnHbox.setPadding(new Insets(10));
         rightVBox.getChildren().addAll(btnHbox,tableView);
@@ -675,9 +675,13 @@ public class Main extends Application {
         if(userParamList!=null && userParamList.size()>0){
             TableColumn<HashMap<String,String>,String> numColumn = new TableColumn("序号");
             numColumn.setCellValueFactory(new MapValueFactory("序号"));
+            TableColumn<HashMap<String,String>,String> statusColumn = new TableColumn("状态");
+            numColumn.setCellValueFactory(new MapValueFactory("状态"));
             tableView.getColumns().add(numColumn);
+            tableView.getColumns().add(statusColumn);
             HashMap<String, String> dataRow = new HashMap<>();
             dataRow.put("序号","1");
+            dataRow.put("状态","未开始");
             for (int i=0;i<userParamList.size();i++){
                 ProgramUserParam p = userParamList.get(i);
                 TableColumn tableColumn = new TableColumn(p.getName()+"\n"+"("+p.getUnit()+")");
