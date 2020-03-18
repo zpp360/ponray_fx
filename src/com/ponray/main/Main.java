@@ -676,7 +676,7 @@ public class Main extends Application {
             TableColumn<HashMap<String,String>,String> numColumn = new TableColumn("序号");
             numColumn.setCellValueFactory(new MapValueFactory("序号"));
             TableColumn<HashMap<String,String>,String> statusColumn = new TableColumn("状态");
-            numColumn.setCellValueFactory(new MapValueFactory("状态"));
+            statusColumn.setCellValueFactory(new MapValueFactory("状态"));
             tableView.getColumns().add(numColumn);
             tableView.getColumns().add(statusColumn);
             HashMap<String, String> dataRow = new HashMap<>();
