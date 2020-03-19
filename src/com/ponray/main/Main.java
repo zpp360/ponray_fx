@@ -5,6 +5,7 @@ import com.ponray.entity.Program;
 import com.ponray.entity.ProgramUserParam;
 import com.ponray.service.ProgramService;
 import com.ponray.utils.AccessHelper;
+import com.ponray.utils.AlertUtils;
 import com.ponray.utils.FontUtil;
 import com.ponray.utils.PropertiesUtils;
 import javafx.application.Application;
@@ -28,7 +29,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 
@@ -64,7 +64,9 @@ public class Main extends Application {
     //选中的实验方案用户参数列表
     private static List<ProgramUserParam> userParamList = null;
     //实验参数列表
-    private ObservableList<HashMap<String,String>> allData = FXCollections.observableArrayList();
+    private static ObservableList<HashMap<String,String>> allData = FXCollections.observableArrayList();
+    //选中的用户参数
+    private static HashMap<String,String> selectedUserParam = null;
     //--------------------------------tab1 end-------------------------------------
 
 
@@ -631,6 +633,46 @@ public class Main extends Application {
                 }
             }
         });
+        /**
+         * 参数选择改变
+         */
+        tableView.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    selectedUserParam = allData.get(newValue.intValue());
+                }
+            }
+        });
+        /**
+         * 添加参数
+         */
+        btnAddTest.setOnAction(event -> {
+            if(selectedProgram==null){
+                AlertUtils.alertError("请选择实验方案");
+                return;
+            }
+            HashMap<String, String> dataRow = new HashMap<>();
+            dataRow.put("序号",allData.size()+1+"");
+            dataRow.put("状态","未开始");
+            for (int i=0;i<userParamList.size();i++){
+                ProgramUserParam p = userParamList.get(i);
+                dataRow.put(p.getName(),"");
+            }
+            allData.add(dataRow);
+            tableView.getItems().clear();
+            tableView.getItems().addAll(allData);
+        });
+
+        btnDelTest.setOnAction(event -> {
+            if(selectedUserParam==null){
+                AlertUtils.alertError("未选中参数");
+                return;
+            }
+            allData.remove(selectedUserParam);
+            tableView.getItems().remove(selectedUserParam);
+            selectedUserParam = null;
+        });
     }
 
     /**
@@ -669,14 +711,17 @@ public class Main extends Application {
      * 刷新用户参数
      */
     private void refreshTable(){
+        allData.clear();
         tableView.setEditable(true);
         tableView.getSelectionModel().setCellSelectionEnabled(true);
         tableView.getColumns().clear();
         if(userParamList!=null && userParamList.size()>0){
             TableColumn<HashMap<String,String>,String> numColumn = new TableColumn("序号");
             numColumn.setCellValueFactory(new MapValueFactory("序号"));
+            numColumn.setSortable(false);
             TableColumn<HashMap<String,String>,String> statusColumn = new TableColumn("状态");
             statusColumn.setCellValueFactory(new MapValueFactory("状态"));
+            statusColumn.setSortable(false);
             tableView.getColumns().add(numColumn);
             tableView.getColumns().add(statusColumn);
             HashMap<String, String> dataRow = new HashMap<>();
@@ -687,18 +732,21 @@ public class Main extends Application {
                 TableColumn tableColumn = new TableColumn(p.getName()+"\n"+"("+p.getUnit()+")");
                 tableColumn.setCellValueFactory(new MapValueFactory<>(p.getName()));
                 tableColumn.setCellFactory(TextFieldTableCell.<HashMap<String,String>>forTableColumn());
+                tableColumn.setSortable(false);
                 tableColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<HashMap<String,String>,String>>() {
                     @Override
-                    public void handle(TableColumn.CellEditEvent<HashMap<String, String>, String> event) {
-                        System.out.println(event.getNewValue());
-                        System.out.println(event.getTableColumn().getText());
+                    public void handle(TableColumn.CellEditEvent<HashMap<String, String>,String> event) {
+                        String value = event.getNewValue();
+                        dataRow.put(p.getName(),value);
+                        allData.add(dataRow);
                     }
                 });
                 tableColumn.setPrefWidth(150);
                 tableView.getColumns().add(tableColumn);
-                dataRow.put(p.getName(),"1");
+                dataRow.put(p.getName(),"");
             }
             allData.add(dataRow);
+            tableView.getItems().clear();
             tableView.getItems().addAll(allData);
         }
     }
