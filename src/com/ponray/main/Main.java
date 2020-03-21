@@ -67,6 +67,7 @@ public class Main extends Application {
     private static ObservableList<HashMap<String,String>> allData = FXCollections.observableArrayList();
     //选中的用户参数
     private static HashMap<String,String> selectedUserParam = null;
+    private static HashMap<String,String> editDataRow = null;
     //--------------------------------tab1 end-------------------------------------
 
 
@@ -652,14 +653,19 @@ public class Main extends Application {
                 AlertUtils.alertError("请选择实验方案");
                 return;
             }
-            HashMap<String, String> dataRow = new HashMap<>();
-            dataRow.put("序号",allData.size()+1+"");
-            dataRow.put("状态","未开始");
+            HashMap<String,String> lastData = allData.get(allData.size()-1);
+            if(lastData.containsValue("")){
+                AlertUtils.alertError("请先填写参数");
+                return;
+            }
+            editDataRow = new HashMap<>();
+            editDataRow.put("序号",allData.size()+1+"");
+            editDataRow.put("状态","未开始");
             for (int i=0;i<userParamList.size();i++){
                 ProgramUserParam p = userParamList.get(i);
-                dataRow.put(p.getName(),"");
+                editDataRow.put(p.getName(),"");
             }
-            allData.add(dataRow);
+            allData.add(editDataRow);
             tableView.getItems().clear();
             tableView.getItems().addAll(allData);
         });
@@ -724,9 +730,9 @@ public class Main extends Application {
             statusColumn.setSortable(false);
             tableView.getColumns().add(numColumn);
             tableView.getColumns().add(statusColumn);
-            HashMap<String, String> dataRow = new HashMap<>();
-            dataRow.put("序号","1");
-            dataRow.put("状态","未开始");
+            editDataRow = new HashMap<>();
+            editDataRow.put("序号","1");
+            editDataRow.put("状态","未开始");
             for (int i=0;i<userParamList.size();i++){
                 ProgramUserParam p = userParamList.get(i);
                 TableColumn tableColumn = new TableColumn(p.getName()+"\n"+"("+p.getUnit()+")");
@@ -737,15 +743,14 @@ public class Main extends Application {
                     @Override
                     public void handle(TableColumn.CellEditEvent<HashMap<String, String>,String> event) {
                         String value = event.getNewValue();
-                        dataRow.put(p.getName(),value);
-                        allData.add(dataRow);
+                        editDataRow.put(p.getName(),value);
                     }
                 });
                 tableColumn.setPrefWidth(150);
                 tableView.getColumns().add(tableColumn);
-                dataRow.put(p.getName(),"");
+                editDataRow.put(p.getName(),"");
             }
-            allData.add(dataRow);
+            allData.add(editDataRow);
             tableView.getItems().clear();
             tableView.getItems().addAll(allData);
         }
