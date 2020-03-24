@@ -8,6 +8,7 @@ import com.ponray.utils.AccessHelper;
 import com.ponray.utils.AlertUtils;
 import com.ponray.utils.FontUtil;
 import com.ponray.utils.PropertiesUtils;
+import gnu.io.SerialPort;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -69,6 +70,14 @@ public class Main extends Application {
     private static HashMap<String,String> selectedUserParam = null;
     private static HashMap<String,String> editDataRow = null;
     //--------------------------------tab1 end-------------------------------------
+
+
+
+    // 串口列表
+    private List<String> mCommList = null;
+    // 串口对象
+    private SerialPort mSerialport;
+
 
 
     private static ProgramService programService = new ProgramService();
@@ -538,6 +547,10 @@ public class Main extends Application {
                     e.printStackTrace();
                 }
             }
+        });
+        //联机
+        onlineItem.setOnAction(event -> {
+            new UIOnline().display();
         });
 
         menuBar.getMenus().addAll(file,setMenu,communicationMenu,experimentMenu,language);

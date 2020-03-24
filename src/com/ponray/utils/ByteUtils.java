@@ -71,4 +71,28 @@ public class ByteUtils {
 		}
 		return hex.toUpperCase(Locale.getDefault());
 	}
+
+	/**
+	 * byte转10进制
+	 * @param b
+	 * @return
+	 */
+	public static int byteToInt(byte b) {
+		int x = b & 0xff;
+		return x;
+	}
+
+	/**
+	 * byte数组转换为整数
+	 * 第0个byte与上0xff,生成整数,在右移24位，取得一个整数
+	 * 第1个byte与上0xff,生成整数,在右移16位，取得一个整数
+	 * 第2个byte与上0xff,生成整数,在右移8位，取得一个整数
+	 * 第3个byte与上0xff,生成整数
+	 * 把四个整数做或操作,转换为已整数
+	 */
+	public static int byteArrToInt(byte[] arr){
+		int x = ((arr[0] & 0xff) << 24 )|((arr[1]& 0xff) <<16 )|((arr[2] & 0xff)<<8)|(arr[3] & 0xff);
+		return x;
+	}
+
 }
