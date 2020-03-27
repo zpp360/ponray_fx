@@ -1,7 +1,6 @@
 package com.ponray.utils;
 
 import com.healthmarketscience.jackcess.*;
-import com.sun.xml.internal.messaging.saaj.util.TeeInputStream;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,8 +56,8 @@ public class DBUtils {
         return table;
     }
 
-    public static void main(String[] arg) throws IOException {
-        Database db = createDBFile("2015-01-02-03");
-        createTableTestData(db);
-    }
+//    public static void main(String[] arg) throws IOException {
+//        Database db = createDBFile("2015-01-02-03");
+//        createTableTestData(db);
+//    }
 }

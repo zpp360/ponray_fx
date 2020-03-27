@@ -8,18 +8,19 @@ import com.ponray.utils.AccessHelper;
 import com.ponray.utils.AlertUtils;
 import com.ponray.utils.FontUtil;
 import com.ponray.utils.PropertiesUtils;
-import gnu.io.SerialPort;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.JFXPanel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.SceneBuilder;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -30,9 +31,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.stage.StageBuilder;
+import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
 
 
+import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -70,13 +74,6 @@ public class Main extends Application {
     private static HashMap<String,String> selectedUserParam = null;
     private static HashMap<String,String> editDataRow = null;
     //--------------------------------tab1 end-------------------------------------
-
-
-
-    // 串口列表
-    private List<String> mCommList = null;
-    // 串口对象
-    private SerialPort mSerialport;
 
 
 
