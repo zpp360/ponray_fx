@@ -11,6 +11,11 @@ public class DBUtils {
     //实验结果文件存储目录
     private final static String TEST_FILE_PATH = System.getProperty("user.dir") + File.separator + "datafile" + File.separator;
 
+
+    public static boolean isExit(String name){
+        File file = new File(TEST_FILE_PATH + name + ".mdb");
+        return file.exists();
+    }
     /**
      * 创建db
      * @param name
@@ -41,7 +46,7 @@ public class DBUtils {
                     .addColumn(new ColumnBuilder("test_num")
                             .setSQLType(Types.BIGINT))
                     .addColumn(new ColumnBuilder("time_val")   //时间值
-                            .setSQLType(Types.FLOAT))
+                            .setSQLType(Types.DOUBLE))
                     .addColumn(new ColumnBuilder("load_val")   //力值
                             .setSQLType(Types.FLOAT))
                     .addColumn(new ColumnBuilder("pos_val")    //位移值
@@ -56,8 +61,8 @@ public class DBUtils {
         return table;
     }
 
-//    public static void main(String[] arg) throws IOException {
-//        Database db = createDBFile("2015-01-02-03");
-//        createTableTestData(db);
-//    }
+    public static void main(String[] arg) throws IOException {
+        Database db = createDBFile("2015-01-02-03");
+        createTableTestData(db);
+    }
 }

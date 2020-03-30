@@ -13,7 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -30,9 +29,11 @@ public class UIOnline {
     private static Button btnOpen = new Button("打开串口");
 
     // 串口列表
-    private List<String> mCommList = null;
+    public static List<String> mCommList = null;
     // 串口对象
-    private SerialPort mSerialport = null;
+    public static SerialPort mSerialport = null;
+
+    public static boolean startFlag = false;
 
     public void display(){
         Stage window = new Stage();
@@ -127,11 +128,14 @@ public class UIOnline {
                             if (mSerialport == null) {
                                 AlertUtils.alertError("串口对象为空，监听失败！");
                             } else {
-                                // 读取串口数据
-                                data = SerialPortManager.readFromPort(mSerialport);
+                                //实验开始状态
+                                if(startFlag){
+                                    // 读取串口数据
+                                    data = SerialPortManager.readFromPort(mSerialport);
 
-                                // 以十六进制的形式接收数据
-                                String hexString = ByteUtils.byteArrayToHexString(data);
+                                    // 以十六进制的形式接收数据
+                                    String hexString = ByteUtils.byteArrayToHexString(data);
+                                }
                             }
                         } catch (Exception e) {
                             AlertUtils.alertError(e.toString());

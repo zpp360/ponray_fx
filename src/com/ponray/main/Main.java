@@ -3,24 +3,24 @@ package com.ponray.main;
 import com.ponray.constans.Constants;
 import com.ponray.entity.Program;
 import com.ponray.entity.ProgramUserParam;
+import com.ponray.entity.Test;
 import com.ponray.service.ProgramService;
-import com.ponray.utils.AccessHelper;
-import com.ponray.utils.AlertUtils;
-import com.ponray.utils.FontUtil;
-import com.ponray.utils.PropertiesUtils;
+import com.ponray.utils.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.JFXPanel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.SceneBuilder;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -31,14 +31,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.stage.StageBuilder;
-import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
+import org.apache.commons.lang.StringUtils;
 
-
-import javax.swing.*;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -50,6 +46,7 @@ public class Main extends Application {
 
     private static Stage stage = null;
 
+    private static TabPane tabPane = null;
     private static Tab tab1 = null;
     private static Tab tab2 = null;
     private static Tab tab3 = null;
@@ -75,6 +72,18 @@ public class Main extends Application {
     private static HashMap<String,String> editDataRow = null;
     //--------------------------------tab1 end-------------------------------------
 
+    //--------------------------------tab1 start-----------------------------------
+    private static LineChart mainChart = null;
+
+    private static Test selectedTest = null;
+    //--------------------------------tab1 end-------------------------------------
+
+
+    //右侧操作按钮
+    private static Button upBt = null;
+    private static Button downBt = null;
+    private static Button startBt = null;
+    private static Button stopBt = null;
 
 
     private static ProgramService programService = new ProgramService();
@@ -100,7 +109,7 @@ public class Main extends Application {
             e.printStackTrace();
         }
 
-        TabPane tabPane = new TabPane();
+        tabPane = new TabPane();
         tab1 = new Tab(Constants.language.getProperty("user_param"));
         tab2 = new Tab(Constants.language.getProperty("single_picture"));
         tab3 = new Tab(Constants.language.getProperty("more_picture"));
@@ -316,21 +325,21 @@ public class Main extends Application {
         Label nullLable = new Label();
         nullLable.setMinSize(250,200);
 
-        Button upBt = new Button(Constants.language.getProperty("up"));
+        upBt = new Button(Constants.language.getProperty("up"));
         upBt.setMinSize(80,40);
         upBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
-        Button dropBt = new Button(Constants.language.getProperty("down"));
-        dropBt.setMinSize(80,40);
-        dropBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
+        downBt = new Button(Constants.language.getProperty("down"));
+        downBt.setMinSize(80,40);
+        downBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
 
         HBox lineOne = new HBox();
-        lineOne.getChildren().addAll(upBt,dropBt);
+        lineOne.getChildren().addAll(upBt,downBt);
         lineOne.setSpacing(50);
 
-        Button startBt = new Button(Constants.language.getProperty("start"));
+        startBt = new Button(Constants.language.getProperty("start"));
         startBt.setMinSize(80,40);
         startBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
-        Button stopBt = new Button(Constants.language.getProperty("end"));
+        stopBt = new Button(Constants.language.getProperty("end"));
         stopBt.setMinSize(80,40);
         stopBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
         HBox lineTwo = new HBox();
@@ -367,6 +376,7 @@ public class Main extends Application {
         tab1.setContent(createTab1());
         tab2.setClosable(false);
         tab2.setStyle("-fx-font-size:20px;");
+        tab2.setContent(createTab2());
         tab3.setClosable(false);
         tab3.setStyle("-fx-font-size:20px;");
         tab4.setClosable(false);
@@ -431,10 +441,10 @@ public class Main extends Application {
         Menu language = new Menu("语言");
         ToggleGroup languageGroup = new ToggleGroup();
 
-        Connection connection = AccessHelper.getInstance().getConnection();
-        Statement statement = AccessHelper.getInstance().getStatement(connection);
+        Connection connection = AccessHelper.getInstance(null).getConnection();
+        Statement statement = AccessHelper.getInstance(null).getStatement(connection);
         String sql = "select id,name,file_name,selected from t_language";
-        ResultSet rs = AccessHelper.getInstance().getResultSet(statement,sql);
+        ResultSet rs = AccessHelper.getInstance(null).getResultSet(statement,sql);
         while(rs.next()){
             String languageId = rs.getString("id");
             String fileName = rs.getString("file_name");
@@ -617,6 +627,81 @@ public class Main extends Application {
         return vBox;
     }
 
+    /**
+     * 创建tab2
+     * @return
+     */
+    private HBox createTab2(){
+        HBox main = new HBox();
+        mainChart = createChart();
+        mainChart.prefWidthProperty().bind(tabPane.widthProperty().subtract(200));
+        mainChart.prefHeightProperty().bind(tabPane.heightProperty());
+        main.getChildren().add(mainChart);
+        return main;
+    }
+
+    /**
+     * 创建char1
+     */
+    private LineChart createChart() {
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Month");
+        final LineChart<String,Number> lineChart =
+                new LineChart<String,Number>(xAxis,yAxis);
+
+        lineChart.setTitle("Stock Monitoring, 2010");
+
+        XYChart.Series<String,Number> series1 = new XYChart.Series<String,Number>();
+        series1.setName("Portfolio 1");
+
+        series1.getData().add(new XYChart.Data<String,Number>("Jan", 23));
+        series1.getData().add(new XYChart.Data("Feb", 14));
+        series1.getData().add(new XYChart.Data("Mar", 15));
+        series1.getData().add(new XYChart.Data("Apr", 24));
+        series1.getData().add(new XYChart.Data("May", 34));
+        series1.getData().add(new XYChart.Data("Jun", 36));
+        series1.getData().add(new XYChart.Data("Jul", 22));
+        series1.getData().add(new XYChart.Data("Aug", 45));
+        series1.getData().add(new XYChart.Data("Sep", 43));
+        series1.getData().add(new XYChart.Data("Oct", 17));
+        series1.getData().add(new XYChart.Data("Nov", 29));
+        series1.getData().add(new XYChart.Data("Dec", 25));
+
+        XYChart.Series<String,Number> series2 = new XYChart.Series<String,Number>();
+        series2.setName("Portfolio 2");
+        series2.getData().add(new XYChart.Data("Jan", 33));
+        series2.getData().add(new XYChart.Data("Feb", 34));
+        series2.getData().add(new XYChart.Data("Mar", 25));
+        series2.getData().add(new XYChart.Data("Apr", 44));
+        series2.getData().add(new XYChart.Data("May", 39));
+        series2.getData().add(new XYChart.Data("Jun", 16));
+        series2.getData().add(new XYChart.Data("Jul", 55));
+        series2.getData().add(new XYChart.Data("Aug", 54));
+        series2.getData().add(new XYChart.Data("Sep", 48));
+        series2.getData().add(new XYChart.Data("Oct", 27));
+        series2.getData().add(new XYChart.Data("Nov", 37));
+        series2.getData().add(new XYChart.Data("Dec", 29));
+
+        XYChart.Series<String,Number> series3 = new XYChart.Series<String,Number>();
+        series3.setName("Portfolio 3");
+        series3.getData().add(new XYChart.Data("Jan", 44));
+        series3.getData().add(new XYChart.Data("Feb", 35));
+        series3.getData().add(new XYChart.Data("Mar", 36));
+        series3.getData().add(new XYChart.Data("Apr", 33));
+        series3.getData().add(new XYChart.Data("May", 31));
+        series3.getData().add(new XYChart.Data("Jun", 26));
+        series3.getData().add(new XYChart.Data("Jul", 22));
+        series3.getData().add(new XYChart.Data("Aug", 25));
+        series3.getData().add(new XYChart.Data("Sep", 43));
+        series3.getData().add(new XYChart.Data("Oct", 44));
+        series3.getData().add(new XYChart.Data("Nov", 45));
+        series3.getData().add(new XYChart.Data("Dec", 44));
+        lineChart.getData().addAll(series1, series2, series3);
+        lineChart.setCreateSymbols(false);
+        return lineChart;
+    }
+
     private void intiComp(){
         textFileName.setPrefSize(200,20);
         treeView.setPrefSize(250,400);
@@ -688,6 +773,44 @@ public class Main extends Application {
             allData.remove(selectedUserParam);
             tableView.getItems().remove(selectedUserParam);
             selectedUserParam = null;
+        });
+
+        //右侧开始按钮
+        startBt.setOnAction(event -> {
+            if(selectedProgram==null){
+                AlertUtils.alertError("请选择实验方案");
+                return;
+            }
+            //测试从txt文件读取数据
+            UIOnline.startFlag = true;
+            //创建mdb文件
+            String fileName = textFileName.getText();
+            if(StringUtils.isNotBlank(fileName)){
+                if(!DBUtils.isExit(fileName)){
+                    try {
+                        DBUtils.createDBFile(fileName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Test test = new Test();
+                test.setTestNum(Long.parseLong(fileName.replace("-","")));
+                test.setLoadUnit(selectedProgram.getUnitLoad());
+                test.setPressUnit(selectedProgram.getUnitN());
+                test.setTransformUnit(selectedProgram.getUnitTransform());
+                test.setProgramName(selectedProgram.getName());
+                test.setSaveFile(fileName);
+                test.setShape(selectedProgram.getShapeName());
+                test.setSpeed(selectedProgram.isControl()?0:selectedProgram.getGeneralSpeed());
+                test.setTransformSensor(selectedProgram.getTransformSensor());
+                test.setRunTime();
+            }
+
+
+        });
+        //右侧停止按钮
+        stopBt.setOnAction(event -> {
+            UIOnline.startFlag = false;
         });
     }
 

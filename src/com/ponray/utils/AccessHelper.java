@@ -1,5 +1,7 @@
 package com.ponray.utils;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.File;
 import java.sql.*;
 
@@ -10,7 +12,7 @@ public class AccessHelper {
     private final static String DRIVER = "net.ucanaccess.jdbc.UcanaccessDriver";
 
 //    private final static String DBPATH = AccessHelper.class.getResource("/db/db.mdb").getPath().replace("%20"," ");
-    private final static String DBPATH = System.getProperty("user.dir") + File.separator + "db" + File.separator + "db.mdb";
+    private final static String DBPATH = System.getProperty("user.dir") + File.separator + "db" + File.separator;
 
     private final static String USERNAME = null;
 
@@ -22,7 +24,10 @@ public class AccessHelper {
 
     private AccessHelper(){}
 
-    public static AccessHelper getInstance() throws ClassNotFoundException, SQLException {
+    public static AccessHelper getInstance(String dbName) throws ClassNotFoundException, SQLException {
+        if(StringUtils.isBlank(dbName)){
+            dbName = "db.mdb";
+        }
         //先检查实例是否存在，如果不存在才进入下面的同步模块
         if(instance == null){
             //同步块，线程安全的创建实例
@@ -32,7 +37,7 @@ public class AccessHelper {
                     instance = new AccessHelper();
 
                     Class.forName(DRIVER);
-                    conn = DriverManager.getConnection("jdbc:ucanaccess://" + DBPATH,USERNAME,PASSWORD);
+                    conn = DriverManager.getConnection("jdbc:ucanaccess://" + DBPATH + dbName,USERNAME,PASSWORD);
                     statement = conn.createStatement();
                 }
             }

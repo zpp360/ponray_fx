@@ -18,7 +18,7 @@ public class TestService {
         String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,speed,run_time,shape) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,test.getTestNum());
-        pstmt.setDate(2,test.getTestTime());
+        pstmt.setDouble(2,test.getTestTime());
         pstmt.setString(3,test.getProgramName());
         pstmt.setString(4,test.getStandardName());
         pstmt.setString(5,test.getTransformSensor());
@@ -49,7 +49,7 @@ public class TestService {
         Connection conn = AccessHelper.getConnection();
         String sql ="update t_test set test_time=?,program_name=?,standard_name=?,transform_sensor=?,load_unit=?,transform_unit=?,press_unit=?,save_file=?,speed=?,run_time=?,shape=? where test_num = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
-        pstmt.setDate(1,test.getTestTime());
+        pstmt.setDouble(1,test.getTestTime());
         pstmt.setString(2,test.getProgramName());
         pstmt.setString(3,test.getStandardName());
         pstmt.setString(4,test.getTransformSensor());
@@ -111,7 +111,7 @@ public class TestService {
         while(set.next()){
             Test test = new Test();
             test.setTestNum(set.getLong("test_num"));
-            test.setTestTime(set.getDate("test_time"));
+            test.setTestTime(set.getDouble("test_time"));
             test.setProgramName(set.getString("program_name"));
             test.setStandardName(set.getString("standard_name"));
             test.setTransformSensor(set.getString("transform_sensor"));
