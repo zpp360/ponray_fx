@@ -101,6 +101,24 @@ public class TestService {
     }
 
     /**
+     * 获取test_num最大值
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
+    public Long maxNum() throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select max(test_num) as maxNum from t_test";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        ResultSet set = pstmt.executeQuery();
+        Long maxNum = 1L;
+        while(set.next()){
+            maxNum = set.getLong("maxNum");
+        }
+        return maxNum;
+    }
+
+    /**
      * 根据set返回实体list
      * @param set
      * @return

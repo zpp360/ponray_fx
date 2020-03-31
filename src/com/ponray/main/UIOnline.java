@@ -33,7 +33,7 @@ public class UIOnline {
     // 串口对象
     public static SerialPort mSerialport = null;
 
-    public static boolean startFlag = false;
+    public static boolean startFlag = true;
 
     public void display(){
         Stage window = new Stage();
@@ -135,6 +135,7 @@ public class UIOnline {
 
                                     // 以十六进制的形式接收数据
                                     String hexString = ByteUtils.byteArrayToHexString(data);
+                                    System.out.println(hexString);
                                 }
                             }
                         } catch (Exception e) {

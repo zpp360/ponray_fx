@@ -5,6 +5,7 @@ import com.ponray.entity.Program;
 import com.ponray.entity.ProgramUserParam;
 import com.ponray.entity.Test;
 import com.ponray.service.ProgramService;
+import com.ponray.service.TestService;
 import com.ponray.utils.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -87,6 +88,7 @@ public class Main extends Application {
 
 
     private static ProgramService programService = new ProgramService();
+    private static TestService testService = new TestService();
 
     public static void main(String[] args) {
         launch(args);
@@ -793,8 +795,15 @@ public class Main extends Application {
                         e.printStackTrace();
                     }
                 }
+
+                Long maxNum = null;
+                try {
+                    maxNum = testService.maxNum();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 Test test = new Test();
-                test.setTestNum(Long.parseLong(fileName.replace("-","")));
+                test.setTestNum(maxNum+1);
                 test.setLoadUnit(selectedProgram.getUnitLoad());
                 test.setPressUnit(selectedProgram.getUnitN());
                 test.setTransformUnit(selectedProgram.getUnitTransform());
@@ -803,7 +812,7 @@ public class Main extends Application {
                 test.setShape(selectedProgram.getShapeName());
                 test.setSpeed(selectedProgram.isControl()?0:selectedProgram.getGeneralSpeed());
                 test.setTransformSensor(selectedProgram.getTransformSensor());
-                test.setRunTime();
+                test.setRunTime(3.0F);
             }
 
 
