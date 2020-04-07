@@ -47,7 +47,11 @@ public class DBUtils {
                             .setSQLType(Types.BIGINT))
                     .addColumn(new ColumnBuilder("time_val")   //时间值
                             .setSQLType(Types.DOUBLE))
-                    .addColumn(new ColumnBuilder("load_val")   //力值
+                    .addColumn(new ColumnBuilder("load_val1")   //力值1
+                            .setSQLType(Types.FLOAT))
+                    .addColumn(new ColumnBuilder("load_val2")   //力值2
+                            .setSQLType(Types.FLOAT))
+                    .addColumn(new ColumnBuilder("load_val3")   //力值3
                             .setSQLType(Types.FLOAT))
                     .addColumn(new ColumnBuilder("pos_val")    //位移值
                             .setSQLType(Types.FLOAT))

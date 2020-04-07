@@ -80,6 +80,8 @@ public class Main extends Application {
     private static Test selectedTest = null;
     //--------------------------------tab1 end-------------------------------------
 
+    public static MenuItem offlineItem = new MenuItem("脱机");
+
 
     //右侧操作按钮
     public static Button upBt = null;
@@ -540,7 +542,7 @@ public class Main extends Application {
         Menu communicationMenu = new Menu("通讯");
         MenuItem onlineItem = new MenuItem("联机");
         onlineItem.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/on_line.ico"))));
-        MenuItem offlineItem = new MenuItem("脱机");
+        offlineItem.setDisable(true);
         offlineItem.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/off_line.ico"))));
         communicationMenu.getItems().addAll(onlineItem,offlineItem);
 
@@ -590,6 +592,17 @@ public class Main extends Application {
         //联机
         onlineItem.setOnAction(event -> {
             new UIOnline().display();
+        });
+        //脱机
+        offlineItem.setOnAction(event -> {
+            SerialPortManager.closePort(UIOnline.mSerialport);
+            UIOnline.mCommList = null;
+            UIOnline.mSerialport = null;
+            offlineItem.setDisable(true);
+            //操作按钮初始化状态
+            initBt();
+            UIOnline.btnOpen.setText("打开串口");
+            AlertUtils.alertInfo("关闭串口成功");
         });
 
         menuBar.getMenus().addAll(file,setMenu,communicationMenu,experimentMenu,language);
@@ -738,6 +751,10 @@ public class Main extends Application {
         textFileName.setPrefSize(200,20);
         treeView.setPrefSize(250,400);
         //实验操作按钮置灰
+        initBt();
+    }
+    //实验操作按钮置灰
+    public static void initBt(){
         startBt.setDisable(true);
         stopBt.setDisable(true);
         upBt.setDisable(true);

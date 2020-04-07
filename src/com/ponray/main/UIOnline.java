@@ -26,7 +26,7 @@ public class UIOnline {
     //波特率
     private static ChoiceBox<String> choiceBoxMBaudrate = new ChoiceBox<>();
 
-    private static Button btnOpen = new Button("打开串口");
+    public static Button btnOpen = new Button("打开串口");
 
     // 串口列表
     public static List<String> mCommList = null;
@@ -128,6 +128,7 @@ public class UIOnline {
                                     // 以十六进制的形式接收数据
                                     String hexString = ByteUtils.byteArrayToHexString(data);
                                     System.out.println(hexString);
+                                    System.out.println(ByteUtils.byteArrToInt(data));
                                 }
                             } catch (Exception e) {
                                 AlertUtils.alertError(e.toString());
@@ -146,6 +147,8 @@ public class UIOnline {
                     Main.clearLoadBt.setDisable(false);
                     Main.clearPosBt.setDisable(false);
                     Main.clearTransformBt.setDisable(false);
+                    //脱机按钮可用
+                    Main.offlineItem.setDisable(false);
                 } catch (PortInUseException e) {
                     AlertUtils.alertError("串口已被占用！");
                 }
@@ -153,18 +156,14 @@ public class UIOnline {
             if("关闭串口".equals(text)){
                 if(mSerialport!=null){
                     SerialPortManager.closePort(mSerialport);
-                    AlertUtils.alertInfo("关闭串口成功");
                     mSerialport = null;
                     mCommList = null;
                     btnOpen.setText("打开串口");
-                    Main.startBt.setDisable(true);
-                    Main.stopBt.setDisable(true);
-                    Main.upBt.setDisable(true);
-                    Main.downBt.setDisable(true);
-                    Main.resetBt.setDisable(true);
-                    Main.clearLoadBt.setDisable(true);
-                    Main.clearPosBt.setDisable(true);
-                    Main.clearTransformBt.setDisable(true);
+                    //初始化主界面操作按钮
+                    Main.initBt();
+                    //脱机按钮不可用
+                    Main.offlineItem.setDisable(true);
+                    AlertUtils.alertInfo("关闭串口成功");
                 }
             }
         });
