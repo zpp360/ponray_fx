@@ -4,6 +4,7 @@ import com.ponray.constans.Constants;
 import com.ponray.entity.Program;
 import com.ponray.entity.ProgramUserParam;
 import com.ponray.entity.Test;
+import com.ponray.serial.SerialPortManager;
 import com.ponray.service.ProgramService;
 import com.ponray.service.TestService;
 import com.ponray.utils.*;
@@ -81,10 +82,19 @@ public class Main extends Application {
 
 
     //右侧操作按钮
-    private static Button upBt = null;
-    private static Button downBt = null;
-    private static Button startBt = null;
-    private static Button stopBt = null;
+    public static Button upBt = null;
+    public static Button downBt = null;
+    public static Button startBt = null;
+    public static Button stopBt = null;
+    public static Button resetBt = null;
+    public static Button clearLoadBt = null;
+    public static Button clearPosBt = null;
+    public static Button clearTransformBt = null;
+
+    //实验开始标志
+    public static boolean startFlag = false;
+
+    public static Long startTime = null;
 
 
     private static ProgramService programService = new ProgramService();
@@ -348,9 +358,29 @@ public class Main extends Application {
         lineTwo.getChildren().addAll(startBt,stopBt);
         lineTwo.setSpacing(50);
 
+        resetBt = new Button("复位");
+        resetBt.setMinSize(80,40);
+        resetBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
+        clearLoadBt = new Button("力清零");
+        clearLoadBt.setMinSize(80,40);
+        clearLoadBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
+        HBox lineThree = new HBox();
+        lineThree.getChildren().addAll(resetBt,clearLoadBt);
+        lineThree.setSpacing(50);
+
+        clearPosBt = new Button("位移清零");
+        clearPosBt.setMinSize(80,40);
+        clearPosBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 16));
+        clearTransformBt = new Button("变形清零");
+        clearTransformBt.setMinSize(80,40);
+        clearTransformBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 16));
+        HBox lineFour = new HBox();
+        lineFour.getChildren().addAll(clearPosBt,clearTransformBt);
+        lineFour.setSpacing(50);
+
         VBox opBtvBox = new VBox();
-        opBtvBox.getChildren().addAll(lineOne,lineTwo);
-        opBtvBox.setSpacing(30);
+        opBtvBox.getChildren().addAll(lineOne,lineTwo,lineThree,lineFour);
+        opBtvBox.setSpacing(10);
 
 
 
@@ -707,6 +737,15 @@ public class Main extends Application {
     private void intiComp(){
         textFileName.setPrefSize(200,20);
         treeView.setPrefSize(250,400);
+        //实验操作按钮置灰
+        startBt.setDisable(true);
+        stopBt.setDisable(true);
+        upBt.setDisable(true);
+        downBt.setDisable(true);
+        resetBt.setDisable(true);
+        clearLoadBt.setDisable(true);
+        clearPosBt.setDisable(true);
+        clearTransformBt.setDisable(true);
     }
 
     private void registEvent(){
@@ -783,8 +822,9 @@ public class Main extends Application {
                 AlertUtils.alertError("请选择实验方案");
                 return;
             }
-            //测试从txt文件读取数据
-            UIOnline.startFlag = true;
+            if(UIOnline.mSerialport==null){
+                AlertUtils.alertError("未联机");
+            }
             //创建mdb文件
             String fileName = textFileName.getText();
             if(StringUtils.isNotBlank(fileName)){
@@ -813,13 +853,25 @@ public class Main extends Application {
                 test.setSpeed(selectedProgram.isControl()?0:selectedProgram.getGeneralSpeed());
                 test.setTransformSensor(selectedProgram.getTransformSensor());
                 test.setRunTime(3.0F);
+                //实验开始标志置为true
+                startFlag = true;
+                //设置按钮状态
+                startBt.setDisable(true);
+                stopBt.setDisable(false);
+                //发送开始命令
+                SerialPortManager.sendToPort(UIOnline.mSerialport,"test".getBytes());
+                //初始化开始时间
+                startTime = System.currentTimeMillis();
             }
-
 
         });
         //右侧停止按钮
         stopBt.setOnAction(event -> {
-            UIOnline.startFlag = false;
+            //实验开始标志置为false
+            startFlag = false;
+            //按钮状态
+            startBt.setDisable(false);
+            stopBt.setDisable(true);
         });
     }
 

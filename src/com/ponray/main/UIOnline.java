@@ -33,8 +33,7 @@ public class UIOnline {
     // 串口对象
     public static SerialPort mSerialport = null;
 
-    public static boolean startFlag = true;
-
+    private Stage window = new Stage();
     public void display(){
         Stage window = new Stage();
         window.setTitle(Constants.language.getProperty("online"));
@@ -97,54 +96,76 @@ public class UIOnline {
      */
     private void registEvent(){
         btnOpen.setOnAction(event -> {
-            // 获取串口名称
-            String commName = choiceBoxSerialPort.getValue();
-            // 获取波特率，默认为9600
-            int baudrate = 9600;
-            String bps = choiceBoxMBaudrate.getValue();
-            baudrate = Integer.parseInt(bps);
-            // 检查串口名称是否获取正确
-            if (commName == null || commName.equals("")) {
-                AlertUtils.alertError("没有搜索到有效串口！");
-            } else {
+            String text = btnOpen.getText();
+            if ("打开串口".equals(text)) {
+                // 获取串口名称
+                String commName = choiceBoxSerialPort.getValue();
+                // 获取波特率，默认为9600
+                int baudrate = 9600;
+                String bps = choiceBoxMBaudrate.getValue();
+                baudrate = Integer.parseInt(bps);
+                // 检查串口名称是否获取正确
+                if (commName == null || commName.equals("")) {
+                    AlertUtils.alertError("没有搜索到有效串口！");
+                    return;
+                }
                 try {
                     mSerialport = SerialPortManager.openPort(commName, baudrate);
-                    if (mSerialport != null) {
-                        btnOpen.setText("关闭串口");
+                    if (mSerialport == null) {
+                        AlertUtils.alertError("串口对象为空，监听失败！");
+                        return;
                     }
-                } catch (PortInUseException e) {
-                    AlertUtils.alertError("串口已被占用！");
-                }
-            }
-
-            if(mSerialport!=null){
-                // 添加串口监听
-                SerialPortManager.addListener(mSerialport, new SerialPortManager.DataAvailableListener() {
-
-                    @Override
-                    public void dataAvailable() {
-                        byte[] data = null;
-                        try {
-                            if (mSerialport == null) {
-                                AlertUtils.alertError("串口对象为空，监听失败！");
-                            } else {
+                    //添加监听
+                    SerialPortManager.addListener(UIOnline.mSerialport, new SerialPortManager.DataAvailableListener() {
+                        @Override
+                        public void dataAvailable() {
+                            byte[] data = null;
+                            try {
+                                // 读取串口数据
+                                data = SerialPortManager.readFromPort(UIOnline.mSerialport);
                                 //实验开始状态
-                                if(startFlag){
-                                    // 读取串口数据
-                                    data = SerialPortManager.readFromPort(mSerialport);
-
+                                if (Main.startFlag) {
                                     // 以十六进制的形式接收数据
                                     String hexString = ByteUtils.byteArrayToHexString(data);
                                     System.out.println(hexString);
                                 }
+                            } catch (Exception e) {
+                                AlertUtils.alertError(e.toString());
+                                // 发生读取错误时显示错误信息后退出系统
+                                Platform.exit();
                             }
-                        } catch (Exception e) {
-                            AlertUtils.alertError(e.toString());
-                            // 发生读取错误时显示错误信息后退出系统
-                            Platform.exit();
                         }
-                    }
-                });
+                    });
+                    //打开串口成功
+                    btnOpen.setText("关闭串口");
+                    //设置实验开始按钮可用
+                    Main.startBt.setDisable(false);
+                    Main.upBt.setDisable(false);
+                    Main.downBt.setDisable(false);
+                    Main.resetBt.setDisable(false);
+                    Main.clearLoadBt.setDisable(false);
+                    Main.clearPosBt.setDisable(false);
+                    Main.clearTransformBt.setDisable(false);
+                } catch (PortInUseException e) {
+                    AlertUtils.alertError("串口已被占用！");
+                }
+            }
+            if("关闭串口".equals(text)){
+                if(mSerialport!=null){
+                    SerialPortManager.closePort(mSerialport);
+                    AlertUtils.alertInfo("关闭串口成功");
+                    mSerialport = null;
+                    mCommList = null;
+                    btnOpen.setText("打开串口");
+                    Main.startBt.setDisable(true);
+                    Main.stopBt.setDisable(true);
+                    Main.upBt.setDisable(true);
+                    Main.downBt.setDisable(true);
+                    Main.resetBt.setDisable(true);
+                    Main.clearLoadBt.setDisable(true);
+                    Main.clearPosBt.setDisable(true);
+                    Main.clearTransformBt.setDisable(true);
+                }
             }
         });
     }

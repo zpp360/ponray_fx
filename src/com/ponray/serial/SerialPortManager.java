@@ -1,5 +1,6 @@
 package com.ponray.serial;
 
+import com.ponray.main.Main;
 import com.ponray.utils.ArrayUtils;
 import com.ponray.utils.ShowUtils;
 import gnu.io.*;
@@ -120,7 +121,7 @@ public class SerialPortManager {
         try {
             in = serialPort.getInputStream();
             // 缓冲区大小为一个字节
-            byte[] readBuffer = new byte[1];
+            byte[] readBuffer = new byte[24];
             int bytesNum = in.read(readBuffer);
             while (bytesNum > 0) {
                 bytes = ArrayUtils.concat(bytes, readBuffer);
@@ -160,6 +161,14 @@ public class SerialPortManager {
         } catch (TooManyListenersException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 移除监听
+     * @param serialPort
+     */
+    public static void removeListener(SerialPort serialPort){
+        serialPort.removeEventListener();
     }
 
     /**
