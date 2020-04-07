@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
@@ -127,8 +128,25 @@ public class UIOnline {
                                 if (Main.startFlag) {
                                     // 以十六进制的形式接收数据
                                     String hexString = ByteUtils.byteArrayToHexString(data);
-                                    System.out.println(hexString);
-                                    System.out.println(ByteUtils.byteArrToInt(data));
+                                    Long now = System.currentTimeMillis();
+                                    String[] list = hexString.split(Constants.A55A);
+                                    if(list!=null && list.length>0){
+                                        for (int i=0;i<list.length;i++){
+                                            String dataStr = list[i];
+                                            if(StringUtils.isNotBlank(dataStr) && dataStr.length()>=40){
+                                                long load1 = Long.parseLong(dataStr.substring(0,8),16);
+                                                long load2 = Long.parseLong(dataStr.substring(8,16),16);
+                                                long load3 = Long.parseLong(dataStr.substring(16,24),16);
+                                                long pos = Long.parseLong(dataStr.substring(24,32),16);
+                                                long transform = Long.parseLong(dataStr.substring(32,40),16);
+                                                System.out.println(load1);
+                                                System.out.println(load2);
+                                                System.out.println(load3);
+                                                System.out.println(pos);
+                                                System.out.println(transform);
+                                            }
+                                        }
+                                    }
                                 }
                             } catch (Exception e) {
                                 AlertUtils.alertError(e.toString());
