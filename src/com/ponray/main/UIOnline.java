@@ -18,6 +18,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.commons.lang.StringUtils;
 
+import java.math.BigInteger;
 import java.util.List;
 
 public class UIOnline {
@@ -134,12 +135,12 @@ public class UIOnline {
                                         for (int i=0;i<list.length;i++){
                                             String dataStr = list[i];
                                             if(StringUtils.isNotBlank(dataStr) && dataStr.length()>=40){
-                                                long load1 = Long.parseLong(dataStr.substring(0,8),16);
-                                                long load2 = Long.parseLong(dataStr.substring(8,16),16);
-                                                long load3 = Long.parseLong(dataStr.substring(16,24),16);
-                                                long pos = Long.parseLong(dataStr.substring(24,32),16);
-                                                long transform = Long.parseLong(dataStr.substring(32,40),16);
-                                                System.out.println(load1);
+                                                BigInteger load1 = new BigInteger(dataStr.substring(0,8),16);
+                                                BigInteger load2 = new BigInteger(dataStr.substring(8,16),16);
+                                                BigInteger load3 = new BigInteger(dataStr.substring(16,24),16);
+                                                BigInteger pos = new BigInteger(dataStr.substring(24,32),16);
+                                                BigInteger transform = new BigInteger(dataStr.substring(32,40),16);
+                                                System.out.println(Float.intBitsToFloat(load1.intValue()));
                                                 System.out.println(load2);
                                                 System.out.println(load3);
                                                 System.out.println(pos);
