@@ -2,6 +2,7 @@ package com.ponray.main;
 
 import com.ponray.constans.Constants;
 import com.ponray.serial.SerialPortManager;
+import com.ponray.service.TestService;
 import com.ponray.utils.AlertUtils;
 import com.ponray.utils.ByteUtils;
 import gnu.io.PortInUseException;
@@ -34,6 +35,8 @@ public class UIOnline {
     public static List<String> mCommList = null;
     // 串口对象
     public static SerialPort mSerialport = null;
+
+    private TestService testService = new TestService();
 
     private Stage window = new Stage();
     public void display(){
@@ -129,7 +132,6 @@ public class UIOnline {
                                 if (Main.startFlag) {
                                     // 以十六进制的形式接收数据
                                     String hexString = ByteUtils.byteArrayToHexString(data);
-                                    Long now = System.currentTimeMillis();
                                     String[] list = hexString.split(Constants.A55A);
                                     if(list!=null && list.length>0){
                                         for (int i=0;i<list.length;i++){
@@ -140,11 +142,61 @@ public class UIOnline {
                                                 BigInteger load3 = new BigInteger(dataStr.substring(16,24),16);
                                                 BigInteger pos = new BigInteger(dataStr.substring(24,32),16);
                                                 BigInteger transform = new BigInteger(dataStr.substring(32,40),16);
-                                                System.out.println(Float.intBitsToFloat(load1.intValue()));
-                                                System.out.println(load2);
-                                                System.out.println(load3);
-                                                System.out.println(pos);
-                                                System.out.println(transform);
+                                                Float fload1 = Float.intBitsToFloat(load1.intValue());
+                                                Float fload2 = Float.intBitsToFloat(load2.intValue());
+                                                Float fload3 = Float.intBitsToFloat(load3.intValue());
+                                                Float fpos = Float.intBitsToFloat(pos.intValue());
+                                                Float ftransform = Float.intBitsToFloat(transform.intValue());
+                                                System.out.println(fload1);
+                                                System.out.println(fload2);
+                                                System.out.println(fload3);
+                                                System.out.println(fpos);
+                                                System.out.println(ftransform);
+                                                //自动判断实验是否结束
+                                                Long nowTime = System.currentTimeMillis();
+                                                if(Main.selectedProgram.isTime()){
+                                                    //定时间
+                                                    if(((nowTime-Main.startTime)/1000)>=Main.selectedProgram.getTimeValue()){
+                                                        //先保存实验
+                                                        Main.startTest.setRunTime(Float.valueOf(nowTime-Main.startTime)/1000);
+                                                        testService.insert(Main.startTest);
+                                                        //运行时间大于等于设置时间，实验停止
+                                                        Main.stopTest();
+
+                                                    }
+                                                }
+                                                if(Main.selectedProgram.isLoad()){
+                                                    //定力值,目前检测的是力1
+                                                    if(fload1>=Main.selectedProgram.getLoadValue()){
+                                                        //力值大于等于设定值，保存test
+                                                        Main.startTest.setRunTime(Float.valueOf(nowTime-Main.startTime)/1000);
+                                                        testService.insert(Main.startTest);
+                                                        //实验停止
+                                                        Main.stopTest();
+                                                    }
+                                                }
+                                                if(Main.selectedProgram.isPos()){
+                                                    //定位移
+                                                    if(fpos>=Main.selectedProgram.getPosValue()){
+                                                        //位移大于等于设定值，保存test
+                                                        Main.startTest.setRunTime(Float.valueOf(nowTime-Main.startTime)/1000);
+                                                        testService.insert(Main.startTest);
+                                                        //实验停止
+                                                        Main.stopTest();
+                                                    }
+                                                }
+                                                if(Main.selectedProgram.isTransform()){
+                                                    //定变形
+                                                    if(ftransform>=Main.selectedProgram.getTransformValue()){
+                                                        //变形大于等于设定值，保存test
+                                                        Main.startTest.setRunTime(Float.valueOf(nowTime-Main.startTime)/1000);
+                                                        testService.insert(Main.startTest);
+                                                        //实验停止
+                                                        Main.stopTest();
+                                                    }
+                                                }
+
+
                                             }
                                         }
                                     }
@@ -187,4 +239,5 @@ public class UIOnline {
             }
         });
     }
+
 }

@@ -64,7 +64,7 @@ public class Main extends Application {
     private static Button btnSaveParam = new Button("保存参数");
     private static TableView tableView = new TableView<>();
     private static List<Program> programList = null;
-    private static Program selectedProgram = null;
+    public static Program selectedProgram = null;
     //选中的实验方案用户参数列表
     private static List<ProgramUserParam> userParamList = null;
     //实验参数列表
@@ -95,8 +95,10 @@ public class Main extends Application {
 
     //实验开始标志
     public static boolean startFlag = false;
-
+    //实验开始时间，在UIonlin里使用计算运行时间
     public static Long startTime = null;
+    //实验中实验，在UIOnline里保存
+    public static Test startTest = null;
 
 
     private static ProgramService programService = new ProgramService();
@@ -859,17 +861,17 @@ public class Main extends Application {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Test test = new Test();
-                test.setTestNum(maxNum+1);
-                test.setLoadUnit(selectedProgram.getUnitLoad());
-                test.setPressUnit(selectedProgram.getUnitN());
-                test.setTransformUnit(selectedProgram.getUnitTransform());
-                test.setProgramName(selectedProgram.getName());
-                test.setSaveFile(fileName);
-                test.setShape(selectedProgram.getShapeName());
-                test.setSpeed(selectedProgram.isControl()?0:selectedProgram.getGeneralSpeed());
-                test.setTransformSensor(selectedProgram.getTransformSensor());
-                test.setRunTime(3.0F);
+                startTest = new Test();
+                startTest.setTestNum(maxNum+1);
+                startTest.setLoadUnit(selectedProgram.getUnitLoad());
+                startTest.setPressUnit(selectedProgram.getUnitN());
+                startTest.setTransformUnit(selectedProgram.getUnitTransform());
+                startTest.setProgramName(selectedProgram.getName());
+                startTest.setSaveFile(fileName);
+                startTest.setShape(selectedProgram.getShapeName());
+                startTest.setSpeed(selectedProgram.isControl()?0:selectedProgram.getGeneralSpeed());
+                startTest.setTransformSensor(selectedProgram.getTransformSensor());
+
                 //实验开始标志置为true
                 startFlag = true;
                 //设置按钮状态
@@ -884,12 +886,21 @@ public class Main extends Application {
         });
         //右侧停止按钮
         stopBt.setOnAction(event -> {
-            //实验开始标志置为false
-            startFlag = false;
-            //按钮状态
-            startBt.setDisable(false);
-            stopBt.setDisable(true);
+            stopTest();
         });
+    }
+
+    /**
+     * 实验停止
+     */
+    public static void stopTest(){
+        //实验开始标志置为false
+        startFlag = false;
+        //按钮状态
+        startBt.setDisable(false);
+        stopBt.setDisable(true);
+        startTest = null;
+        startTime = null;
     }
 
     /**
