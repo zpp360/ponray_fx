@@ -17,7 +17,7 @@ public class Test {
     private String pressUnit;//强度单位名称
     private String saveFile;//保存文件名
     private Float speed;//位移控制的速度，如果是程序控制则为“0”
-    private Float runTime;//运行时间
+    private Long runTime;//运行时间
     private String shape;//试样的形状
 
     public Long getTestNum() {
@@ -100,11 +100,11 @@ public class Test {
         this.speed = speed;
     }
 
-    public Float getRunTime() {
+    public Long getRunTime() {
         return runTime;
     }
 
-    public void setRunTime(Float runTime) {
+    public void setRunTime(Long runTime) {
         this.runTime = runTime;
     }
 

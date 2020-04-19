@@ -138,7 +138,7 @@ public class TestService {
             test.setPressUnit(set.getString("press_unit"));
             test.setSaveFile(set.getString("save_file"));
             test.setSpeed(set.getFloat("speed"));
-            test.setRunTime(set.getFloat("run_time"));
+            test.setRunTime(set.getLong("run_time"));
             test.setShape(set.getString("shape"));
             list.add(test);
         }

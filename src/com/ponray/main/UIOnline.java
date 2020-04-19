@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import org.apache.commons.lang.StringUtils;
 
 import java.math.BigInteger;
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class UIOnline {
@@ -147,18 +148,39 @@ public class UIOnline {
                                                 Float fload3 = Float.intBitsToFloat(load3.intValue());
                                                 Float fpos = Float.intBitsToFloat(pos.intValue());
                                                 Float ftransform = Float.intBitsToFloat(transform.intValue());
-                                                System.out.println(fload1);
-                                                System.out.println(fload2);
-                                                System.out.println(fload3);
-                                                System.out.println(fpos);
-                                                System.out.println(ftransform);
-                                                //自动判断实验是否结束
+                                                //设置峰值
+                                                if(Main.topN==null || fload1>Main.topN){
+                                                    Main.topN = fload1;
+                                                }
+                                                //当前时间
                                                 Long nowTime = System.currentTimeMillis();
+                                                Long runtime = nowTime-Main.startTime;
+
+                                                DecimalFormat decimalFormat=new DecimalFormat("00.000");
+                                                System.out.println(fload1);
+                                                System.out.println("力："+decimalFormat.format(fload1));
+                                                System.out.println("位移："+decimalFormat.format(fpos));
+                                                System.out.println("变形："+decimalFormat.format(ftransform));
+                                                System.out.println("时间："+runtime);
+                                                System.out.println("峰值："+decimalFormat.format(Main.topN));
+
+                                                //主界面值设置
+                                                Platform.runLater(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        Main.lableNum1.setText(decimalFormat.format(fload1<0?0:fload1));
+                                                        Main.lableNum2.setText(decimalFormat.format(fpos));
+                                                        Main.lableNum3.setText(decimalFormat.format(ftransform));
+                                                        Main.lableNum4.setText(runtime.toString());
+                                                        Main.labelTop.setText(decimalFormat.format(Main.topN<0?0:Main.topN));
+                                                    }
+                                                });
+                                                //自动判断实验是否结束
                                                 if(Main.selectedProgram.isTime()){
                                                     //定时间
-                                                    if(((nowTime-Main.startTime)/1000)>=Main.selectedProgram.getTimeValue()){
+                                                    if(runtime>=Main.selectedProgram.getTimeValue()){
                                                         //先保存实验
-                                                        Main.startTest.setRunTime(Float.valueOf(nowTime-Main.startTime)/1000);
+                                                        Main.startTest.setRunTime(runtime);
                                                         testService.insert(Main.startTest);
                                                         //运行时间大于等于设置时间，实验停止
                                                         Main.stopTest();
@@ -169,7 +191,7 @@ public class UIOnline {
                                                     //定力值,目前检测的是力1
                                                     if(fload1>=Main.selectedProgram.getLoadValue()){
                                                         //力值大于等于设定值，保存test
-                                                        Main.startTest.setRunTime(Float.valueOf(nowTime-Main.startTime)/1000);
+                                                        Main.startTest.setRunTime(runtime);
                                                         testService.insert(Main.startTest);
                                                         //实验停止
                                                         Main.stopTest();
@@ -179,7 +201,7 @@ public class UIOnline {
                                                     //定位移
                                                     if(fpos>=Main.selectedProgram.getPosValue()){
                                                         //位移大于等于设定值，保存test
-                                                        Main.startTest.setRunTime(Float.valueOf(nowTime-Main.startTime)/1000);
+                                                        Main.startTest.setRunTime(runtime);
                                                         testService.insert(Main.startTest);
                                                         //实验停止
                                                         Main.stopTest();
@@ -189,13 +211,12 @@ public class UIOnline {
                                                     //定变形
                                                     if(ftransform>=Main.selectedProgram.getTransformValue()){
                                                         //变形大于等于设定值，保存test
-                                                        Main.startTest.setRunTime(Float.valueOf(nowTime-Main.startTime)/1000);
+                                                        Main.startTest.setRunTime(runtime);
                                                         testService.insert(Main.startTest);
                                                         //实验停止
                                                         Main.stopTest();
                                                     }
                                                 }
-
 
                                             }
                                         }

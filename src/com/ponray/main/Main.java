@@ -48,6 +48,14 @@ public class Main extends Application {
 
     private static Stage stage = null;
 
+    //顶部值
+    public static Label lableNum1 = null; //力
+    public static Label labelTop = null;  //峰值
+    public static Label lableNum2 = null; //位移
+    public static Label lableNum3 = null; //变形
+    public static Label lableNum4 = null; //时间
+    public static Float topN = null;
+
     private static TabPane tabPane = null;
     private static Tab tab1 = null;
     private static Tab tab2 = null;
@@ -132,28 +140,16 @@ public class Main extends Application {
         tab4 = new Tab(Constants.language.getProperty("search"));
 
         //力 显示框布局
-        Label lableNum1 = new Label("0.00000");
-        lableNum1.setMinSize(165,55);
+        lableNum1 = new Label("0.0000");
+        lableNum1.setMinSize(140,55);
         lableNum1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 40));
         lableNum1.setAlignment(Pos.CENTER);
         lableNum1.setStyle("-fx-background-color: #002060;");
         lableNum1.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
         lableNum1.setTextFill(Color.web("#fff"));
 
-
-        //力峰值
-        Label labelTop = new Label("0.00");
-        labelTop.setMinSize(65,55);
-        lableNum1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 40));
-        lableNum1.setAlignment(Pos.CENTER);
-        lableNum1.setStyle("-fx-background-color: #002060;");
-        lableNum1.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0,0,1,1),Insets.EMPTY)));
-        lableNum1.setTextFill(Color.web("#fff"));
-
-
-
         Label labelN1 = new Label("N");
-        labelN1.setMinSize(68,26);
+        labelN1.setMinSize(50,26);
         labelN1.setStyle("-fx-background-color: #002060;");
         labelN1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         labelN1.setTextFill(Color.web("#fff"));
@@ -161,7 +157,7 @@ public class Main extends Application {
         labelN1.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
         Label labelName1 = new Label(Constants.language.getProperty("n"));
-        labelName1.setMinSize(68,23);
+        labelName1.setMinSize(50,23);
         labelName1.setStyle("-fx-background-color: #5FB41B;");
         labelName1.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         labelName1.setTextFill(Color.web("#fff"));
@@ -187,10 +183,50 @@ public class Main extends Application {
         topGrid1.setBorder(new Border(new BorderStroke(Color.rgb(213,223,229), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT,new Insets(10))));
         //lableNum1.prefWidthProperty().bind(topGrid1.widthProperty());
 
+        //峰值显示布局
+        //力峰值
+        labelTop = new Label("0.0000");
+        labelTop.setMinSize(140,55);
+        labelTop.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 40));
+        labelTop.setAlignment(Pos.CENTER);
+        labelTop.setStyle("-fx-background-color: #002060;");
+        labelTop.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0,0,1,1),Insets.EMPTY)));
+        labelTop.setTextFill(Color.web("#fff"));
+
+        Label labelNTop = new Label("N");
+        labelNTop.setMinSize(50,26);
+        labelNTop.setStyle("-fx-background-color: #002060;");
+        labelNTop.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
+        labelNTop.setTextFill(Color.web("#fff"));
+        labelNTop.setAlignment(Pos.CENTER);
+        labelNTop.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
+
+        Label labelNameTop = new Label("峰值");
+        labelNameTop.setMinSize(50,23);
+        labelNameTop.setStyle("-fx-background-color: #5FB41B;");
+        labelNameTop.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
+        labelNameTop.setTextFill(Color.web("#fff"));
+        labelNameTop.setAlignment(Pos.CENTER);
+        labelNameTop.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
+
+        VBox vBoxTop = new VBox();
+        //调整上下组件间距
+        vBoxTop.setSpacing(5);
+        vBoxTop.setPadding(new Insets(0,5,0,10));
+        vBoxTop.getChildren().addAll(labelNTop,labelNameTop);
+
+        GridPane topGridTop = new GridPane();
+        //是否显示表格边框
+        //topGrid.setGridLinesVisible(true);
+        topGridTop.add(labelTop,0,0,1,2);
+        topGridTop.add(vBoxTop,1,0);
+        topGridTop.setPadding(new Insets(5));
+        topGridTop.setBorder(new Border(new BorderStroke(Color.rgb(213,223,229), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT,new Insets(10))));
+        //lableNum1.prefWidthProperty().bind(topGrid1.widthProperty());
 
         //位移显示框布局
-        Label lableNum2 = new Label("0.00000");
-        lableNum2.setMinSize(165,55);
+        lableNum2 = new Label("0.0000");
+        lableNum2.setMinSize(140,55);
         lableNum2.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 40));
         lableNum2.setAlignment(Pos.CENTER);
         lableNum2.setStyle("-fx-background-color: #002060;");
@@ -199,7 +235,7 @@ public class Main extends Application {
 
 
         Label labelN2 = new Label("mm");
-        labelN2.setMinSize(68,26);
+        labelN2.setMinSize(50,26);
         labelN2.setStyle("-fx-background-color: #002060;");
         labelN2.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         labelN2.setTextFill(Color.web("#fff"));
@@ -207,7 +243,7 @@ public class Main extends Application {
         labelN2.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
         Label labelName2 = new Label(Constants.language.getProperty("displacement"));
-        labelName2.setMinSize(68,23);
+        labelName2.setMinSize(50,23);
         labelName2.setStyle("-fx-background-color: #5FB41B;");
         labelName2.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         labelName2.setTextFill(Color.web("#fff"));
@@ -233,8 +269,8 @@ public class Main extends Application {
         topGrid2.setBorder(new Border(new BorderStroke(Color.rgb(213,223,229), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT,new Insets(10))));
 
         //变形显示框布局
-        Label lableNum3 = new Label("0.00000");
-        lableNum3.setMinSize(165,55);
+        lableNum3 = new Label("0.0000");
+        lableNum3.setMinSize(140,55);
         lableNum3.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 40));
         lableNum3.setAlignment(Pos.CENTER);
         lableNum3.setStyle("-fx-background-color: #002060;");
@@ -243,7 +279,7 @@ public class Main extends Application {
 
 
         Label labelN3 = new Label("mm");
-        labelN3.setMinSize(68,26);
+        labelN3.setMinSize(50,26);
         labelN3.setStyle("-fx-background-color: #002060;");
         labelN3.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         labelN3.setTextFill(Color.web("#fff"));
@@ -251,7 +287,7 @@ public class Main extends Application {
         labelN3.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
         Label labelName3 = new Label(Constants.language.getProperty("transformation"));
-        labelName3.setMinSize(68,23);
+        labelName3.setMinSize(50,23);
         labelName3.setStyle("-fx-background-color: #5FB41B;");
         labelName3.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         labelName3.setTextFill(Color.web("#fff"));
@@ -276,8 +312,8 @@ public class Main extends Application {
         topGrid3.setBorder(new Border(new BorderStroke(Color.rgb(213,223,229), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT,new Insets(10))));
 
         //时间显示框布局
-        Label lableNum4 = new Label("0.00000");
-        lableNum4.setMinSize(165,55);
+        lableNum4 = new Label("000000");
+        lableNum4.setMinSize(140,55);
         lableNum4.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 40));
         lableNum4.setAlignment(Pos.CENTER);
         lableNum4.setStyle("-fx-background-color: #002060;");
@@ -285,8 +321,8 @@ public class Main extends Application {
         lableNum4.setTextFill(Color.web("#fff"));
 
 
-        Label labelN4 = new Label("s");
-        labelN4.setMinSize(68,26);
+        Label labelN4 = new Label("ms");
+        labelN4.setMinSize(50,26);
         labelN4.setStyle("-fx-background-color: #002060;");
         labelN4.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         labelN4.setTextFill(Color.web("#fff"));
@@ -294,7 +330,7 @@ public class Main extends Application {
         labelN4.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
         Label labelName4 = new Label(Constants.language.getProperty("time"));
-        labelName4.setMinSize(68,23);
+        labelName4.setMinSize(50,23);
         labelName4.setStyle("-fx-background-color: #5FB41B;");
         labelName4.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
         labelName4.setTextFill(Color.web("#fff"));
@@ -320,8 +356,8 @@ public class Main extends Application {
         topGrid4.setBorder(new Border(new BorderStroke(Color.rgb(213,223,229), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT,new Insets(10))));
 
         HBox hBox = new HBox();
-        hBox.setSpacing(5);
-        hBox.getChildren().addAll(topGrid1,topGrid2,topGrid3,topGrid4);
+        hBox.setSpacing(1);
+        hBox.getChildren().addAll(topGrid1,topGridTop,topGrid2,topGrid3,topGrid4);
 
 
 
@@ -901,6 +937,8 @@ public class Main extends Application {
         stopBt.setDisable(true);
         startTest = null;
         startTime = null;
+        //top力值
+        topN = null;
     }
 
     /**
