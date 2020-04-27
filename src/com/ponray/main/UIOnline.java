@@ -1,10 +1,12 @@
 package com.ponray.main;
 
 import com.ponray.constans.Constants;
+import com.ponray.entity.TestData;
 import com.ponray.serial.SerialPortManager;
 import com.ponray.service.TestService;
 import com.ponray.utils.AlertUtils;
 import com.ponray.utils.ByteUtils;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import javafx.application.Platform;
@@ -38,6 +40,10 @@ public class UIOnline {
     public static SerialPort mSerialport = null;
 
     private TestService testService = new TestService();
+
+    private static DecimalFormat decimalFormat1=new DecimalFormat("0.0000");
+    private static DecimalFormat decimalFormat2=new DecimalFormat("00.000");
+    private static DecimalFormat decimalFormat3=new DecimalFormat("000.00");
 
     private Stage window = new Stage();
     public void display(){
@@ -155,24 +161,35 @@ public class UIOnline {
                                                 //当前时间
                                                 Long nowTime = System.currentTimeMillis();
                                                 Long runtime = nowTime-Main.startTime;
-
-                                                DecimalFormat decimalFormat=new DecimalFormat("00.000");
-                                                System.out.println(fload1);
-                                                System.out.println("力："+decimalFormat.format(fload1));
-                                                System.out.println("位移："+decimalFormat.format(fpos));
-                                                System.out.println("变形："+decimalFormat.format(ftransform));
-                                                System.out.println("时间："+runtime);
-                                                System.out.println("峰值："+decimalFormat.format(Main.topN));
+                                                TestData testData = new TestData();
+                                                testData.setLoadVal1(fload1);
+                                                testData.setLoadVal2(fload2);
+                                                testData.setLoadVal3(fload3);
+                                                testData.setPosVal(fpos);
+                                                testData.setTimeValue(runtime);
+                                                testData.setDeformVal(ftransform);
+                                                testData.setTestNum(Main.startTest.getTestNum());
 
                                                 //主界面值设置
+                                                String strFload1 = formatFloat(fload1);
+                                                String strFpos = formatFloat(fpos);
+                                                String strFtransform = formatFloat(ftransform);
+                                                String strRuntime = formatFloat((float)runtime/1000);
+                                                String strTop = formatFloat(Main.topN);
+                                                System.out.println(fload1);
+                                                System.out.println("力："+strFload1);
+                                                System.out.println("位移："+strFpos);
+                                                System.out.println("变形："+strFtransform);
+                                                System.out.println("时间："+strRuntime);
+                                                System.out.println("峰值："+strTop);
                                                 Platform.runLater(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        Main.lableNum1.setText(decimalFormat.format(fload1<0?0:fload1));
-                                                        Main.lableNum2.setText(decimalFormat.format(fpos));
-                                                        Main.lableNum3.setText(decimalFormat.format(ftransform));
-                                                        Main.lableNum4.setText(runtime.toString());
-                                                        Main.labelTop.setText(decimalFormat.format(Main.topN<0?0:Main.topN));
+                                                        Main.lableNum1.setText(strFload1);
+                                                        Main.lableNum2.setText(strFpos);
+                                                        Main.lableNum3.setText(strFtransform);
+                                                        Main.lableNum4.setText(strRuntime);
+                                                        Main.labelTop.setText(strTop);
                                                     }
                                                 });
                                                 //自动判断实验是否结束
@@ -259,6 +276,22 @@ public class UIOnline {
                 }
             }
         });
+    }
+
+    /**
+     * 对float值进行format
+     * @return
+     */
+    private String formatFloat(float fl){
+        String strFload = Constants.STR_ZERO;
+        if(fl>0){
+            strFload = decimalFormat1.format(fl);
+        }else if(fl>10){
+            strFload = decimalFormat2.format(fl);
+        }else if(fl>100){
+            strFload = decimalFormat3.format(fl);
+        }
+        return strFload;
     }
 
 }

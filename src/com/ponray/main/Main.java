@@ -4,6 +4,7 @@ import com.ponray.constans.Constants;
 import com.ponray.entity.Program;
 import com.ponray.entity.ProgramUserParam;
 import com.ponray.entity.Test;
+import com.ponray.entity.TestData;
 import com.ponray.serial.SerialPortManager;
 import com.ponray.service.ProgramService;
 import com.ponray.service.TestService;
@@ -107,6 +108,8 @@ public class Main extends Application {
     public static Long startTime = null;
     //实验中实验，在UIOnline里保存
     public static Test startTest = null;
+    //实验数据
+    public static List<TestData> dataList = new ArrayList<>();
 
 
     private static ProgramService programService = new ProgramService();
@@ -321,7 +324,7 @@ public class Main extends Application {
         lableNum4.setTextFill(Color.web("#fff"));
 
 
-        Label labelN4 = new Label("ms");
+        Label labelN4 = new Label("S");
         labelN4.setMinSize(50,26);
         labelN4.setStyle("-fx-background-color: #002060;");
         labelN4.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -939,6 +942,20 @@ public class Main extends Application {
         startTime = null;
         //top力值
         topN = null;
+        try {
+            //保存实验
+            testService.insert(startTest);
+            //实验结束保存数据
+            DBFileHelper.getInstance(startTest.getSaveFile());
+            testService.batchSaveTestData(dataList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        //数据列表清空,初始化
+        dataList.clear();
+
     }
 
     /**

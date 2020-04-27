@@ -58,6 +58,8 @@ public class Constants {
     public final static int INT_ZERO = 0;
     public final static int INT_ONE = 1;
 
+    public final static String STR_ZERO = "0";
+
 
     public final static String A55A = "A55A";
 }

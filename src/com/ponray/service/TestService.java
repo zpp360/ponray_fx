@@ -1,7 +1,9 @@
 package com.ponray.service;
 
 import com.ponray.entity.Test;
+import com.ponray.entity.TestData;
 import com.ponray.utils.AccessHelper;
+import com.ponray.utils.DBFileHelper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -143,5 +145,31 @@ public class TestService {
             list.add(test);
         }
         return list;
+    }
+
+    /**
+     * 批量保存实验数据
+     * @param list
+     */
+    public void batchSaveTestData(List<TestData> list) throws SQLException, ClassNotFoundException {
+        Connection conn = DBFileHelper.getConnection();
+        String sql = "insert into t_test_data(test_num,time_value,loadval1,loadval2,loadval3,posval,deformval) values (?,?,?,?,?,?,?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        if(list!=null && list.size()>0){
+            for(int i=0;i<list.size();i++){
+                TestData t = list.get(i);
+                pstmt.setLong(1,t.getTestNum());
+                pstmt.setLong(2,t.getTimeValue());
+                pstmt.setFloat(3,t.getLoadVal1());
+                pstmt.setFloat(4,t.getLoadVal2());
+                pstmt.setFloat(5,t.getLoadVal3());
+                pstmt.setFloat(6,t.getPosVal());
+                pstmt.setFloat(7,t.getDeformVal());
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+            pstmt.clearBatch();
+        }
+        pstmt.close();
     }
 }

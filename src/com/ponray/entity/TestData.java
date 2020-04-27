@@ -6,7 +6,7 @@ public class TestData {
 
     private Long testNum;
 
-    private Double timeValue;
+    private Long timeValue;
 
     private Float loadVal1;//力1
     private Float loadVal2;//力2
@@ -32,11 +32,11 @@ public class TestData {
         this.testNum = testNum;
     }
 
-    public Double getTimeValue() {
+    public Long getTimeValue() {
         return timeValue;
     }
 
-    public void setTimeValue(Double timeValue) {
+    public void setTimeValue(Long timeValue) {
         this.timeValue = timeValue;
     }
 

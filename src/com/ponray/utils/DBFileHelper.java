@@ -33,7 +33,7 @@ public class DBFileHelper {
                     instance = new DBFileHelper();
 
                     Class.forName(DRIVER);
-                    conn = DriverManager.getConnection("jdbc:ucanaccess://" + DBPATH + dbName,USERNAME,PASSWORD);
+                    conn = DriverManager.getConnection("jdbc:ucanaccess://" + DBPATH + dbName+".mdb",USERNAME,PASSWORD);
                     statement = conn.createStatement();
                 }
             }
