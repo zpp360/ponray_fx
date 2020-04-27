@@ -835,6 +835,7 @@ public class Main extends Application {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if(newValue.intValue()>-1){
+                    System.out.println();
                     selectedUserParam = allData.get(newValue.intValue());
                 }
             }
@@ -948,6 +949,8 @@ public class Main extends Application {
             //实验结束保存数据
             DBFileHelper.getInstance(startTest.getSaveFile());
             testService.batchSaveTestData(dataList);
+            //保存实验参数
+
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
