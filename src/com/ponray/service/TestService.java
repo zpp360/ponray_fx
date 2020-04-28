@@ -2,6 +2,7 @@ package com.ponray.service;
 
 import com.ponray.entity.Test;
 import com.ponray.entity.TestData;
+import com.ponray.entity.TestParam;
 import com.ponray.utils.AccessHelper;
 import com.ponray.utils.DBFileHelper;
 
@@ -10,6 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class TestService {
@@ -17,7 +20,7 @@ public class TestService {
     public int insert(Test test) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
         //先将其它设置为未选中
-        String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,speed,run_time,shape) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,speed,run_time,shape) values (?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,test.getTestNum());
         pstmt.setDouble(2,test.getTestTime());
@@ -170,6 +173,24 @@ public class TestService {
             pstmt.executeBatch();
             pstmt.clearBatch();
         }
+        pstmt.close();
+    }
+
+    /**
+     * 保存实验参数
+     */
+    public void batchSaveTestParam(Long testNum, HashMap<String,String> param) throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "insert into t_test_param(test_num,param) values (?,?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        Iterator iterator = param.values().iterator();
+        while (iterator.hasNext()){
+            pstmt.setLong(1,testNum);
+            pstmt.setString(2, (String) iterator.next());
+            pstmt.addBatch();
+        }
+        pstmt.executeBatch();
+        pstmt.clearBatch();
         pstmt.close();
     }
 }

@@ -950,7 +950,7 @@ public class Main extends Application {
             DBFileHelper.getInstance(startTest.getSaveFile());
             testService.batchSaveTestData(dataList);
             //保存实验参数
-
+            testService.batchSaveTestParam(startTest.getTestNum(),selectedUserParam);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
