@@ -62,4 +62,12 @@ public class Constants {
 
 
     public final static String A55A = "A55A";
+
+    /**
+     * 实验状态
+     */
+    public final static String TEST_STATUS = "状态";
+    public final static String TEST_STATUS_NOSTART = "未开始";
+    public final static String TEST_STATUS_ING = "进行中";
+    public final static String TEST_STATUS_END = "已结束";
 }

@@ -80,6 +80,7 @@ public class Main extends Application {
     private static ObservableList<HashMap<String,String>> allData = FXCollections.observableArrayList();
     //选中的用户参数
     private static HashMap<String,String> selectedUserParam = null;
+    private static int selectedUserParamIndex = 0;
     private static HashMap<String,String> editDataRow = null;
     //--------------------------------tab1 end-------------------------------------
 
@@ -835,7 +836,7 @@ public class Main extends Application {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if(newValue.intValue()>-1){
-                    System.out.println();
+                    selectedUserParamIndex = newValue.intValue();
                     selectedUserParam = allData.get(newValue.intValue());
                 }
             }
@@ -855,7 +856,7 @@ public class Main extends Application {
             }
             editDataRow = new HashMap<>();
             editDataRow.put("序号",allData.size()+1+"");
-            editDataRow.put("状态","未开始");
+            editDataRow.put(Constants.TEST_STATUS,Constants.TEST_STATUS_NOSTART);
             for (int i=0;i<userParamList.size();i++){
                 ProgramUserParam p = userParamList.get(i);
                 editDataRow.put(p.getName(),"");
@@ -883,6 +884,14 @@ public class Main extends Application {
             }
             if(UIOnline.mSerialport==null){
                 AlertUtils.alertError("未联机");
+            }
+            if(selectedUserParam==null){
+                AlertUtils.alertError("请实验条目");
+                return;
+            }
+            if(!(Constants.TEST_STATUS_NOSTART.equals(selectedUserParam.get(Constants.TEST_STATUS)))){
+                AlertUtils.alertError("实验状态错误");
+                return;
             }
             //创建mdb文件
             String fileName = textFileName.getText();
@@ -921,6 +930,8 @@ public class Main extends Application {
                 SerialPortManager.sendToPort(UIOnline.mSerialport,"test".getBytes());
                 //初始化开始时间
                 startTime = System.currentTimeMillis();
+                //设置实验状态进行中
+                allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_ING);
             }
 
         });
@@ -934,6 +945,8 @@ public class Main extends Application {
      * 实验停止
      */
     public static void stopTest(){
+        //发送实验停止
+
         //实验开始标志置为false
         startFlag = false;
         //按钮状态
@@ -951,6 +964,8 @@ public class Main extends Application {
             testService.batchSaveTestData(dataList);
             //保存实验参数
             testService.batchSaveTestParam(startTest.getTestNum(),selectedUserParam);
+            //状态显示更新
+            allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_END);
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -1005,14 +1020,14 @@ public class Main extends Application {
             TableColumn<HashMap<String,String>,String> numColumn = new TableColumn("序号");
             numColumn.setCellValueFactory(new MapValueFactory("序号"));
             numColumn.setSortable(false);
-            TableColumn<HashMap<String,String>,String> statusColumn = new TableColumn("状态");
-            statusColumn.setCellValueFactory(new MapValueFactory("状态"));
+            TableColumn<HashMap<String,String>,String> statusColumn = new TableColumn(Constants.TEST_STATUS);
+            statusColumn.setCellValueFactory(new MapValueFactory(Constants.TEST_STATUS));
             statusColumn.setSortable(false);
             tableView.getColumns().add(numColumn);
             tableView.getColumns().add(statusColumn);
             editDataRow = new HashMap<>();
             editDataRow.put("序号","1");
-            editDataRow.put("状态","未开始");
+            editDataRow.put(Constants.TEST_STATUS,Constants.TEST_STATUS_NOSTART);
             for (int i=0;i<userParamList.size();i++){
                 ProgramUserParam p = userParamList.get(i);
                 TableColumn tableColumn = new TableColumn(p.getName()+"\n"+"("+p.getUnit()+")");
