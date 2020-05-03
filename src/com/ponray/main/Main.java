@@ -92,6 +92,9 @@ public class Main extends Application {
 
     public static MenuItem offlineItem = new MenuItem("脱机");
 
+    //右侧速度滑动条
+    private static Slider speedSlider = new Slider();
+    private static Label speedLabel = new Label("50");
 
     //右侧操作按钮
     public static Button upBt = null;
@@ -175,7 +178,7 @@ public class Main extends Application {
         vBox1.getChildren().addAll(labelN1,labelName1);
 
         Button button1 = new Button(Constants.language.getProperty("clear"));
-        button1.setMinSize(40,53);
+        button1.setMinSize(50,53);
 
         GridPane topGrid1 = new GridPane();
         //是否显示表格边框
@@ -261,7 +264,7 @@ public class Main extends Application {
         vBox2.getChildren().addAll(labelN2,labelName2);
 
         Button button2 = new Button(Constants.language.getProperty("clear"));
-        button2.setMinSize(40,53);
+        button2.setMinSize(50,53);
 
         GridPane topGrid2 = new GridPane();
         //是否显示表格边框
@@ -304,7 +307,7 @@ public class Main extends Application {
         vBox3.setPadding(new Insets(0,5,0,10));
         vBox3.getChildren().addAll(labelN3,labelName3);
         Button button3 = new Button(Constants.language.getProperty("clear"));
-        button3.setMinSize(40,53);
+        button3.setMinSize(50,53);
 
         GridPane topGrid3 = new GridPane();
         //是否显示表格边框
@@ -348,7 +351,7 @@ public class Main extends Application {
         vBox4.getChildren().addAll(labelN4,labelName4);
 
         Button button4 = new Button(Constants.language.getProperty("clear"));
-        button4.setMinSize(40,53);
+        button4.setMinSize(50,53);
 
         GridPane topGrid4 = new GridPane();
         //是否显示表格边框
@@ -380,6 +383,16 @@ public class Main extends Application {
 
         Label nullLable = new Label();
         nullLable.setMinSize(250,200);
+
+        speedSlider.setMin(0);
+        speedSlider.setMax(500);
+        speedSlider.setValue(50);
+        speedSlider.setShowTickLabels(true);
+        speedSlider.setShowTickMarks(false);
+        speedSlider.setPrefSize(200,20);
+        speedLabel.setPrefSize(50,20);
+        speedLabel.setText("50");
+
 
         upBt = new Button(Constants.language.getProperty("up"));
         upBt.setMinSize(80,40);
@@ -426,7 +439,9 @@ public class Main extends Application {
         opBtvBox.getChildren().addAll(lineOne,lineTwo,lineThree,lineFour);
         opBtvBox.setSpacing(10);
 
-
+        HBox speedHbox = new HBox();
+        speedHbox.getChildren().addAll(speedSlider,speedLabel);
+        speedHbox.setSpacing(10);
 
         GridPane rightGrid = new GridPane();
         rightGrid.setPadding(new Insets(5));
@@ -437,7 +452,8 @@ public class Main extends Application {
         rightGrid.add(statusNameLabel,0,1);
         rightGrid.add(statusLable,1,1);
         rightGrid.add(nullLable,0,2,2,1);
-        rightGrid.add(opBtvBox,0,3,2,1);
+        rightGrid.add(speedHbox,0,3,2,1);
+        rightGrid.add(opBtvBox,0,4,2,1);
 
         //tabPane
         tabPane.setPrefSize(1000,600);
@@ -496,7 +512,7 @@ public class Main extends Application {
         //控制窗口是否可以缩放
         stage.setResizable(true);
         //全屏
-//        stage.setMaximized(true);
+        stage.setMaximized(true);
         stage.show();
 
     }
@@ -808,6 +824,11 @@ public class Main extends Application {
     }
 
     private void registEvent(){
+        //速度滑动条
+        speedSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldVal, Number newVal) -> {
+            speedLabel.setText(String.format("%.0f", newVal));
+        });
+
         choiceBoxProgram.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
