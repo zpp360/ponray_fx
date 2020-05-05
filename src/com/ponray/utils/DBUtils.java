@@ -40,7 +40,7 @@ public class DBUtils {
         Table table = null;
         try {
             //刚才是创建文件，这里是在文件里创建表，字段名，字段类型
-            table = new TableBuilder("t_data")
+            table = new TableBuilder("t_test_data")
                     .addColumn(new ColumnBuilder("ID")
                             .setSQLType(Types.INTEGER).setAutoNumber(true))
                     .addColumn(new ColumnBuilder("test_num")

@@ -8,7 +8,7 @@ import java.sql.Date;
  */
 public class Test {
     private Long testNum;//实验编号
-    private Double testTime;//实验时间
+    private Date testTime;//实验时间
     private String programName;//实验方案名称
     private String standardName;//实验标准
     private String transformSensor;//变形计算选择
@@ -28,11 +28,11 @@ public class Test {
         this.testNum = testNum;
     }
 
-    public Double getTestTime() {
+    public Date getTestTime() {
         return testTime;
     }
 
-    public void setTestTime(Double testTime) {
+    public void setTestTime(Date testTime) {
         this.testTime = testTime;
     }
 

@@ -1,5 +1,6 @@
 package com.ponray.main;
 
+import com.healthmarketscience.jackcess.Database;
 import com.ponray.constans.Constants;
 import com.ponray.entity.Program;
 import com.ponray.entity.ProgramUserParam;
@@ -44,6 +45,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
 
 public class Main extends Application {
 
@@ -914,12 +917,18 @@ public class Main extends Application {
                 AlertUtils.alertError("实验状态错误");
                 return;
             }
+
+            //数据列表清空,初始化
+            dataList.clear();
             //创建mdb文件
             String fileName = textFileName.getText();
             if(StringUtils.isNotBlank(fileName)){
                 if(!DBUtils.isExit(fileName)){
                     try {
-                        DBUtils.createDBFile(fileName);
+                        //创建数据库
+                        Database dataBase= DBUtils.createDBFile(fileName);
+                        //创建表
+                        DBUtils.createTableTestData(dataBase);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -941,7 +950,7 @@ public class Main extends Application {
                 startTest.setShape(selectedProgram.getShapeName());
                 startTest.setSpeed(selectedProgram.isControl()?0:selectedProgram.getGeneralSpeed());
                 startTest.setTransformSensor(selectedProgram.getTransformSensor());
-
+                startTest.setTestTime(new java.sql.Date(new Date().getTime()));
                 //实验开始标志置为true
                 startFlag = true;
                 //设置按钮状态
@@ -973,10 +982,6 @@ public class Main extends Application {
         //按钮状态
         startBt.setDisable(false);
         stopBt.setDisable(true);
-        startTest = null;
-        startTime = null;
-        //top力值
-        topN = null;
         try {
             //保存实验
             testService.insert(startTest);
@@ -992,8 +997,10 @@ public class Main extends Application {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        //数据列表清空,初始化
-        dataList.clear();
+        startTest = null;
+        startTime = null;
+        //top力值
+        topN = null;
 
     }
 

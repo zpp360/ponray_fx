@@ -169,6 +169,7 @@ public class UIOnline {
                                                 testData.setTimeValue(runtime);
                                                 testData.setDeformVal(ftransform);
                                                 testData.setTestNum(Main.startTest.getTestNum());
+                                                Main.dataList.add(testData);
 
                                                 //主界面值设置
                                                 String strFload1 = formatFloat(fload1);
@@ -195,7 +196,7 @@ public class UIOnline {
                                                 //自动判断实验是否结束
                                                 if(Main.selectedProgram.isTime()){
                                                     //定时间
-                                                    if(runtime>=Main.selectedProgram.getTimeValue()){
+                                                    if(runtime>=(Main.selectedProgram.getTimeValue()*1000)){
                                                         //先保存实验
                                                         Main.startTest.setRunTime(runtime);
                                                         testService.insert(Main.startTest);
@@ -284,11 +285,11 @@ public class UIOnline {
      */
     private String formatFloat(float fl){
         String strFload = Constants.STR_ZERO;
-        if(fl>0){
+        if(fl>100){
             strFload = decimalFormat1.format(fl);
         }else if(fl>10){
             strFload = decimalFormat2.format(fl);
-        }else if(fl>100){
+        }else if(fl>0){
             strFload = decimalFormat3.format(fl);
         }
         return strFload;

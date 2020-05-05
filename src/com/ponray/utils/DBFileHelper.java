@@ -11,7 +11,7 @@ public class DBFileHelper {
     private final static String DRIVER = "net.ucanaccess.jdbc.UcanaccessDriver";
 
     //    private final static String DBPATH = AccessHelper.class.getResource("/db/db.mdb").getPath().replace("%20"," ");
-    private final static String DBPATH = System.getProperty("user.dir") + File.separator + "db" + File.separator;
+    private final static String DBPATH = System.getProperty("user.dir") + File.separator + "datafile" + File.separator;
 
     private final static String USERNAME = null;
 
