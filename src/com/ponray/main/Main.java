@@ -6,6 +6,7 @@ import com.ponray.entity.Program;
 import com.ponray.entity.ProgramUserParam;
 import com.ponray.entity.Test;
 import com.ponray.entity.TestData;
+import com.ponray.enums.Axis;
 import com.ponray.serial.SerialPortManager;
 import com.ponray.service.ProgramService;
 import com.ponray.service.TestService;
@@ -750,60 +751,56 @@ public class Main extends Application {
      * 创建char1
      */
     private LineChart createChart() {
-        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Month");
-        final LineChart<String,Number> lineChart =
-                new LineChart<String,Number>(xAxis,yAxis);
-
-        lineChart.setTitle("Stock Monitoring, 2010");
-
-        XYChart.Series<String,Number> series1 = new XYChart.Series<String,Number>();
+        final LineChart<Number,Number> lineChart =
+                new LineChart<Number,Number>(xAxis,yAxis);
+        //设置标题
+//        lineChart.setTitle("Stock Monitoring, 2010");
+        //线
+        XYChart.Series<Number,Number> series1 = new XYChart.Series();
         series1.setName("Portfolio 1");
 
-        series1.getData().add(new XYChart.Data<String,Number>("Jan", 23));
-        series1.getData().add(new XYChart.Data("Feb", 14));
-        series1.getData().add(new XYChart.Data("Mar", 15));
-        series1.getData().add(new XYChart.Data("Apr", 24));
-        series1.getData().add(new XYChart.Data("May", 34));
-        series1.getData().add(new XYChart.Data("Jun", 36));
-        series1.getData().add(new XYChart.Data("Jul", 22));
-        series1.getData().add(new XYChart.Data("Aug", 45));
-        series1.getData().add(new XYChart.Data("Sep", 43));
-        series1.getData().add(new XYChart.Data("Oct", 17));
-        series1.getData().add(new XYChart.Data("Nov", 29));
-        series1.getData().add(new XYChart.Data("Dec", 25));
+        String oneX = selectedProgram.getOneX();
+        String oneY = selectedProgram.getOneY();
+        int pointCount = 20;
+        int gap = 0; //间隔多少取点，商
+        int remainder = 0;//余数
+        if(dataList!=null){
+           gap =  dataList.size()/pointCount;
+           remainder = dataList.size() % pointCount;
+        }
 
-        XYChart.Series<String,Number> series2 = new XYChart.Series<String,Number>();
-        series2.setName("Portfolio 2");
-        series2.getData().add(new XYChart.Data("Jan", 33));
-        series2.getData().add(new XYChart.Data("Feb", 34));
-        series2.getData().add(new XYChart.Data("Mar", 25));
-        series2.getData().add(new XYChart.Data("Apr", 44));
-        series2.getData().add(new XYChart.Data("May", 39));
-        series2.getData().add(new XYChart.Data("Jun", 16));
-        series2.getData().add(new XYChart.Data("Jul", 55));
-        series2.getData().add(new XYChart.Data("Aug", 54));
-        series2.getData().add(new XYChart.Data("Sep", 48));
-        series2.getData().add(new XYChart.Data("Oct", 27));
-        series2.getData().add(new XYChart.Data("Nov", 37));
-        series2.getData().add(new XYChart.Data("Dec", 29));
+        //主图
+        if(Axis.TIME.getName().equals(oneX)){
+            //x轴是时间
+            if(Axis.N.getName().equals(oneY)){
+                //Y轴是力
+                TestData data = dataList.get(Constants.INT_ZERO);
+                series1.getData().add(new XYChart.Data<Number, Number>(data.getTimeValue(),data.getLoadVal1()));
+                for(int i=gap;i<dataList.size();i=i+gap){
+                    data = dataList.get(i);
+                    series1.getData().add(new XYChart.Data<Number,Number>(data.getTimeValue(),data.getLoadVal1()));
+                }
+            }
+        }
 
-        XYChart.Series<String,Number> series3 = new XYChart.Series<String,Number>();
-        series3.setName("Portfolio 3");
-        series3.getData().add(new XYChart.Data("Jan", 44));
-        series3.getData().add(new XYChart.Data("Feb", 35));
-        series3.getData().add(new XYChart.Data("Mar", 36));
-        series3.getData().add(new XYChart.Data("Apr", 33));
-        series3.getData().add(new XYChart.Data("May", 31));
-        series3.getData().add(new XYChart.Data("Jun", 26));
-        series3.getData().add(new XYChart.Data("Jul", 22));
-        series3.getData().add(new XYChart.Data("Aug", 25));
-        series3.getData().add(new XYChart.Data("Sep", 43));
-        series3.getData().add(new XYChart.Data("Oct", 44));
-        series3.getData().add(new XYChart.Data("Nov", 45));
-        series3.getData().add(new XYChart.Data("Dec", 44));
-        lineChart.getData().addAll(series1, series2, series3);
+//        series1.getData().add(new XYChart.Data<String,Number>("Jan", 23));
+//        series1.getData().add(new XYChart.Data("Feb", 14));
+//        series1.getData().add(new XYChart.Data("Mar", 15));
+//        series1.getData().add(new XYChart.Data("Apr", 24));
+//        series1.getData().add(new XYChart.Data("May", 34));
+//        series1.getData().add(new XYChart.Data("Jun", 36));
+//        series1.getData().add(new XYChart.Data("Jul", 22));
+//        series1.getData().add(new XYChart.Data("Aug", 45));
+//        series1.getData().add(new XYChart.Data("Sep", 43));
+//        series1.getData().add(new XYChart.Data("Oct", 17));
+//        series1.getData().add(new XYChart.Data("Nov", 29));
+//        series1.getData().add(new XYChart.Data("Dec", 25));
+
+        //添加线
+        lineChart.getData().addAll(series1);
         lineChart.setCreateSymbols(false);
         return lineChart;
     }
@@ -962,6 +959,7 @@ public class Main extends Application {
                 startTime = System.currentTimeMillis();
                 //设置实验状态进行中
                 allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_ING);
+                tableView.refresh();
             }
 
         });
@@ -992,6 +990,8 @@ public class Main extends Application {
             testService.batchSaveTestParam(startTest.getTestNum(),selectedUserParam);
             //状态显示更新
             allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_END);
+            //更改状态后刷新表格
+            tableView.refresh();
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
