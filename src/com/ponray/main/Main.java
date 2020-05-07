@@ -762,29 +762,153 @@ public class Main extends Application {
         XYChart.Series<Number,Number> series1 = new XYChart.Series();
         series1.setName("Portfolio 1");
 
-        String oneX = selectedProgram.getOneX();
-        String oneY = selectedProgram.getOneY();
-        int pointCount = 20;
-        int gap = 0; //间隔多少取点，商
-        int remainder = 0;//余数
-        if(dataList!=null){
-           gap =  dataList.size()/pointCount;
-           remainder = dataList.size() % pointCount;
-        }
+        if(selectedProgram!=null){
+            String oneX = selectedProgram.getOneX();
+            String oneY = selectedProgram.getOneY();
+            int pointCount = 20;
+            int gap = 0; //间隔多少取点，商
+            int remainder = 0;//余数
+            if(dataList!=null){
+                gap =  dataList.size()/pointCount;
+                remainder = dataList.size() % pointCount;
+            }
 
-        //主图
-        if(Axis.TIME.getName().equals(oneX)){
-            //x轴是时间
-            if(Axis.N.getName().equals(oneY)){
-                //Y轴是力
-                TestData data = dataList.get(Constants.INT_ZERO);
-                series1.getData().add(new XYChart.Data<Number, Number>(data.getTimeValue(),data.getLoadVal1()));
-                for(int i=gap;i<dataList.size();i=i+gap){
-                    data = dataList.get(i);
-                    series1.getData().add(new XYChart.Data<Number,Number>(data.getTimeValue(),data.getLoadVal1()));
+            //主图
+            TestData data = dataList.get(Constants.INT_ZERO);
+            if(Axis.TIME.getName().equals(oneX)){
+                //x轴是时间
+                if(Axis.N.getName().equals(oneY)){
+                    //Y轴是力
+                    series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getLoadVal1()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getLoadVal1()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getLoadVal1()));
+                }
+                if(Axis.DISPLACEMENT.getName().equals(oneY)){
+                    //Y轴是位移
+                    series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getPosVal()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getPosVal()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getPosVal()));
+                }
+                if(Axis.TRANSFORM.getName().equals(oneY)){
+                    //Y轴是变形
+                    series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getDeformVal()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getDeformVal()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getDeformVal()));
+                }
+            }
+            if(Axis.N.getName().equals(oneX)){
+                //x轴是力
+                if(Axis.TIME.getName().equals(oneY)){
+                    //Y轴是时间
+                    series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getTimeValue()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getTimeValue()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getTimeValue()));
+                }
+                if(Axis.DISPLACEMENT.getName().equals(oneY)){
+                    //Y轴是位移
+                    series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getPosVal()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getPosVal()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getPosVal()));
+                }
+                if(Axis.TRANSFORM.getName().equals(oneY)){
+                    //Y轴是变形
+                    series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getDeformVal()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getDeformVal()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getDeformVal()));
+                }
+            }
+            if(Axis.DISPLACEMENT.getName().equals(oneX)){
+                //X轴是位移
+                if(Axis.TIME.getName().equals(oneY)){
+                    //Y轴是时间
+                    series1.getData().add(new XYChart.Data(data.getPosVal(),data.getTimeValue()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getPosVal(),data.getTimeValue()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getPosVal(),data.getTimeValue()));
+                }
+                if(Axis.N.getName().equals(oneY)){
+                    //Y轴是力
+                    series1.getData().add(new XYChart.Data(data.getPosVal(),data.getLoadVal1()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getPosVal(),data.getLoadVal1()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getPosVal(),data.getLoadVal1()));
+                }
+                if(Axis.TRANSFORM.getName().equals(oneY)){
+                    //Y轴是变形
+                    series1.getData().add(new XYChart.Data(data.getPosVal(),data.getDeformVal()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getPosVal(),data.getDeformVal()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getPosVal(),data.getDeformVal()));
+                }
+            }
+            if(Axis.TRANSFORM.getName().equals(oneX)){
+                //X轴是变形
+                if(Axis.TIME.getName().equals(oneY)){
+                    //Y轴是时间
+                    series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getTimeValue()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getTimeValue()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getTimeValue()));
+                }
+                if(Axis.N.getName().equals(oneY)){
+                    //Y轴是力
+                    series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getLoadVal1()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getLoadVal1()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getLoadVal1()));
+                }
+                if(Axis.DISPLACEMENT.getName().equals(oneY)){
+                    //Y轴是位移
+                    series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getPosVal()));
+                    for(int i=gap;i<dataList.size();i=i+gap){
+                        data = dataList.get(i);
+                        series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getPosVal()));
+                    }
+                    data = dataList.get(dataList.size()-1);
+                    series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getPosVal()));
                 }
             }
         }
+
 
 //        series1.getData().add(new XYChart.Data<String,Number>("Jan", 23));
 //        series1.getData().add(new XYChart.Data("Feb", 14));
@@ -807,7 +931,7 @@ public class Main extends Application {
 
     private void intiComp(){
         textFileName.setPrefSize(200,20);
-        treeView.setPrefSize(250,400);
+        treeView.setPrefSize(250,500);
         //实验操作按钮置灰
         initBt();
     }
