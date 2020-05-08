@@ -948,6 +948,18 @@ public class Main extends Application {
     }
 
     private void registEvent(){
+        //tab2被选中，创建主图
+        tab2.setOnSelectionChanged(event -> {
+            if(tab2.isSelected()){
+                mainChart = createChart();
+            }
+        });
+        //tab3被选中，创建另外三张图表
+        tab3.setOnSelectionChanged(event -> {
+            if(tab3.isSelected()){
+
+            }
+        });
         //速度滑动条
         speedSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldVal, Number newVal) -> {
             speedLabel.setText(String.format("%.0f", newVal));
