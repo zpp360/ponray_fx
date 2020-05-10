@@ -22,7 +22,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -47,7 +46,6 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Syntax.Java;
 
 public class Main extends Application {
 
@@ -106,7 +104,9 @@ public class Main extends Application {
 
     //右侧速度滑动条
     private static Slider speedSlider = new Slider();
-    private static Label speedLabel = new Label("50");
+    private static Label speedLabel = new Label("5");
+    private static TextField speedTextField = new TextField("5");
+    private static Button speedButton = new Button("设定");
 
     //右侧操作按钮
     public static Button upBt = null;
@@ -396,15 +396,16 @@ public class Main extends Application {
         Label nullLable = new Label();
         nullLable.setMinSize(250,200);
 
+        HBox speedHBox = new HBox();
+        speedTextField.setPrefSize(80,20);
+        speedHBox.getChildren().addAll(new Label("速度："),speedTextField,new Label("mm/min"),speedButton);
         speedSlider.setMin(0);
         speedSlider.setMax(500);
         speedSlider.setValue(50);
-        speedSlider.setShowTickLabels(true);
+        speedSlider.setShowTickLabels(false);
         speedSlider.setShowTickMarks(false);
-        speedSlider.setPrefSize(200,20);
-        speedLabel.setPrefSize(50,20);
-        speedLabel.setText("50");
-
+        speedSlider.setStyle("-fx-background-color: #FFF;");
+        speedSlider.setMaxWidth(200);
 
         upBt = new Button(Constants.language.getProperty("up"));
         upBt.setMinSize(80,40);
@@ -451,9 +452,9 @@ public class Main extends Application {
         opBtvBox.getChildren().addAll(lineOne,lineTwo,lineThree,lineFour);
         opBtvBox.setSpacing(10);
 
-        HBox speedHbox = new HBox();
-        speedHbox.getChildren().addAll(speedSlider,speedLabel);
-        speedHbox.setSpacing(10);
+//        VBox speedVBox = new VBox();
+//        speedVBox.getChildren().addAll(speedSlider,speedHBox);
+//        speedVBox.setSpacing(10);
 
         GridPane rightGrid = new GridPane();
         rightGrid.setPadding(new Insets(5));
@@ -464,14 +465,16 @@ public class Main extends Application {
         rightGrid.add(statusNameLabel,0,1);
         rightGrid.add(statusLable,1,1);
         rightGrid.add(nullLable,0,2,2,1);
-        rightGrid.add(speedHbox,0,3,2,1);
-        rightGrid.add(opBtvBox,0,4,2,1);
+        rightGrid.add(speedHBox,0,3,2,1);
+        rightGrid.add(speedSlider,0,4,2,1);
+        rightGrid.add(opBtvBox,0,5,2,1);
 
         //tabPane
         tabPane.setPrefSize(1000,600);
         tabPane.setMinSize(TabPane.USE_PREF_SIZE,TabPane.USE_PREF_SIZE);
         tabPane.setMaxSize(TabPane.USE_PREF_SIZE,TabPane.USE_PREF_SIZE);
-        tabPane.getTabs().addAll(tab1,tab2,tab3,tab4);
+        //去掉tab3
+        tabPane.getTabs().addAll(tab1,tab2,tab4);
         tabPane.setStyle("-fx-tab-min-width: 225px;-fx-tab-max-width: 300px;-fx-tab-min-height: 35px;");
         tabPane.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,Insets.EMPTY)));
 
@@ -1011,8 +1014,10 @@ public class Main extends Application {
         });
         //速度滑动条
         speedSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldVal, Number newVal) -> {
-            speedLabel.setText(String.format("%.0f", newVal));
+            speedTextField.setText(String.format("%.0f", newVal));
         });
+        //速度设置输入框
+        //speedTextField.setOnKeyPressed();
 
         choiceBoxProgram.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             @Override
