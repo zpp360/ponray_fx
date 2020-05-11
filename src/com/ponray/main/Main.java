@@ -30,6 +30,7 @@ import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -88,6 +89,8 @@ public class Main extends Application {
 
     //--------------------------------tab2 start-----------------------------------
     private static LineChart mainChart = null;
+    private static NumberAxis xAxis = new NumberAxis();
+    private static NumberAxis yAxis = new NumberAxis();
 
     private static Test selectedTest = null;
     //--------------------------------tab2 end-------------------------------------
@@ -811,6 +814,7 @@ public class Main extends Application {
                 new LineChart<Number,Number>(xAxis,yAxis);
         //设置线名称
 //        lineChart.setTitle("Stock Monitoring, 2010");
+        lineChart.setTitle(null);
         //线
         XYChart.Series<Number,Number> series1 = new XYChart.Series();
         //设置图表名称
@@ -1002,15 +1006,17 @@ public class Main extends Application {
     private void registEvent(){
         //tab2被选中，创建主图
         tab2.setOnSelectionChanged(event -> {
-            if(tab2.isSelected() && selectedProgram!=null){
-                mainChart = createChart(selectedProgram.getOneX(),selectedProgram.getOneY());
+            if(tab2.isSelected()){
+                if(selectedProgram!=null){
+                    mainChart = createChart(selectedProgram.getOneX(),selectedProgram.getOneY());
+                }else{
+                    threeChart = createChart(Axis.TIME.getName(),Axis.N.getName());
+                }
             }
         });
-        //tab3被选中，创建另外三张图表
-        tab3.setOnSelectionChanged(event -> {
-            if(tab3.isSelected()){
-
-            }
+        //tab2中横坐标点击事件
+        xAxis.setOnContextMenuRequested(event -> {
+            System.out.println(2222222);
         });
         //速度滑动条
         speedSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldVal, Number newVal) -> {
