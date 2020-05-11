@@ -99,6 +99,8 @@ public class Main extends Application {
     private static LineChart twoChart = null;
     private static LineChart threeChart = null;
     private static LineChart fourChart = null;
+    private static String xAxisName = null;
+    private static String yAxisNmae = null;
 
 
     //------------tab3 end --------------
@@ -803,13 +805,46 @@ public class Main extends Application {
     }
 
     /**
+     * 坐标轴右键菜单
+     * @return
+     */
+    private ContextMenu axisContextMenu(NumberAxis axis){
+        ContextMenu contextMenu = new ContextMenu();
+        List<String> axisName = Axis.listName();
+        for(String name : axisName){
+            MenuItem item = new MenuItem(name);
+            item.setOnAction(event -> {
+                String unit= "";
+                if(selectedProgram!=null){
+                    if(Axis.N.equals(name)){
+                        //力的单位
+                        unit = selectedProgram.getUnitN();
+                    }
+                }
+                axis.setLabel(name+"("+unit+")");
+            });
+            contextMenu.getItems().add(item);
+        }
+        return contextMenu;
+    }
+
+    /**
      * 创建char1
      */
     private LineChart createChart(String axisX,String axisY) {
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel(axisX);
         yAxis.setLabel(axisY);
+
+        ContextMenu xMenu = axisContextMenu(xAxis);
+        ContextMenu yMenu = axisContextMenu(yAxis);
+        //x轴右键菜单
+        xAxis.setOnContextMenuRequested(event -> {
+            xMenu.show(xAxis,event.getScreenX(),event.getScreenY());
+        });
+        //y轴右键菜单
+        yAxis.setOnContextMenuRequested(event -> {
+            yMenu.show(yAxis,event.getScreenX(),event.getScreenY());
+        });
         final LineChart<Number,Number> lineChart =
                 new LineChart<Number,Number>(xAxis,yAxis);
         //设置线名称
