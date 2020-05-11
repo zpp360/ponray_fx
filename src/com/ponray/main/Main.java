@@ -816,9 +816,18 @@ public class Main extends Application {
             item.setOnAction(event -> {
                 String unit= "";
                 if(selectedProgram!=null){
-                    if(Axis.N.equals(name)){
+                    if(Axis.N.getName().equals(name)){
                         //力的单位
                         unit = selectedProgram.getUnitN();
+                    }
+                    if(Axis.TIME.getName().equals(name)){
+                        unit = "ms";
+                    }
+                    if(Axis.DISPLACEMENT.getName().equals(name)){
+                        unit = "mm";
+                    }
+                    if(Axis.TRANSFORM.getName().equals(name)){
+                        unit = selectedProgram.getUnitTransform();
                     }
                 }
                 axis.setLabel(name+"("+unit+")");
