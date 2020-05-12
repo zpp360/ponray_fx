@@ -175,7 +175,7 @@ public class UIOnline {
                                                 String strFload1 = formatFloat(fload1);
                                                 String strFpos = formatFloat(fpos);
                                                 String strFtransform = formatFloat(ftransform);
-                                                String strRuntime = formatFloat((float)runtime/1000);
+                                                String strRuntime = formatFloat((float)runtime);
                                                 String strTop = formatFloat(Main.topN);
                                                 System.out.println(fload1);
                                                 System.out.println("力："+strFload1);
@@ -193,6 +193,8 @@ public class UIOnline {
                                                         Main.labelTop.setText(strTop);
                                                     }
                                                 });
+                                                //更新折线
+                                                Main.updateSeries(testData);
                                                 //自动判断实验是否结束
                                                 if(Main.selectedProgram.isTime()){
                                                     //定时间

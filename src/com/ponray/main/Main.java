@@ -30,7 +30,6 @@ import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -88,7 +87,9 @@ public class Main extends Application {
     //--------------------------------tab1 end-------------------------------------
 
     //--------------------------------tab2 start-----------------------------------
-    private static LineChart mainChart = null;
+    public static LineChart mainChart = null;
+    //线
+    public static XYChart.Series<Number,Number> series1 = new XYChart.Series();
     private static Test selectedTest = null;
     //--------------------------------tab2 end-------------------------------------
 
@@ -342,7 +343,7 @@ public class Main extends Application {
         lableNum4.setTextFill(Color.web("#fff"));
 
 
-        Label labelN4 = new Label("S");
+        Label labelN4 = new Label("ms");
         labelN4.setMinSize(50,26);
         labelN4.setStyle("-fx-background-color: #002060;");
         labelN4.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -757,6 +758,8 @@ public class Main extends Application {
         mainChart = createChart(xAxisName,yAxisNmae);
         mainChart.prefWidthProperty().bind(tabPane.widthProperty().subtract(200));
         mainChart.prefHeightProperty().bind(tabPane.heightProperty());
+        //在此处添加线，在createChart方法中添加不显示线
+        mainChart.getData().add(series1);
         main.getChildren().add(mainChart);
         return main;
     }
@@ -856,6 +859,73 @@ public class Main extends Application {
     }
 
     /**
+     * 更新折线
+     * @param data
+     */
+    public static void updateSeries(TestData data){
+        if(Axis.TIME.getName().equals(xAxisName)){
+            //x轴是时间
+            if(Axis.N.getName().equals(yAxisNmae)){
+                //Y轴是力
+                series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getLoadVal1()));
+            }
+            if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
+                //Y轴是位移
+                series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getPosVal()));
+            }
+            if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
+                //Y轴是变形
+                series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getDeformVal()));
+            }
+        }
+        if(Axis.N.getName().equals(xAxisName)){
+            //x轴是力
+            if(Axis.TIME.getName().equals(yAxisNmae)){
+                //Y轴是时间
+                series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getTimeValue()));
+            }
+            if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
+                //Y轴是位移
+                series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getPosVal()));
+            }
+            if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
+                //Y轴是变形
+                series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getDeformVal()));
+            }
+        }
+        if(Axis.DISPLACEMENT.getName().equals(xAxisName)){
+            //X轴是位移
+            if(Axis.TIME.getName().equals(yAxisNmae)){
+                //Y轴是时间
+                series1.getData().add(new XYChart.Data(data.getPosVal(),data.getTimeValue()));
+            }
+            if(Axis.N.getName().equals(yAxisNmae)){
+                //Y轴是力
+                series1.getData().add(new XYChart.Data(data.getPosVal(),data.getLoadVal1()));
+            }
+            if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
+                //Y轴是变形
+                series1.getData().add(new XYChart.Data(data.getPosVal(),data.getDeformVal()));
+            }
+        }
+        if(Axis.TRANSFORM.getName().equals(xAxisName)){
+            //X轴是变形
+            if(Axis.TIME.getName().equals(yAxisNmae)){
+                //Y轴是时间
+                series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getTimeValue()));
+            }
+            if(Axis.N.getName().equals(yAxisNmae)){
+                //Y轴是力
+                series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getLoadVal1()));
+            }
+            if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
+                //Y轴是位移
+                series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getPosVal()));
+            }
+        }
+    }
+
+    /**
      * 创建char1
      */
     private LineChart createChart(String axisX,String axisY) {
@@ -879,8 +949,6 @@ public class Main extends Application {
         //设置线名称
 //        lineChart.setTitle("Stock Monitoring, 2010");
         lineChart.setTitle(null);
-        //线
-        XYChart.Series<Number,Number> series1 = new XYChart.Series();
         //设置图表名称
 //        series1.setName("Portfolio 1");
 
@@ -1047,7 +1115,7 @@ public class Main extends Application {
 //        series1.getData().add(new XYChart.Data("Dec", 25));
 
         //添加线
-        lineChart.getData().addAll(series1);
+//        lineChart.getData().addAll(series1);
         lineChart.setCreateSymbols(false);
         return lineChart;
     }
