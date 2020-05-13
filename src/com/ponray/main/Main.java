@@ -27,6 +27,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -107,11 +108,18 @@ public class Main extends Application {
     private static Button fileSearchBtn = new Button("按文件名");
     private static Button programSearchBtn = new Button("按方案查询");
     private static ChoiceBox<Program> programSearchChoiceBox = new ChoiceBox<>();
+    private static Program searchSelectProgram = null;
     private static Button searchBtn = new Button("查询");
     private static Button viewLineBtn = new Button("观看曲线");
     private static Button reportBtn = new Button("出报告");
     private static TableView<Test> testTableView = new TableView<>();
-
+    private static TableColumn<Test,Long> testColumnNo = new TableColumn("实验编号");
+    private static TableColumn<Test,String> testColumnProgram = new TableColumn("实验方案");
+    private static TableColumn<Test,String> testColumnFileName = new TableColumn("文件名");
+    private static TableColumn<Test, java.sql.Date> testColumnDate = new TableColumn("实验日期");
+    private static TableColumn<Test,String> testColumnStand = new TableColumn("执行标准");
+    private static TableColumn<Test,String> testColumnShap = new TableColumn("试样形状");
+    private static TableColumn<Test,String> testColumnTransform = new TableColumn("变形计算选择");
 
 
     //------------tab4 end --------------
@@ -830,8 +838,25 @@ public class Main extends Application {
 
         GridPane topPane = new GridPane();
         topPane.add(new Label("请选择实验方案"),0,0);
+        programSearchChoiceBox.converterProperty().set(new StringConverter<Program>() {
+            @Override
+            public String toString(Program object) {
+                return object.getName();
+            }
+
+            @Override
+            public Program fromString(String string) {
+                for(Program p : programList){
+                    if(string.equals(p.getName())){
+                        return p;
+                    }
+                }
+                return null;
+            }
+        });
         programSearchChoiceBox.getItems().clear();
-        programSearchChoiceBox.getItems().addAll(programList);
+        programSearchChoiceBox.setItems(FXCollections.observableArrayList(programList));
+        programSearchChoiceBox.setMinWidth(150);
         topPane.add(programSearchChoiceBox,1,0);
         topPane.setPadding(new Insets(20));
         programSearchChoiceBox.setPrefSize(200,20);
@@ -840,11 +865,24 @@ public class Main extends Application {
 
         HBox btnHbox = new HBox();
         btnHbox.getChildren().addAll(searchBtn,viewLineBtn,reportBtn);
+        btnHbox.setPadding(new Insets(0,0,0,30));
         btnHbox.setSpacing(30);
 
+        testTableView.getColumns().clear();
+        testColumnNo.setCellValueFactory(new PropertyValueFactory<>("testNum"));
+        testColumnProgram.setCellValueFactory(new PropertyValueFactory<>("programName"));
+        testColumnProgram.setPrefWidth(150);
+        testColumnFileName.setCellValueFactory(new PropertyValueFactory<>("saveFile"));
+        testColumnFileName.setPrefWidth(180);
+        testColumnDate.setCellValueFactory(new PropertyValueFactory<>("testTime"));
+        testColumnDate.setPrefWidth(120);
+        testColumnStand.setCellValueFactory(new PropertyValueFactory<>("standardName"));
+        testColumnStand.setPrefWidth(120);
+        testColumnShap.setCellValueFactory(new PropertyValueFactory<>("shape"));
+        testColumnTransform.setCellValueFactory(new PropertyValueFactory<>("transformSensor"));
+        testTableView.getColumns().addAll(testColumnNo,testColumnProgram,testColumnFileName,testColumnDate,testColumnStand,testColumnShap,testColumnTransform);
         right.getChildren().addAll(stackPane,btnHbox,testTableView);
         right.setSpacing(10);
-
 
         main.getChildren().addAll(left,right);
         return main;
@@ -1221,6 +1259,29 @@ public class Main extends Application {
                     }
                 }
             }
+        });
+        //查询页面choiceBox
+        programSearchChoiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                searchSelectProgram = programList.get(newValue.intValue());
+                //根据实验方案查询实验
+            }
+        });
+        //查询实验
+        searchBtn.setOnAction(event -> {
+            if(searchSelectProgram==null){
+                return;
+            }
+            List<Test> list = null;
+            try {
+                list = testService.listByStandard(searchSelectProgram.getStandard());
+                testTableView.getItems().clear();
+                testTableView.getItems().addAll(list);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         });
         /**
          * 参数选择改变

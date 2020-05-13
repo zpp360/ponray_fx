@@ -106,6 +106,22 @@ public class TestService {
     }
 
     /**
+     * 根据实验标准列出实验
+     * @param stand
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
+    public List<Test> listByStandard(String stand) throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select * from t_test where standard_name = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1,stand);
+        ResultSet set = pstmt.executeQuery();
+        return createList(set);
+    }
+
+    /**
      * 获取test_num最大值
      * @return
      * @throws SQLException

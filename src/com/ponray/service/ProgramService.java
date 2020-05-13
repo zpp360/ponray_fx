@@ -385,7 +385,7 @@ public class ProgramService {
             p.setNum(set.getInt("num"));
             p.setName(set.getString("name"));
             p.setUnit(set.getString("unit"));
-            p.setResultFlag(set.getBoolean("default_val"));
+            p.setResultFlag(set.getBoolean("result_flag"));
             p.setUp(set.getString("up"));
             p.setLow(set.getString("low"));
             list.add(p);
