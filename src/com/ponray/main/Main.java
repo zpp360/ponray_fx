@@ -103,6 +103,18 @@ public class Main extends Application {
 
     //------------tab3 end --------------
 
+    //-------------tab4-----------
+    private static Button fileSearchBtn = new Button("按文件名");
+    private static Button programSearchBtn = new Button("按方案查询");
+    private static ChoiceBox<Program> programSearchChoiceBox = new ChoiceBox<>();
+    private static Button searchBtn = new Button("查询");
+    private static Button viewLineBtn = new Button("观看曲线");
+    private static Button reportBtn = new Button("出报告");
+    private static TableView<Test> testTableView = new TableView<>();
+
+
+
+    //------------tab4 end --------------
     public static MenuItem offlineItem = new MenuItem("脱机");
 
     //右侧速度滑动条
@@ -492,6 +504,7 @@ public class Main extends Application {
         tab3.setContent(createTab3());
         tab4.setClosable(false);
         tab4.setStyle("-fx-font-size:20px;");
+        tab4.setContent(createTab4());
 
 
         //整体布局
@@ -800,6 +813,42 @@ public class Main extends Application {
         return main;
     }
 
+    private HBox createTab4(){
+        HBox main = new HBox();
+        VBox left = new VBox();
+
+        left.getChildren().addAll(fileSearchBtn,programSearchBtn);
+        left.setSpacing(30);
+        left.setPrefWidth(150);
+        left.setPadding(new Insets(20));
+        left.prefHeightProperty().bind(tabPane.heightProperty());
+        left.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1,1,1,1),Insets.EMPTY)));
+
+        VBox right = new VBox();
+        right.prefHeightProperty().bind(tabPane.heightProperty());
+        right.prefWidthProperty().bind(tabPane.widthProperty().subtract(160));
+
+        GridPane topPane = new GridPane();
+        topPane.add(new Label("请选择实验方案"),0,0);
+        programSearchChoiceBox.getItems().clear();
+        programSearchChoiceBox.getItems().addAll(programList);
+        topPane.add(programSearchChoiceBox,1,0);
+        topPane.setPadding(new Insets(20));
+        programSearchChoiceBox.setPrefSize(200,20);
+        StackPane stackPane = new StackPane();
+        stackPane.getChildren().add(topPane);
+
+        HBox btnHbox = new HBox();
+        btnHbox.getChildren().addAll(searchBtn,viewLineBtn,reportBtn);
+        btnHbox.setSpacing(30);
+
+        right.getChildren().addAll(stackPane,btnHbox,testTableView);
+        right.setSpacing(10);
+
+
+        main.getChildren().addAll(left,right);
+        return main;
+    }
     /**
      * 坐标轴右键菜单
      * @return
