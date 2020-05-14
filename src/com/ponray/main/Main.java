@@ -92,6 +92,8 @@ public class Main extends Application {
     //线
     public static XYChart.Series<Number,Number> series1 = new XYChart.Series();
     private static Test selectedTest = null;
+    private static NumberAxis xAxis = new NumberAxis();
+    private static NumberAxis yAxis = new NumberAxis();
     //--------------------------------tab2 end-------------------------------------
 
     //-------------tab3-----------
@@ -507,9 +509,9 @@ public class Main extends Application {
         tab2.setClosable(false);
         tab2.setStyle("-fx-font-size:20px;");
         tab2.setContent(createTab2());
-        tab3.setClosable(false);
-        tab3.setStyle("-fx-font-size:20px;");
-        tab3.setContent(createTab3());
+//        tab3.setClosable(false);
+//        tab3.setStyle("-fx-font-size:20px;");
+//        tab3.setContent(createTab3());
         tab4.setClosable(false);
         tab4.setStyle("-fx-font-size:20px;");
         tab4.setContent(createTab4());
@@ -780,6 +782,8 @@ public class Main extends Application {
         mainChart.prefWidthProperty().bind(tabPane.widthProperty().subtract(200));
         mainChart.prefHeightProperty().bind(tabPane.heightProperty());
         //在此处添加线，在createChart方法中添加不显示线
+        series1.getData().add(new XYChart.Data(10,10));
+        series1.getData().add(new XYChart.Data(20,20));
         mainChart.getData().add(series1);
         main.getChildren().add(mainChart);
         return main;
@@ -950,6 +954,11 @@ public class Main extends Application {
      * @param data
      */
     public static void updateSeries(TestData data){
+        if(series1.getData().size()>20){
+            //超过20个点设置右移
+            xAxis.setLowerBound(xAxis.getLowerBound()+1);
+            xAxis.setUpperBound(xAxis.getUpperBound()+1);
+        }
         if(Axis.TIME.getName().equals(xAxisName)){
             //x轴是时间
             if(Axis.N.getName().equals(yAxisNmae)){
@@ -1016,8 +1025,8 @@ public class Main extends Application {
      * 创建char1
      */
     private LineChart createChart(String axisX,String axisY) {
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
+//        NumberAxis xAxis = new NumberAxis();
+//        NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel(axisX);
         yAxis.setLabel(axisY);
 
