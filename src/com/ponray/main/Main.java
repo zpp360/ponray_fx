@@ -1292,6 +1292,10 @@ public class Main extends Application {
             }
 
         });
+        //出报告
+        reportBtn.setOnAction(event -> {
+
+        });
         /**
          * 参数选择改变
          */
