@@ -444,7 +444,8 @@ public class UITestProgram {
         grid2.setVgap(10);
         grid2.setHgap(10);
         hBox1.setSpacing(10);
-        hBox1.getChildren().addAll(grid1,grid2);
+//        hBox1.getChildren().addAll(grid1,grid2);
+        hBox1.getChildren().addAll(grid1);
 
         GridPane grid3 = new GridPane();
         grid3.add(labelTab3_3,0,0,2,1);
@@ -482,7 +483,8 @@ public class UITestProgram {
         grid5.setVgap(10);
         grid5.setHgap(10);
         top.setSpacing(10);
-        top.getChildren().addAll(hBox1,hBox2,grid5);
+//        top.getChildren().addAll(hBox1,hBox2,grid5);
+        top.getChildren().addAll(hBox1);
         main.setPadding(new Insets(20));
         main.setTop(top);
         HBox hBox = new HBox();
@@ -505,7 +507,7 @@ public class UITestProgram {
         radioDisplacement.setToggleGroup(toggleGroupControl);
         radioControl.setToggleGroup(toggleGroupControl);
         controlGrid.add(radioDisplacement,0,1);
-        controlGrid.add(radioControl,1,1);
+//        controlGrid.add(radioControl,1,1);
         controlGrid.setBorder(defaultBorder);
         controlGrid.setPadding(new Insets(10));
         controlGrid.setHgap(50);
@@ -622,9 +624,9 @@ public class UITestProgram {
         breakageGrid.add(labelBreakage2Before,0,2);
         breakageGrid.add(textBreakage2,1,2);
         breakageGrid.add(labelBreakage2After,2,2);
-        breakageGrid.add(labelBreakage3Before,0,3);
-        breakageGrid.add(textBreakage3,1,3);
-        breakageGrid.add(labelBreakage3After,2,3);
+//        breakageGrid.add(labelBreakage3Before,0,3);
+//        breakageGrid.add(textBreakage3,1,3);
+//        breakageGrid.add(labelBreakage3After,2,3);
         breakageGrid.setBorder(defaultBorder);
         breakageGrid.setPadding(insets5);
         breakageGrid.setHgap(5);
@@ -635,50 +637,50 @@ public class UITestProgram {
 
         VBox right = new VBox();
         //变形切换
-        GridPane shapeGrid = new GridPane();
-        shapeGrid.add(checkBoxTransformChange,0,0,3,1);
-        radioTransformChange1.setToggleGroup(toggleGroupTransformChange);
-        radioTransformChange2.setToggleGroup(toggleGroupTransformChange);
-        shapeGrid.add(radioTransformChange1,0,1,3,1);
-        shapeGrid.add(radioTransformChange2,0,2);
-        shapeGrid.add(textTransformchange,1,2);
-        shapeGrid.add(labelTransformMM,2,2);
-        shapeGrid.setVgap(5);
-        shapeGrid.setBorder(defaultBorder);
-        shapeGrid.setPadding(insets5);
-        //实验结束参数
-        GridPane testEndGrid = new GridPane();
-        testEndGrid.add(labelTestEnd,0,0,3,1);
-        testEndGrid.add(checkBoxFixTime,0,1);
-        testEndGrid.add(textFixTime,1,1);
-        testEndGrid.add(labelS,2,1);
-        testEndGrid.add(checkBoxFixN,0,2);
-        testEndGrid.add(textFixN,1,2);
-        testEndGrid.add(labelN,2,2);
-        testEndGrid.add(checkBoxFixTransform,0,3);
-        testEndGrid.add(textFixTransform,1,3);
-        testEndGrid.add(labelMM,2,3);
-        testEndGrid.add(checkBoxFixDisplacement,0,4);
-        testEndGrid.add(textFixDisplacement,1,4);
-        testEndGrid.add(new Label("mm"),2,4);
-        testEndGrid.setBorder(defaultBorder);
-        testEndGrid.setPadding(insets5);
-        testEndGrid.setVgap(5);
-        testEndGrid.setHgap(5);
-        //预加载 和 试验开始清零
+//        GridPane shapeGrid = new GridPane();
+//        shapeGrid.add(checkBoxTransformChange,0,0,3,1);
+//        radioTransformChange1.setToggleGroup(toggleGroupTransformChange);
+//        radioTransformChange2.setToggleGroup(toggleGroupTransformChange);
+//        shapeGrid.add(radioTransformChange1,0,1,3,1);
+//        shapeGrid.add(radioTransformChange2,0,2);
+//        shapeGrid.add(textTransformchange,1,2);
+//        shapeGrid.add(labelTransformMM,2,2);
+//        shapeGrid.setVgap(5);
+//        shapeGrid.setBorder(defaultBorder);
+//        shapeGrid.setPadding(insets5);
+//        //实验结束参数
+//        GridPane testEndGrid = new GridPane();
+//        testEndGrid.add(labelTestEnd,0,0,3,1);
+//        testEndGrid.add(checkBoxFixTime,0,1);
+//        testEndGrid.add(textFixTime,1,1);
+//        testEndGrid.add(labelS,2,1);
+//        testEndGrid.add(checkBoxFixN,0,2);
+//        testEndGrid.add(textFixN,1,2);
+//        testEndGrid.add(labelN,2,2);
+//        testEndGrid.add(checkBoxFixTransform,0,3);
+//        testEndGrid.add(textFixTransform,1,3);
+//        testEndGrid.add(labelMM,2,3);
+//        testEndGrid.add(checkBoxFixDisplacement,0,4);
+//        testEndGrid.add(textFixDisplacement,1,4);
+//        testEndGrid.add(new Label("mm"),2,4);
+//        testEndGrid.setBorder(defaultBorder);
+//        testEndGrid.setPadding(insets5);
+//        testEndGrid.setVgap(5);
+//        testEndGrid.setHgap(5);
+//        //预加载 和 试验开始清零
         HBox loadHbox = new HBox();
-        GridPane loadGrid = new GridPane();
-        loadGrid.add(checkBoxLoad,0,0,3,1);
-        loadGrid.add(labelLoadN,0,1);
-        loadGrid.add(textLoadN,1,1);
-        loadGrid.add(new Label("N"),2,1);
-        loadGrid.add(labelLoadSpeed,0,2);
-        loadGrid.add(textLoadSpeed,1,2);
-        loadGrid.add(labelmmMin,2,2);
-        loadGrid.setBorder(defaultBorder);
-        loadGrid.setPadding(insets5);
-        loadGrid.setVgap(5);
-        loadGrid.setHgap(5);
+//        GridPane loadGrid = new GridPane();
+//        loadGrid.add(checkBoxLoad,0,0,3,1);
+//        loadGrid.add(labelLoadN,0,1);
+//        loadGrid.add(textLoadN,1,1);
+//        loadGrid.add(new Label("N"),2,1);
+//        loadGrid.add(labelLoadSpeed,0,2);
+//        loadGrid.add(textLoadSpeed,1,2);
+//        loadGrid.add(labelmmMin,2,2);
+//        loadGrid.setBorder(defaultBorder);
+//        loadGrid.setPadding(insets5);
+//        loadGrid.setVgap(5);
+//        loadGrid.setHgap(5);
         GridPane testClearGrid = new GridPane();
         testClearGrid.add(labelTestClear,0,0,2,1);
         testClearGrid.add(checkBoxDisplacement,0,1);
@@ -688,7 +690,8 @@ public class UITestProgram {
         testClearGrid.setPadding(insets5);
         testClearGrid.setVgap(10);
         testClearGrid.setHgap(5);
-        loadHbox.getChildren().addAll(loadGrid,testClearGrid);
+//        loadHbox.getChildren().addAll(loadGrid,testClearGrid);
+        loadHbox.getChildren().addAll(testClearGrid);
         loadHbox.setSpacing(5);
         //实验结束自动返回
         GridPane endGrid = new GridPane();
@@ -709,7 +712,8 @@ public class UITestProgram {
         pointGrid.setPadding(insets5);
         pointGrid.setHgap(5);
 
-        right.getChildren().addAll(shapeGrid,testEndGrid,loadHbox,endGrid,pointGrid);
+//        right.getChildren().addAll(shapeGrid,testEndGrid,loadHbox,endGrid,pointGrid);
+        right.getChildren().addAll(loadHbox,endGrid);
         right.setSpacing(7);
 
         HBox bottom = new HBox();
@@ -1311,31 +1315,35 @@ public class UITestProgram {
         tab3BtnSave.setOnAction(event -> {
             String oneX = choiceBox11.getValue();
             String oneY = choiceBox12.getValue();
-            String twoX = choiceBox21.getValue();
-            String twoY = choiceBox22.getValue();
-            String threeX = choiceBox31.getValue();
-            String threeY = choiceBox32.getValue();
-            String fourX = choiceBox41.getValue();
-            String fourY = choiceBox42.getValue();
-            String unitN = choiceBoxUnitN.getValue();
-            String unitTransform = choiceBoxUnitTransform.getValue();
-            String unitYL = choiceBoxUnitYL.getValue();
-            if(StringUtils.isBlank(oneX) || StringUtils.isBlank(oneY) || StringUtils.isBlank(twoX) || StringUtils.isBlank(twoY) || StringUtils.isBlank(threeX) || StringUtils.isBlank(threeY)
-                    || StringUtils.isBlank(fourX) || StringUtils.isBlank(fourY) || StringUtils.isBlank(unitN) || StringUtils.isBlank(unitTransform) || StringUtils.isBlank(unitYL)){
+//            String twoX = choiceBox21.getValue();
+//            String twoY = choiceBox22.getValue();
+//            String threeX = choiceBox31.getValue();
+//            String threeY = choiceBox32.getValue();
+//            String fourX = choiceBox41.getValue();
+//            String fourY = choiceBox42.getValue();
+//            String unitN = choiceBoxUnitN.getValue();
+//            String unitTransform = choiceBoxUnitTransform.getValue();
+//            String unitYL = choiceBoxUnitYL.getValue();
+//            if(StringUtils.isBlank(oneX) || StringUtils.isBlank(oneY) || StringUtils.isBlank(twoX) || StringUtils.isBlank(twoY) || StringUtils.isBlank(threeX) || StringUtils.isBlank(threeY)
+//                    || StringUtils.isBlank(fourX) || StringUtils.isBlank(fourY) || StringUtils.isBlank(unitN) || StringUtils.isBlank(unitTransform) || StringUtils.isBlank(unitYL)){
+//                AlertUtils.alertError("请选择未选择项");
+//                return;
+//            }
+            if(StringUtils.isBlank(oneX) || StringUtils.isBlank(oneY)){
                 AlertUtils.alertError("请选择未选择项");
                 return;
             }
             selectedProgram.setOneX(oneX);
             selectedProgram.setOneY(oneY);
-            selectedProgram.setTwoX(twoX);
-            selectedProgram.setTwoY(twoY);
-            selectedProgram.setThreeX(threeX);
-            selectedProgram.setThreeY(threeY);
-            selectedProgram.setFourX(fourX);
-            selectedProgram.setFourY(fourY);
-            selectedProgram.setUnitN(unitN);
-            selectedProgram.setUnitTransform(unitTransform);
-            selectedProgram.setUnitLoad(unitYL);
+//            selectedProgram.setTwoX(twoX);
+//            selectedProgram.setTwoY(twoY);
+//            selectedProgram.setThreeX(threeX);
+//            selectedProgram.setThreeY(threeY);
+//            selectedProgram.setFourX(fourX);
+//            selectedProgram.setFourY(fourY);
+//            selectedProgram.setUnitN(unitN);
+//            selectedProgram.setUnitTransform(unitTransform);
+//            selectedProgram.setUnitLoad(unitYL);
             try {
                 int res = programService.updateAxis(selectedProgram);
                 if(res>0){
@@ -1434,6 +1442,11 @@ public class UITestProgram {
         //用户参数删除
         paramBtnDel.setOnAction(event -> {
             programUserParamList.remove(selectedUserParam);
+            try {
+                programService.delUserParamByProgramId(selectedUserParam.getID());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             resetUserParam();
             selectedUserParam = null;
         });

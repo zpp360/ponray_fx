@@ -3,6 +3,8 @@ package com.ponray.entity;
 
 public class Program {
     private Long ID;
+    //实验编号，发送实验开始命令使用，在数据库中维护
+    private String num;
     //试验方案名
     private String  name;
     //标准
@@ -451,5 +453,13 @@ public class Program {
 
     public void setUnitLoad(String unitLoad) {
         this.unitLoad = unitLoad;
+    }
+
+    public String getNum() {
+        return num;
+    }
+
+    public void setNum(String num) {
+        this.num = num;
     }
 }

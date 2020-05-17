@@ -58,7 +58,7 @@ public class Main extends Application {
     public static Label lableNum2 = null; //位移
     public static Label lableNum3 = null; //变形
     public static Label lableNum4 = null; //时间
-    public static Float topN = null;
+    public static Float topN = 0F;
 
     private static TabPane tabPane = null;
     private static Tab tab1 = null;
@@ -85,6 +85,10 @@ public class Main extends Application {
     private static HashMap<String,String> selectedUserParam = null;
     private static int selectedUserParamIndex = 0;
     private static HashMap<String,String> editDataRow = null;
+    //清零按钮
+    public static Button button1 = null;
+    public static Button button2 = null;
+    public static Button button3 = null;
     //--------------------------------tab1 end-------------------------------------
 
     //--------------------------------tab2 start-----------------------------------
@@ -100,7 +104,7 @@ public class Main extends Application {
     private static LineChart twoChart = null;
     private static LineChart threeChart = null;
     private static LineChart fourChart = null;
-    private static String xAxisName = Axis.TIME.getName();
+    private static String xAxisName = Axis.DISPLACEMENT.getName();
     private static String yAxisNmae = Axis.N.getName();
 
 
@@ -129,7 +133,6 @@ public class Main extends Application {
 
     //右侧速度滑动条
     private static Slider speedSlider = new Slider();
-    private static Label speedLabel = new Label("5");
     private static TextField speedTextField = new TextField("5");
     private static Button speedButton = new Button("设定");
 
@@ -214,7 +217,7 @@ public class Main extends Application {
         vBox1.setPadding(new Insets(0,5,0,10));
         vBox1.getChildren().addAll(labelN1,labelName1);
 
-        Button button1 = new Button(Constants.language.getProperty("clear"));
+        button1 = new Button(Constants.language.getProperty("clear"));
         button1.setMinSize(50,53);
 
         GridPane topGrid1 = new GridPane();
@@ -300,7 +303,7 @@ public class Main extends Application {
         vBox2.setPadding(new Insets(0,5,0,10));
         vBox2.getChildren().addAll(labelN2,labelName2);
 
-        Button button2 = new Button(Constants.language.getProperty("clear"));
+        button2 = new Button(Constants.language.getProperty("clear"));
         button2.setMinSize(50,53);
 
         GridPane topGrid2 = new GridPane();
@@ -343,7 +346,8 @@ public class Main extends Application {
         vBox3.setSpacing(5);
         vBox3.setPadding(new Insets(0,5,0,10));
         vBox3.getChildren().addAll(labelN3,labelName3);
-        Button button3 = new Button(Constants.language.getProperty("clear"));
+
+        button3 = new Button(Constants.language.getProperty("clear"));
         button3.setMinSize(50,53);
 
         GridPane topGrid3 = new GridPane();
@@ -387,15 +391,15 @@ public class Main extends Application {
         vBox4.setPadding(new Insets(0,5,0,10));
         vBox4.getChildren().addAll(labelN4,labelName4);
 
-        Button button4 = new Button(Constants.language.getProperty("clear"));
-        button4.setMinSize(50,53);
+//        Button button4 = new Button(Constants.language.getProperty("clear"));
+//        button4.setMinSize(50,53);
 
         GridPane topGrid4 = new GridPane();
         //是否显示表格边框
         //topGrid.setGridLinesVisible(true);
         topGrid4.add(lableNum4,0,0,1,2);
         topGrid4.add(vBox4,1,0);
-        topGrid4.add(button4,2,0,1,2);
+//        topGrid4.add(button4,2,0,1,2);
         topGrid4.setPadding(new Insets(5));
         topGrid4.setBorder(new Border(new BorderStroke(Color.rgb(213,223,229), BorderStrokeStyle.SOLID, new CornerRadii(5), BorderWidths.DEFAULT,new Insets(10))));
 
@@ -456,25 +460,25 @@ public class Main extends Application {
         resetBt = new Button("复位");
         resetBt.setMinSize(80,40);
         resetBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
-        clearLoadBt = new Button("力清零");
-        clearLoadBt.setMinSize(80,40);
-        clearLoadBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
+//        clearLoadBt = new Button("力清零");
+//        clearLoadBt.setMinSize(80,40);
+//        clearLoadBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 20));
         HBox lineThree = new HBox();
-        lineThree.getChildren().addAll(resetBt,clearLoadBt);
+        lineThree.getChildren().addAll(resetBt);
         lineThree.setSpacing(50);
 
-        clearPosBt = new Button("位移清零");
-        clearPosBt.setMinSize(80,40);
-        clearPosBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 16));
-        clearTransformBt = new Button("变形清零");
-        clearTransformBt.setMinSize(80,40);
-        clearTransformBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 16));
-        HBox lineFour = new HBox();
-        lineFour.getChildren().addAll(clearPosBt,clearTransformBt);
-        lineFour.setSpacing(50);
+//        clearPosBt = new Button("位移清零");
+//        clearPosBt.setMinSize(80,40);
+//        clearPosBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 16));
+//        clearTransformBt = new Button("变形清零");
+//        clearTransformBt.setMinSize(80,40);
+//        clearTransformBt.setFont(Font.font(FontUtil.FANGSONG, FontWeight.LIGHT, 16));
+//        HBox lineFour = new HBox();
+//        lineFour.getChildren().addAll(clearPosBt,clearTransformBt);
+//        lineFour.setSpacing(50);
 
         VBox opBtvBox = new VBox();
-        opBtvBox.getChildren().addAll(lineOne,lineTwo,lineThree,lineFour);
+        opBtvBox.getChildren().addAll(lineOne,lineTwo,lineThree);
         opBtvBox.setSpacing(10);
 
 //        VBox speedVBox = new VBox();
@@ -827,18 +831,18 @@ public class Main extends Application {
 
     private HBox createTab4(){
         HBox main = new HBox();
-        VBox left = new VBox();
-
-        left.getChildren().addAll(fileSearchBtn,programSearchBtn);
-        left.setSpacing(30);
-        left.setPrefWidth(150);
-        left.setPadding(new Insets(20));
-        left.prefHeightProperty().bind(tabPane.heightProperty());
-        left.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1,1,1,1),Insets.EMPTY)));
+//        VBox left = new VBox();
+//
+//        left.getChildren().addAll(fileSearchBtn,programSearchBtn);
+//        left.setSpacing(30);
+//        left.setPrefWidth(150);
+//        left.setPadding(new Insets(20));
+//        left.prefHeightProperty().bind(tabPane.heightProperty());
+//        left.setBorder(new Border(new BorderStroke(Color.rgb(160,160,160), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1,1,1,1),Insets.EMPTY)));
 
         VBox right = new VBox();
         right.prefHeightProperty().bind(tabPane.heightProperty());
-        right.prefWidthProperty().bind(tabPane.widthProperty().subtract(160));
+        right.prefWidthProperty().bind(tabPane.widthProperty());
 
         GridPane topPane = new GridPane();
         topPane.add(new Label("请选择实验方案"),0,0);
@@ -888,8 +892,57 @@ public class Main extends Application {
         right.getChildren().addAll(stackPane,btnHbox,testTableView);
         right.setSpacing(10);
 
-        main.getChildren().addAll(left,right);
+        main.getChildren().addAll(right);
         return main;
+    }
+
+    /**
+     * 更新坐标轴名称
+     * @param axis
+     * @param axisType
+     * @param name
+     */
+    private void updateAxisUnit(NumberAxis axis,String axisType,String name){
+        if(name==null){
+            return;
+        }
+        String unit= "";
+        if(selectedProgram!=null){
+            if(Axis.N.getName().equals(name)){
+                //力的单位
+                unit = "N";
+            }
+            if(Axis.TIME.getName().equals(name)){
+                unit = "ms";
+            }
+            if(Axis.DISPLACEMENT.getName().equals(name)){
+                unit = "mm";
+            }
+            if(Axis.TRANSFORM.getName().equals(name)){
+                unit = "mm";
+            }
+        }else{
+            if(Axis.N.getName().equals(name)){
+                //力的单位
+                unit = "N";
+            }
+            if(Axis.TIME.getName().equals(name)){
+                unit = "ms";
+            }
+            if(Axis.DISPLACEMENT.getName().equals(name)){
+                unit = "mm";
+            }
+            if(Axis.TRANSFORM.getName().equals(name)){
+                unit = "mm";
+            }
+        }
+        axis.setLabel(name+"("+unit+")");
+        if("X".equals(axisType)){
+            xAxisName = name;
+        }
+        if("Y".equals(axisType)){
+            yAxisNmae = name;
+        }
     }
     /**
      * 坐标轴右键菜单
@@ -906,43 +959,7 @@ public class Main extends Application {
                     AlertUtils.alertError("实验已经开始");
                     return ;
                 }
-                String unit= "";
-                if(selectedProgram!=null){
-                    if(Axis.N.getName().equals(name)){
-                        //力的单位
-                        unit = selectedProgram.getUnitN();
-                    }
-                    if(Axis.TIME.getName().equals(name)){
-                        unit = "ms";
-                    }
-                    if(Axis.DISPLACEMENT.getName().equals(name)){
-                        unit = "mm";
-                    }
-                    if(Axis.TRANSFORM.getName().equals(name)){
-                        unit = selectedProgram.getUnitTransform();
-                    }
-                }else{
-                    if(Axis.N.getName().equals(name)){
-                        //力的单位
-                        unit = "N";
-                    }
-                    if(Axis.TIME.getName().equals(name)){
-                        unit = "ms";
-                    }
-                    if(Axis.DISPLACEMENT.getName().equals(name)){
-                        unit = "mm";
-                    }
-                    if(Axis.TRANSFORM.getName().equals(name)){
-                        unit = "mm";
-                    }
-                }
-                axis.setLabel(name+"("+unit+")");
-                if("X".equals(axisType)){
-                    xAxisName = name;
-                }
-                if("Y".equals(axisType)){
-                    yAxisNmae = name;
-                }
+                updateAxisUnit(axis,axisType,name);
             });
             contextMenu.getItems().add(item);
         }
@@ -954,11 +971,11 @@ public class Main extends Application {
      * @param data
      */
     public static void updateSeries(TestData data){
-        if(series1.getData().size()>20){
-            //超过20个点设置右移
-            xAxis.setLowerBound(xAxis.getLowerBound()+1);
-            xAxis.setUpperBound(xAxis.getUpperBound()+1);
-        }
+//        if(series1.getData().size()>20){
+//            //超过20个点设置右移
+//            xAxis.setLowerBound(xAxis.getLowerBound()+1);
+//            xAxis.setUpperBound(xAxis.getUpperBound()+1);
+//        }
         if(Axis.TIME.getName().equals(xAxisName)){
             //x轴是时间
             if(Axis.N.getName().equals(yAxisNmae)){
@@ -1229,24 +1246,25 @@ public class Main extends Application {
         upBt.setDisable(true);
         downBt.setDisable(true);
         resetBt.setDisable(true);
-        clearLoadBt.setDisable(true);
-        clearPosBt.setDisable(true);
-        clearTransformBt.setDisable(true);
+        button1.setDisable(true);
+        button2.setDisable(true);
+        button3.setDisable(true);
     }
 
     private void registEvent(){
-        //tab2被选中，创建主图
-        tab2.setOnSelectionChanged(event -> {
-            if(tab2.isSelected()){
-//                mainChart = createChart(xAxisName,yAxisNmae);
-            }
-        });
+        //清零按钮
+
         //速度滑动条
         speedSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldVal, Number newVal) -> {
             speedTextField.setText(String.format("%.0f", newVal));
         });
         //速度设置输入框
-        //speedTextField.setOnKeyPressed();
+        speedTextField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                speedSlider.setValue(Double.parseDouble(newValue));
+            }
+        });
 
         choiceBoxProgram.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             @Override
@@ -1266,6 +1284,9 @@ public class Main extends Application {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    //设置曲线坐标
+                    updateAxisUnit(xAxis,"X",selectedProgram.getOneX());
+                    updateAxisUnit(yAxis,"Y",selectedProgram.getOneY());
                 }
             }
         });
@@ -1363,6 +1384,8 @@ public class Main extends Application {
 
             //数据列表清空,初始化
             dataList.clear();
+            //所有数据清零
+            clearAllData();
             //创建mdb文件
             String fileName = textFileName.getText();
             if(StringUtils.isNotBlank(fileName)){
@@ -1399,8 +1422,16 @@ public class Main extends Application {
                 //设置按钮状态
                 startBt.setDisable(true);
                 stopBt.setDisable(false);
+                Main.startBt.setDisable(true);
+                Main.upBt.setDisable(true);
+                Main.downBt.setDisable(true);
+                Main.resetBt.setDisable(true);
+                Main.button1.setDisable(true);
+                Main.button2.setDisable(true);
+                Main.button3.setDisable(true);
                 //发送开始命令
-                SerialPortManager.sendToPort(UIOnline.mSerialport,"test".getBytes());
+                Float speed = selectedProgram.getGeneralSpeed();//获取速度设置值
+                SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(speed,selectedProgram.getNum()));
                 //初始化开始时间
                 startTime = System.currentTimeMillis();
                 //设置实验状态进行中
@@ -1412,6 +1443,13 @@ public class Main extends Application {
         //右侧停止按钮
         stopBt.setOnAction(event -> {
             stopTest();
+        });
+        //上升
+        upBt.setOnAction(event -> {
+            String speed = speedTextField.getText().trim();
+            System.out.println(speed);
+            byte[] command = CommandUtils.commandUP(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
         });
     }
 
@@ -1426,6 +1464,13 @@ public class Main extends Application {
         //按钮状态
         startBt.setDisable(false);
         stopBt.setDisable(true);
+        Main.startBt.setDisable(false);
+        Main.upBt.setDisable(false);
+        Main.downBt.setDisable(false);
+        Main.resetBt.setDisable(false);
+        Main.button1.setDisable(false);
+        Main.button2.setDisable(false);
+        Main.button3.setDisable(false);
         try {
             //保存实验
             testService.insert(startTest);
@@ -1538,6 +1583,15 @@ public class Main extends Application {
     }
 
 
+    /**
+     * 所有数据归零，包括图表数据清零
+     */
+    private void clearAllData(){
+        Main.topN = 0F;
+        series1.getData().clear();
+        Main.lableNum4.setText("00000");
+        Main.labelTop.setText("00000");
+    }
 
 }
 

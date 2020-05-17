@@ -207,6 +207,7 @@ public class ProgramService {
         while (set.next()) {
             Program p = new Program();
             p.setID(set.getLong("ID"));
+            p.setNum(set.getString("num"));
             p.setName(set.getString("name"));
             p.setStandard(set.getString("standard_code"));
             p.setDirect(set.getInt("dirct"));
