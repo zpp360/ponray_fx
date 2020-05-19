@@ -10,6 +10,7 @@ import com.ponray.enums.Axis;
 import com.ponray.serial.SerialPortManager;
 import com.ponray.service.ProgramService;
 import com.ponray.service.TestService;
+import com.ponray.task.DataTask;
 import com.ponray.utils.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -36,6 +37,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 import org.apache.commons.lang.StringUtils;
 
@@ -149,7 +151,9 @@ public class Main extends Application {
     //实验开始标志
     public static boolean startFlag = false;
     //实验开始时间，在UIonlin里使用计算运行时间
-    public static Long startTime = null;
+    public static Long startTime = 0L;
+    //每隔20毫秒运行一次
+    public static Long periodTime = 20L;
     //实验中实验，在UIOnline里保存
     public static Test startTest = null;
     //实验数据
@@ -491,8 +495,8 @@ public class Main extends Application {
         rightGrid.setVgap(5);
         rightGrid.setPrefSize(250,500);
         rightGrid.add(redLabel,0,0,2,1);
-        rightGrid.add(statusNameLabel,0,1);
-        rightGrid.add(statusLable,1,1);
+//        rightGrid.add(statusNameLabel,0,1);
+//        rightGrid.add(statusLable,1,1);
         rightGrid.add(nullLable,0,2,2,1);
         rightGrid.add(speedHBox,0,3,2,1);
         rightGrid.add(speedSlider,0,4,2,1);
@@ -1366,6 +1370,12 @@ public class Main extends Application {
 
         //右侧开始按钮
         startBt.setOnAction(event -> {
+            DataTask task = new DataTask();
+            //延迟多久运行
+            task.setDelay(Duration.millis(20));
+            //每隔多久运行一次
+            task.setPeriod(Duration.millis(Main.periodTime));
+
             if(selectedProgram==null){
                 AlertUtils.alertError("请选择实验方案");
                 return;
