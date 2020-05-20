@@ -131,7 +131,7 @@ public class WordUtils {
         CTR ctrHeader = ctpHeader.addNewR();
         CTText ctHeader = ctrHeader.addNewT();
         String headerText = "Java POI create MS word file.";
-        ctHeader.setStringValue(headerText);
+//        ctHeader.setStringValue(headerText);
         XWPFParagraph headerParagraph = new XWPFParagraph(ctpHeader, document);
         //设置为右对齐
         headerParagraph.setAlignment(ParagraphAlignment.RIGHT);
@@ -145,7 +145,7 @@ public class WordUtils {
         CTR ctrFooter = ctpFooter.addNewR();
         CTText ctFooter = ctrFooter.addNewT();
         String footerText = "http://blog.csdn.net/zhouseawater";
-        ctFooter.setStringValue(footerText);
+//        ctFooter.setStringValue(footerText);
         XWPFParagraph footerParagraph = new XWPFParagraph(ctpFooter, document);
         headerParagraph.setAlignment(ParagraphAlignment.CENTER);
         XWPFParagraph[] parsFooter = new XWPFParagraph[1];
