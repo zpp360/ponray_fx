@@ -792,6 +792,7 @@ public class Main extends Application {
         //在此处添加线，在createChart方法中添加不显示线
         series1.getData().add(new XYChart.Data(10,10));
         series1.getData().add(new XYChart.Data(20,20));
+        mainChart.setStyle("-fx-stroke: antiquewhite;");
         mainChart.getData().add(series1);
         main.getChildren().add(mainChart);
         return main;
