@@ -156,10 +156,6 @@ public class Main extends Application {
     public static Test startTest = null;
     //实验数据
     public static List<TestData> dataList = new ArrayList<>();
-    //实验任务
-    private static DataTask dataTask = new DataTask();
-
-
     private static ProgramService programService = new ProgramService();
     private static TestService testService = new TestService();
 
@@ -567,6 +563,16 @@ public class Main extends Application {
         //全屏
         stage.setMaximized(true);
         stage.show();
+
+        //任务开始
+        //延迟多久运行
+        DataTask dataTask = new DataTask();
+        dataTask.setDelay(Duration.millis(20));
+        //每隔多久运行一次
+        dataTask.setPeriod(Duration.millis(Main.periodTime));
+        if(!dataTask.isRunning()){
+            dataTask.start();
+        }
 
     }
 
@@ -1443,14 +1449,6 @@ public class Main extends Application {
                 //设置实验状态进行中
                 allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_ING);
                 tableView.refresh();
-                //任务开始
-                //延迟多久运行
-                dataTask.setDelay(Duration.millis(20));
-                //每隔多久运行一次
-                dataTask.setPeriod(Duration.millis(Main.periodTime));
-                if(!dataTask.isRunning()){
-                    dataTask.start();
-                }
             }
 
         });
@@ -1506,12 +1504,6 @@ public class Main extends Application {
         startTime = null;
         //top力值
         topN = null;
-        //停止任务
-        if(dataTask.isRunning()){
-            dataTask.cancel();
-            dataTask.reset();
-        }
-
     }
 
     /**

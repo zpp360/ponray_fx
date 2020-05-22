@@ -1,6 +1,5 @@
 package com.ponray.serial;
 
-import com.ponray.main.Main;
 import com.ponray.utils.ArrayUtils;
 import com.ponray.utils.ShowUtils;
 import gnu.io.*;
