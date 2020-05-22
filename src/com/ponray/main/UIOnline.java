@@ -40,11 +40,6 @@ public class UIOnline {
 
     private TestService testService = new TestService();
 
-    private static DecimalFormat decimalFormat1=new DecimalFormat("000.00");
-    private static DecimalFormat decimalFormat2=new DecimalFormat("00.000");
-    private static DecimalFormat decimalFormat3=new DecimalFormat("000.00");
-    private static DecimalFormat decimalFormat4=new DecimalFormat("0000.0");
-    private static DecimalFormat decimalFormat5=new DecimalFormat("000.0");
 
     private Stage window = new Stage();
     public void display(){
@@ -174,11 +169,11 @@ public class UIOnline {
                                                 }
 
                                                 //主界面值设置
-                                                String strFload1 = formatFloat(fload1);
-                                                String strFpos = formatFloat(fpos);
-                                                String strFtransform = formatFloat(ftransform);
-                                                String strRuntime = formatFloat((float)runtime);
-                                                String strTop = formatFloat(Main.topN);
+                                                String strFload1 = DecimalUtils.formatFloat(fload1);
+                                                String strFpos = DecimalUtils.formatFloat(fpos);
+                                                String strFtransform = DecimalUtils.formatFloat(ftransform);
+                                                String strRuntime = DecimalUtils.formatFloat((float)runtime);
+                                                String strTop = DecimalUtils.formatFloat(Main.topN);
                                                 System.out.println(status);
 
                                                 //顶部显示
@@ -305,25 +300,6 @@ public class UIOnline {
         });
     }
 
-    /**
-     * 对float值进行format
-     * @return
-     */
-    private String formatFloat(float fl){
-        String strFload = Constants.STR_ZERO;
-        if(fl>1000){
-            strFload = decimalFormat4.format(fl);
-        }else if(fl>100){
-            strFload = decimalFormat1.format(fl);
-        }else if(fl>10){
-            strFload = decimalFormat2.format(fl);
-        }else if(fl>0){
-            strFload = decimalFormat3.format(fl);
-        }else{
-            strFload = decimalFormat5.format(fl);
-        }
-        return strFload;
-    }
 
     /**
      * 根据发上来的数据存储试验机当前状态

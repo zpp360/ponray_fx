@@ -33,8 +33,8 @@ public class DataTask extends ScheduledService<TestData> {
                 //实验时间
                 Main.startTime = Main.startTime + Main.periodTime;
 
-                TestData testData = new TestData();
-                testData.setTestNum(Main.startTest.getTestNum());
+                TestData testData = null;
+
                 byte[] data = SerialPortManager.readFromPort(UIOnline.mSerialport);
                 String hexString = ByteUtils.binaryToHexString(data);
                 System.out.println(hexString);
@@ -65,14 +65,20 @@ public class DataTask extends ScheduledService<TestData> {
 
                             if (ConstantsUtils.machineStatus.compareTo(ConstantsUtils.testIng) == 0) {
                                 //实验开始状态保存数据，画曲线
+                                testData = new TestData();
+                                testData.setTestNum(Main.startTest.getTestNum());
                                 testData.setLoadVal1(fload1);
                                 testData.setLoadVal2(fload2);
                                 testData.setLoadVal3(fload3);
                                 testData.setPosVal(fpos);
-//                                testData.setTimeValue(runtime);
+                                testData.setTimeValue(Main.startTime + Main.periodTime);
                                 testData.setDeformVal(ftransform);
                             }
+
                         }
+                        Main.dataList.add(testData);
+                        //获取到一个数据后终止循环
+                        break;
                     }
                 }
                 return testData;

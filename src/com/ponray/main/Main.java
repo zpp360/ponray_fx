@@ -42,6 +42,7 @@ import javafx.util.StringConverter;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -144,9 +145,6 @@ public class Main extends Application {
     public static Button startBt = null;
     public static Button stopBt = null;
     public static Button resetBt = null;
-    public static Button clearLoadBt = null;
-    public static Button clearPosBt = null;
-    public static Button clearTransformBt = null;
 
     //实验开始标志
     public static boolean startFlag = false;
@@ -158,6 +156,8 @@ public class Main extends Application {
     public static Test startTest = null;
     //实验数据
     public static List<TestData> dataList = new ArrayList<>();
+    //实验任务
+    private static DataTask dataTask = new DataTask();
 
 
     private static ProgramService programService = new ProgramService();
@@ -554,6 +554,9 @@ public class Main extends Application {
         registEvent();
 
         Scene scene = new Scene(root);
+        URL url = this.getClass().getResource("fx.css");
+        //加载css
+        scene.getStylesheets().add(url.toExternalForm());
         stage.setTitle("拉力试验工具软件");
         stage.setMinWidth(1000);
         stage.setMinHeight(700);
@@ -1371,12 +1374,6 @@ public class Main extends Application {
 
         //右侧开始按钮
         startBt.setOnAction(event -> {
-            DataTask task = new DataTask();
-            //延迟多久运行
-            task.setDelay(Duration.millis(20));
-            //每隔多久运行一次
-            task.setPeriod(Duration.millis(Main.periodTime));
-
             if(selectedProgram==null){
                 AlertUtils.alertError("请选择实验方案");
                 return;
@@ -1443,11 +1440,17 @@ public class Main extends Application {
                 //发送开始命令
                 Float speed = selectedProgram.getGeneralSpeed();//获取速度设置值
                 SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(speed,selectedProgram.getNum()));
-                //初始化开始时间
-                startTime = System.currentTimeMillis();
                 //设置实验状态进行中
                 allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_ING);
                 tableView.refresh();
+                //任务开始
+                //延迟多久运行
+                dataTask.setDelay(Duration.millis(20));
+                //每隔多久运行一次
+                dataTask.setPeriod(Duration.millis(Main.periodTime));
+                if(!dataTask.isRunning()){
+                    dataTask.start();
+                }
             }
 
         });
@@ -1503,6 +1506,11 @@ public class Main extends Application {
         startTime = null;
         //top力值
         topN = null;
+        //停止任务
+        if(dataTask.isRunning()){
+            dataTask.cancel();
+            dataTask.reset();
+        }
 
     }
 
@@ -1599,6 +1607,7 @@ public class Main extends Application {
      */
     private void clearAllData(){
         Main.topN = 0F;
+        startTime = 0L;
         series1.getData().clear();
         Main.lableNum4.setText("00000");
         Main.labelTop.setText("00000");
