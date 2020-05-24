@@ -1,5 +1,7 @@
 package com.ponray.entity;
 
+import java.util.Objects;
+
 public class TestData {
 
     private Long ID;
@@ -78,5 +80,24 @@ public class TestData {
 
     public void setDeformVal(Float deformVal) {
         this.deformVal = deformVal;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestData testData = (TestData) o;
+        return Objects.equals(testNum, testData.testNum) &&
+                Objects.equals(timeValue, testData.timeValue) &&
+                Objects.equals(loadVal1, testData.loadVal1) &&
+                Objects.equals(loadVal2, testData.loadVal2) &&
+                Objects.equals(loadVal3, testData.loadVal3) &&
+                Objects.equals(posVal, testData.posVal) &&
+                Objects.equals(deformVal, testData.deformVal);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(testNum, timeValue, loadVal1, loadVal2, loadVal3, posVal, deformVal);
     }
 }

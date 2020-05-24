@@ -4,6 +4,7 @@ import com.ponray.constans.Constants;
 import com.ponray.entity.TestData;
 import com.ponray.serial.SerialPortManager;
 import com.ponray.service.TestService;
+import com.ponray.task.ByteTask;
 import com.ponray.task.DataTask;
 import com.ponray.utils.*;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
@@ -24,7 +25,9 @@ import org.apache.commons.lang.StringUtils;
 
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class UIOnline {
     private static Label labelSerialSet = new Label("串口设置");
@@ -47,6 +50,10 @@ public class UIOnline {
     public static TestData testData = null;
     //串口打开时间
     public static long openTime = 0l;
+
+
+    public static Queue<byte[]> byteList =  new LinkedList<>();
+
 
 
     private Stage window = new Stage();
@@ -131,154 +138,127 @@ public class UIOnline {
                         AlertUtils.alertError("串口对象为空，监听失败！");
                         return;
                     }
+                    SerialPortManager.readFromPort(UIOnline.mSerialport);
                     //添加监听
-                    SerialPortManager.addListener(UIOnline.mSerialport, new SerialPortManager.DataAvailableListener() {
-                        @Override
-                        public void dataAvailable() {
-                            byte[] data = null;
-                            try {
-                                // 读取串口数据
-                                data = SerialPortManager.readFromPort(UIOnline.mSerialport);
-                                //实验开始状态
-//                                if (Main.startFlag) {
-                                    // 以十六进制的形式接收数据
-                                    String hexString = ByteUtils.binaryToHexString(data);
-                                    String[] list = hexString.split(Constants.A55A);
-                                    if(list!=null && list.length>0){
-                                        for (int i=0;i<list.length;i++){
-                                            String dataStr = list[i];
-                                            if(StringUtils.isNotBlank(dataStr) && dataStr.length()>=46){
-                                                if(!CRC16Utils.validateCrc16(dataStr)){
-                                                    return;
-                                                }
-                                                BigInteger status = new BigInteger(dataStr.substring(0,2),16);
-                                                //存储当前试验机状态
-                                                machineStatus(status);
-                                                BigInteger load1 = new BigInteger(dataStr.substring(2,10),16);
-                                                BigInteger load2 = new BigInteger(dataStr.substring(10,18),16);
-                                                BigInteger load3 = new BigInteger(dataStr.substring(18,26),16);
-                                                BigInteger pos = new BigInteger(dataStr.substring(26,34),16);
-                                                BigInteger transform = new BigInteger(dataStr.substring(34,42),16);
-                                                Float fload1 = Float.intBitsToFloat(load1.intValue());
-                                                Float fload2 = Float.intBitsToFloat(load2.intValue());
-                                                Float fload3 = Float.intBitsToFloat(load3.intValue());
-                                                Float fpos = Float.intBitsToFloat(pos.intValue());
-                                                Float ftransform = Float.intBitsToFloat(transform.intValue());
-//                                                //设置峰值
-//                                                if(fload1>Main.topN){
-//                                                    Main.topN = fload1;
-//                                                }
-                                                //当前时间
-//                                                Long nowTime = System.currentTimeMillis();
-//                                                Long runtime = 0L;
-//                                                if(Main.startFlag){
-//                                                    //实验开始才计算运行时间，否则一直是0
-//                                                    runtime = nowTime-Main.startTime;
-//                                                }
+//                    SerialPortManager.addListener(UIOnline.mSerialport, new SerialPortManager.DataAvailableListener() {
+//                        @Override
+//                        public void dataAvailable() {
+//
+//                            byte[] data = null;
+//                            try {
+//                                // 读取串口数据
+//                                data = SerialPortManager.readFromPort(UIOnline.mSerialport);
+//                                //实验开始状态
+////                                if (Main.startFlag) {
+//                                    // 以十六进制的形式接收数据
+//                                    String hexString = ByteUtils.binaryToHexString(data);
+//                                System.out.println(hexString);
+////                                    String[] list = hexString.split(Constants.A55A);
+////                                    if(list!=null && list.length>0){
+////                                        for (int i=0;i<list.length;i++){
+////                                            String dataStr = list[i];
+////                                            if(StringUtils.isNotBlank(dataStr) && dataStr.length()>=46){
+////                                                if(!CRC16Utils.validateCrc16(dataStr)){
+////                                                    return;
+////                                                }
+////                                                BigInteger status = new BigInteger(dataStr.substring(0,2),16);
+////                                                //存储当前试验机状态
+////                                                machineStatus(status);
+////                                                BigInteger load1 = new BigInteger(dataStr.substring(2,10),16);
+////                                                BigInteger load2 = new BigInteger(dataStr.substring(10,18),16);
+////                                                BigInteger load3 = new BigInteger(dataStr.substring(18,26),16);
+////                                                BigInteger pos = new BigInteger(dataStr.substring(26,34),16);
+////                                                BigInteger transform = new BigInteger(dataStr.substring(34,42),16);
+////                                                Float fload1 = Float.intBitsToFloat(load1.intValue());
+////                                                Float fload2 = Float.intBitsToFloat(load2.intValue());
+////                                                Float fload3 = Float.intBitsToFloat(load3.intValue());
+////                                                Float fpos = Float.intBitsToFloat(pos.intValue());
+////                                                Float ftransform = Float.intBitsToFloat(transform.intValue());
+////
+////                                                if(testData==null){
+////                                                    testData = new TestData();
+////                                                }
+////                                                testData.setLoadVal1(fload1);
+////                                                testData.setLoadVal2(fload2);
+////                                                testData.setLoadVal3(fload3);
+////                                                testData.setPosVal(fpos);
+//////                                                testData.setTimeValue(runtime);
+////                                                testData.setDeformVal(ftransform);
+////
+////                                                //如果收到状态7，重新发送上一条命令
+////                                                if(ConstantsUtils.machineStatus.compareTo(ConstantsUtils.acceptFail)==0){
+////                                                    if(CommandUtils.lastCommand!=null){
+////                                                        SerialPortManager.sendToPort(UIOnline.mSerialport, CommandUtils.lastCommand);
+////                                                    }
+////                                                }
+////                                                if(Main.startFlag){
+////                                                    //手动点击实验开始后才可以把数据加入list，之后进行保存
+////                                                    testData.setTestNum(Main.startTest.getTestNum());
+////                                                }
+////                                                if(ConstantsUtils.machineStatus.compareTo(ConstantsUtils.testEnd)==0 && Main.startFlag){
+////                                                    //收到实验结束状态，并且软件实验状态是正在实验中
+////                                                    //先保存实验
+//////                                                    Main.startTest.setRunTime(runtime);
+////                                                    //运行时间大于等于设置时间，实验停止
+////                                                    Main.stopTest();
+////                                                }
+//                                                //自动判断实验是否结束
+////                                                if(Main.selectedProgram !=null && Main.selectedProgram.isTime() && Main.startFlag){
+////                                                    //定时间
+////                                                    if(runtime>=(Main.selectedProgram.getTimeValue()*1000)){
+////                                                        //先保存实验
+////                                                        Main.startTest.setRunTime(runtime);
+////                                                        //运行时间大于等于设置时间，实验停止
+////                                                        Main.stopTest();
+////                                                    }
+////                                                }
+////                                                if(Main.selectedProgram !=null && Main.selectedProgram.isLoad() && Main.startFlag){
+////                                                    //定力值,目前检测的是力1
+////                                                    if(fload1>=Main.selectedProgram.getLoadValue()){
+////                                                        //力值大于等于设定值，保存test
+////                                                        Main.startTest.setRunTime(runtime);
+////                                                        //实验停止
+////                                                        Main.stopTest();
+////                                                    }
+////                                                }
+////                                                if(Main.selectedProgram !=null && Main.selectedProgram.isPos() && Main.startFlag){
+////                                                    //定位移
+////                                                    if(fpos>=Main.selectedProgram.getPosValue()){
+////                                                        //位移大于等于设定值，保存test
+////                                                        Main.startTest.setRunTime(runtime);
+////                                                        //实验停止
+////                                                        Main.stopTest();
+////                                                    }
+////                                                }
+////                                                if(Main.selectedProgram !=null && Main.selectedProgram.isTransform() && Main.startFlag){
+////                                                    //定变形
+////                                                    if(ftransform>=Main.selectedProgram.getTransformValue()){
+////                                                        //变形大于等于设定值，保存test
+////                                                        Main.startTest.setRunTime(runtime);
+////                                                        //实验停止
+////                                                        Main.stopTest();
+////                                                    }
+////                                                }
+//
+////                                            }
+////                                        }
+////                                    }
+////                                }
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                                // 发生读取错误时显示错误信息后退出系统
+//                                Platform.exit();
+//                            }
+//                        }
+//                    });
+                    ByteTask byteTask = new ByteTask();
+                    byteTask.setDelay(Duration.millis(20));
+                    //每隔多久运行一次
+                    byteTask.setPeriod(Duration.millis(20));
+                    if(!byteTask.isRunning()){
+                        byteTask.start();
+                    }
 
-                                                //主界面值设置
-//                                                String strFload1 = DecimalUtils.formatFloat(fload1);
-//                                                String strFpos = DecimalUtils.formatFloat(fpos);
-//                                                String strFtransform = DecimalUtils.formatFloat(ftransform);
-//                                                String strRuntime = DecimalUtils.formatFloat((float)runtime);
-//                                                String strTop = DecimalUtils.formatFloat(Main.topN);
-//                                                System.out.println(status);
-
-                                                //顶部显示
-//                                                Platform.runLater(new Runnable() {
-//                                                    @Override
-//                                                    public void run() {
-//                                                        Main.lableNum1.setText(strFload1);
-//                                                        Main.lableNum2.setText(strFpos);
-//                                                        Main.lableNum3.setText(strFtransform);
-//                                                        Main.lableNum4.setText(strRuntime);
-//                                                        Main.labelTop.setText(strTop);
-//                                                    }
-//                                                });
-                                                if(testData==null){
-                                                    testData = new TestData();
-                                                }
-                                                testData.setLoadVal1(fload1);
-                                                testData.setLoadVal2(fload2);
-                                                testData.setLoadVal3(fload3);
-                                                testData.setPosVal(fpos);
-//                                                testData.setTimeValue(runtime);
-                                                testData.setDeformVal(ftransform);
-                                                if(ConstantsUtils.machineStatus.compareTo(ConstantsUtils.testIng)==0){
-                                                    //实验开始状态保存数据，画曲线
-
-                                                    //更新折线
-                                                    Main.updateSeries(testData);
-                                                }
-
-                                                //如果收到状态7，重新发送上一条命令
-                                                if(ConstantsUtils.machineStatus.compareTo(ConstantsUtils.acceptFail)==0){
-                                                    if(CommandUtils.lastCommand!=null){
-                                                        SerialPortManager.sendToPort(UIOnline.mSerialport, CommandUtils.lastCommand);
-                                                    }
-                                                }
-                                                if(Main.startFlag){
-                                                    //手动点击实验开始后才可以把数据加入list，之后进行保存
-                                                    testData.setTestNum(Main.startTest.getTestNum());
-                                                    Main.dataList.add(testData);
-                                                }
-                                                if(ConstantsUtils.machineStatus.compareTo(ConstantsUtils.testEnd)==0 && Main.startFlag){
-                                                    //收到实验结束状态，并且软件实验状态是正在实验中
-                                                    //先保存实验
-//                                                    Main.startTest.setRunTime(runtime);
-                                                    //运行时间大于等于设置时间，实验停止
-                                                    Main.stopTest();
-                                                }
-                                                //自动判断实验是否结束
-//                                                if(Main.selectedProgram !=null && Main.selectedProgram.isTime() && Main.startFlag){
-//                                                    //定时间
-//                                                    if(runtime>=(Main.selectedProgram.getTimeValue()*1000)){
-//                                                        //先保存实验
-//                                                        Main.startTest.setRunTime(runtime);
-//                                                        //运行时间大于等于设置时间，实验停止
-//                                                        Main.stopTest();
-//                                                    }
-//                                                }
-//                                                if(Main.selectedProgram !=null && Main.selectedProgram.isLoad() && Main.startFlag){
-//                                                    //定力值,目前检测的是力1
-//                                                    if(fload1>=Main.selectedProgram.getLoadValue()){
-//                                                        //力值大于等于设定值，保存test
-//                                                        Main.startTest.setRunTime(runtime);
-//                                                        //实验停止
-//                                                        Main.stopTest();
-//                                                    }
-//                                                }
-//                                                if(Main.selectedProgram !=null && Main.selectedProgram.isPos() && Main.startFlag){
-//                                                    //定位移
-//                                                    if(fpos>=Main.selectedProgram.getPosValue()){
-//                                                        //位移大于等于设定值，保存test
-//                                                        Main.startTest.setRunTime(runtime);
-//                                                        //实验停止
-//                                                        Main.stopTest();
-//                                                    }
-//                                                }
-//                                                if(Main.selectedProgram !=null && Main.selectedProgram.isTransform() && Main.startFlag){
-//                                                    //定变形
-//                                                    if(ftransform>=Main.selectedProgram.getTransformValue()){
-//                                                        //变形大于等于设定值，保存test
-//                                                        Main.startTest.setRunTime(runtime);
-//                                                        //实验停止
-//                                                        Main.stopTest();
-//                                                    }
-//                                                }
-
-                                            }
-                                        }
-                                    }
-//                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                // 发生读取错误时显示错误信息后退出系统
-                                Platform.exit();
-                            }
-                        }
-                    });
-//                    //任务开始
                     //延迟多久运行
                     dataTask.setDelay(Duration.millis(20));
                     //每隔多久运行一次

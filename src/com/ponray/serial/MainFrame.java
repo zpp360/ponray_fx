@@ -251,7 +251,7 @@ public class MainFrame extends JFrame {
                         ShowUtils.errorMessage("串口对象为空，监听失败！");
                     } else {
                         // 读取串口数据
-                        data = SerialPortManager.readFromPort(mSerialport);
+                       // data = SerialPortManager.readFromPort(mSerialport);
 
                         // 以字符串的形式接收数据
                         if (mDataASCIIChoice.isSelected()) {

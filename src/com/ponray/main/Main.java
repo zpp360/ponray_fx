@@ -98,7 +98,6 @@ public class Main extends Application {
     public static LineChart mainChart = null;
     //线
     public static XYChart.Series<Number,Number> series1 = new XYChart.Series();
-    private static Test selectedTest = null;
     private static NumberAxis xAxis = new NumberAxis();
     private static NumberAxis yAxis = new NumberAxis();
     //--------------------------------tab2 end-------------------------------------
@@ -107,15 +106,13 @@ public class Main extends Application {
     private static LineChart twoChart = null;
     private static LineChart threeChart = null;
     private static LineChart fourChart = null;
-    private static String xAxisName = Axis.DISPLACEMENT.getName();
+    private static String xAxisName = Axis.TIME.getName();
     private static String yAxisNmae = Axis.N.getName();
 
 
     //------------tab3 end --------------
 
     //-------------tab4-----------
-    private static Button fileSearchBtn = new Button("按文件名");
-    private static Button programSearchBtn = new Button("按方案查询");
     private static ChoiceBox<Program> programSearchChoiceBox = new ChoiceBox<>();
     private static Program searchSelectProgram = null;
     private static Button searchBtn = new Button("查询");
@@ -1053,7 +1050,9 @@ public class Main extends Application {
 //        NumberAxis xAxis = new NumberAxis();
 //        NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel(axisX);
+        xAxis.setAutoRanging(true);
         yAxis.setLabel(axisY);
+        yAxis.setAutoRanging(true);
 
         ContextMenu xMenu = axisContextMenu(xAxis,"X");
         ContextMenu yMenu = axisContextMenu(yAxis,"Y");
@@ -1070,16 +1069,16 @@ public class Main extends Application {
         //设置线名称
 //        lineChart.setTitle("Stock Monitoring, 2010");
         lineChart.setTitle(null);
+        lineChart.setCreateSymbols(true);
+        lineChart.setLegendVisible(true);
         //设置图表名称
 //        series1.setName("Portfolio 1");
-
+//        ObservableList<Data<Number, Number>> list = FXCollections.observableArrayList(update);
         if(selectedProgram!=null){
             int pointCount = 20;
             int gap = 0; //间隔多少取点，商
-            int remainder = 0;//余数
             if(dataList!=null){
                 gap =  dataList.size()/pointCount;
-                remainder = dataList.size() % pointCount;
             }
 
             //主图
@@ -1220,23 +1219,6 @@ public class Main extends Application {
             }
 
         }
-
-
-//        series1.getData().add(new XYChart.Data<String,Number>("Jan", 23));
-//        series1.getData().add(new XYChart.Data("Feb", 14));
-//        series1.getData().add(new XYChart.Data("Mar", 15));
-//        series1.getData().add(new XYChart.Data("Apr", 24));
-//        series1.getData().add(new XYChart.Data("May", 34));
-//        series1.getData().add(new XYChart.Data("Jun", 36));
-//        series1.getData().add(new XYChart.Data("Jul", 22));
-//        series1.getData().add(new XYChart.Data("Aug", 45));
-//        series1.getData().add(new XYChart.Data("Sep", 43));
-//        series1.getData().add(new XYChart.Data("Oct", 17));
-//        series1.getData().add(new XYChart.Data("Nov", 29));
-//        series1.getData().add(new XYChart.Data("Dec", 25));
-
-        //添加线
-//        lineChart.getData().addAll(series1);
         lineChart.setCreateSymbols(false);
         return lineChart;
     }
@@ -1441,13 +1423,37 @@ public class Main extends Application {
                 Main.button2.setDisable(true);
                 Main.button3.setDisable(true);
                 //发送开始命令
-                Float speed = selectedProgram.getGeneralSpeed();//获取速度设置值
-                if(Constants.KQL.equals(selectedProgram)){
+                if(Constants.KQL.equals(selectedProgram.getName())){
                     Float data1 = 1000f;
                     if(Constants.INT_TWO == selectedProgram.getDirect()){
                         data1 = -1000f;
                     }
-                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),data1,0f,speed));
+                    if(selectedProgram.isClearN()){
+                        //实验开始清空力
+                        String speed = speedTextField.getText().trim();
+                        byte[] command = CommandUtils.commandClearLoad(speed);
+                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+                        //峰值清零
+                        Main.topN = 0F;
+                    }
+                    if(selectedProgram.isClearDisp()){
+                        //实验开始清空位移
+                        String speed = speedTextField.getText().trim();
+                        byte[] command = CommandUtils.commandClearPos(speed);
+                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+                    }
+                    if(selectedProgram.isClearTransform()){
+                        //实验开始清空变形
+                        String speed = speedTextField.getText().trim();
+                        byte[] command = CommandUtils.commandClearTransform(speed);
+                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+                    }
+
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),data1,0f,selectedProgram.getGeneralSpeed()));
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),data1,0f,selectedProgram.getGeneralSpeed()));
                     testName = Constants.KQL;
                 }
                 //设置实验状态进行中
@@ -1458,10 +1464,10 @@ public class Main extends Application {
         });
         //右侧停止按钮
         stopBt.setOnAction(event -> {
-            //stopTest();
             byte[] command = CommandUtils.commandStop();
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            stopTest();
         });
         //上升
         upBt.setOnAction(event -> {
@@ -1509,12 +1515,8 @@ public class Main extends Application {
         });
     }
 
-    /**
-     * 实验停止
-     */
-    public static void stopTest(){
-        //发送实验停止
 
+    public static void stopTest(){
         //实验开始标志置为false
         startFlag = false;
         //按钮状态
@@ -1527,6 +1529,27 @@ public class Main extends Application {
         Main.button1.setDisable(false);
         Main.button2.setDisable(false);
         Main.button3.setDisable(false);
+
+        startTest = null;
+        startTime = null;
+    }
+    /**
+     * 实验停止
+     */
+    public static void stopTestAndSave(){
+        //发送实验停止
+
+        //按钮状态
+        startBt.setDisable(false);
+        stopBt.setDisable(true);
+        Main.startBt.setDisable(false);
+        Main.upBt.setDisable(false);
+        Main.downBt.setDisable(false);
+        Main.resetBt.setDisable(false);
+        Main.button1.setDisable(false);
+        Main.button2.setDisable(false);
+        Main.button3.setDisable(false);
+        startTest.setRunTime(Main.startTime);
         try {
             //保存实验
             testService.insert(startTest);
@@ -1547,7 +1570,9 @@ public class Main extends Application {
         startTest = null;
         startTime = null;
         //top力值
-        topN = null;
+//        topN = 0F;
+        //实验开始标志置为false
+        startFlag = false;
     }
 
     /**
@@ -1642,11 +1667,11 @@ public class Main extends Application {
      * 所有数据归零，包括图表数据清零
      */
     private void clearAllData(){
-        Main.topN = 0F;
+        topN = 0F;
         startTime = 0L;
         series1.getData().clear();
-        Main.lableNum4.setText("00000");
-        Main.labelTop.setText("00000");
+        lableNum4.setText("00000");
+        labelTop.setText("00000");
     }
 
 }

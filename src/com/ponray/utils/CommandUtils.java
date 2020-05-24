@@ -105,7 +105,9 @@ public class CommandUtils {
         byte[] speedBytes =speedBytes(speed);
         byte[] header = ByteUtils.hexStringToBytes(A55A+STR0+direct+START+model);
         byte[] data1Byte = ByteUtils.float2byte(data1);
+        data1Byte = ByteUtils.byteReversal(data1Byte);
         byte[] datta2Byte = ByteUtils.float2byte(data2);
+        datta2Byte = ByteUtils.byteReversal(datta2Byte);
         byte[] command = ByteUtils.byteMerger(header,data1Byte);
         command = ByteUtils.byteMerger(command,datta2Byte);
         command = ByteUtils.byteMerger(command,speedBytes);

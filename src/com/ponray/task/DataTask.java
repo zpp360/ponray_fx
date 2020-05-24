@@ -1,11 +1,15 @@
 package com.ponray.task;
 
+import com.ponray.constans.Constants;
 import com.ponray.entity.TestData;
 import com.ponray.main.Main;
 import com.ponray.main.UIOnline;
+import com.ponray.serial.SerialPortManager;
 import com.ponray.utils.*;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
+
+import java.math.BigInteger;
 
 public class DataTask extends ScheduledService<TestData> {
     @Override
@@ -32,7 +36,10 @@ public class DataTask extends ScheduledService<TestData> {
                     Main.labelTop.setText(DecimalUtils.formatFloat(Main.topN));
                     if(Main.startFlag){
                         //实验开始画曲线
+//                        TestData testData = value;//复制一份，否则报错java.util.ConcurrentModificationException
                         Main.updateSeries(value);
+                        TestData data = value;
+                        Main.dataList.add(data);
                     }
                 }
 
@@ -40,15 +47,69 @@ public class DataTask extends ScheduledService<TestData> {
 
             @Override
             protected TestData call() throws Exception {
+                TestData testData = null;
                 if(UIOnline.mSerialport!=null) {
+                    byte[] bytes = UIOnline.byteList.poll();
+                    String dataStr = ByteUtils.binaryToHexString(UIOnline.byteList.poll());
+                    System.out.println(dataStr);
+                    if(!CRC16Utils.validateCrc16(dataStr)){
+                        return testData;
+                    }
+//                    BigInteger status = new BigInteger(dataStr.substring(2,4),16);
+////                                                //存储当前试验机状态
+//                     BigInteger load1 = new BigInteger(dataStr.substring(6,14),16);
+//                     BigInteger load2 = new BigInteger(dataStr.substring(14,22),16);
+//                     BigInteger load3 = new BigInteger(dataStr.substring(22,30),16);
+//                     BigInteger pos = new BigInteger(dataStr.substring(30,38),16);
+//                     BigInteger transform = new BigInteger(dataStr.substring(38,46),16);
+//                     Float fload1 = Float.intBitsToFloat(load1.intValue());
+                    byte[] byte4 = new byte[4];
+                    System.arraycopy(bytes, 3, byte4, 0, 4);
+                     Float fload1 = ByteUtils.byte2float(byte4,0);
+                    System.out.println(fload1);
+                    System.arraycopy(bytes, 7, byte4, 0, 4);
+                     Float fload2 = ByteUtils.byte2float(byte4,0);
+                    System.arraycopy(bytes, 11, byte4, 0, 4);
+                     Float fload3 = ByteUtils.byte2float(byte4,0);
+                    System.arraycopy(bytes, 16, byte4, 0, 4);
+                     Float fpos = ByteUtils.byte2float(byte4,0);
+                    System.arraycopy(bytes, 20, byte4, 0, 4);
+                     Float ftransform = ByteUtils.byte2float(byte4,0);
+                     testData = new TestData();
+                    testData.setLoadVal1(fload1);
+                    testData.setLoadVal2(fload2);
+                    testData.setLoadVal3(fload3);
+                    testData.setPosVal(fpos);
+                    testData.setDeformVal(ftransform);
                     //实验时间
                     if(Main.startFlag){
                         Main.startTime = Main.startTime + Main.periodTime;
-                        UIOnline.testData.setTimeValue(Main.startTime);
+                        //设置实验时间
+                        testData.setTimeValue(Main.startTime);
+                        //实验编号
+                        UIOnline.testData.setTestNum(Main.startTest.getTestNum());
+
+                        if(Constants.KQL.equals(Main.testName)){
+                            //停机条件
+                            //峰值*50% + 当前力   大于  峰值
+                            boolean flag = false;
+                            if(fload1 > Main.selectedProgram.getGtForce()){
+                                flag = true;
+                            }
+                            if(flag){
+                                float a = Main.topN * Main.selectedProgram.getLtRate()/100 + fload1;
+                                System.out.println(a);
+                                System.out.println("峰值："+Main.topN);
+                                if(a < Main.topN){
+                                    Main.stopTestAndSave();
+                                }
+                            }
+
+                        }
                     }
                     UIOnline.openTime = UIOnline.openTime + Main.periodTime;
                 }
-                return UIOnline.testData;
+                return testData;
             }
         };
         return task;

@@ -78,7 +78,7 @@ public class CRC16Utils {
      * @return
      */
     public static boolean validateCrc16(String data){
-        data = Constants.A55A + data;
+//        data = Constants.A55A + data;
         String crc16Hex = data.substring(46,50);
         int create =  CRC16Utils.calcCrc16(ByteUtils.hexStr2Byte(data.substring(0,46)));
         int crc16 = Integer.parseInt(crc16Hex,16);

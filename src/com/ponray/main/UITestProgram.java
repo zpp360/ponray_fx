@@ -1712,10 +1712,10 @@ public class UITestProgram {
      */
     private void initTab1Data() {
         if(selectedProgram!=null){
-            if(Constants.INT_ZERO == selectedProgram.getDirect()){
+            if(Constants.INT_ONE == selectedProgram.getDirect()){
                 radioLa.setSelected(true);
             }
-            if(Constants.INT_ONE == selectedProgram.getDirect()){
+            if(Constants.INT_TWO == selectedProgram.getDirect()){
                 radioYa.setSelected(true);
             }
             choiceBoxShape.setValue(selectedProgram.getShapeName());
