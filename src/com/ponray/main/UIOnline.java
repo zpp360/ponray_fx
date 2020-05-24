@@ -4,6 +4,7 @@ import com.ponray.constans.Constants;
 import com.ponray.entity.TestData;
 import com.ponray.serial.SerialPortManager;
 import com.ponray.service.TestService;
+import com.ponray.task.DataTask;
 import com.ponray.utils.*;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import gnu.io.PortInUseException;
@@ -18,6 +19,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.apache.commons.lang.StringUtils;
 
 import java.math.BigInteger;
@@ -39,6 +41,12 @@ public class UIOnline {
     public static SerialPort mSerialport = null;
 
     private TestService testService = new TestService();
+
+    private DataTask dataTask = new DataTask();
+
+    public static TestData testData = null;
+    //串口打开时间
+    public static long openTime = 0l;
 
 
     private Stage window = new Stage();
@@ -156,46 +164,48 @@ public class UIOnline {
                                                 Float fload3 = Float.intBitsToFloat(load3.intValue());
                                                 Float fpos = Float.intBitsToFloat(pos.intValue());
                                                 Float ftransform = Float.intBitsToFloat(transform.intValue());
-                                                //设置峰值
-                                                if(fload1>Main.topN){
-                                                    Main.topN = fload1;
-                                                }
+//                                                //设置峰值
+//                                                if(fload1>Main.topN){
+//                                                    Main.topN = fload1;
+//                                                }
                                                 //当前时间
-                                                Long nowTime = System.currentTimeMillis();
-                                                Long runtime = 0L;
-                                                if(Main.startFlag){
-                                                    //实验开始才计算运行时间，否则一直是0
-                                                    runtime = nowTime-Main.startTime;
-                                                }
+//                                                Long nowTime = System.currentTimeMillis();
+//                                                Long runtime = 0L;
+//                                                if(Main.startFlag){
+//                                                    //实验开始才计算运行时间，否则一直是0
+//                                                    runtime = nowTime-Main.startTime;
+//                                                }
 
                                                 //主界面值设置
-                                                String strFload1 = DecimalUtils.formatFloat(fload1);
-                                                String strFpos = DecimalUtils.formatFloat(fpos);
-                                                String strFtransform = DecimalUtils.formatFloat(ftransform);
-                                                String strRuntime = DecimalUtils.formatFloat((float)runtime);
-                                                String strTop = DecimalUtils.formatFloat(Main.topN);
-                                                System.out.println(status);
+//                                                String strFload1 = DecimalUtils.formatFloat(fload1);
+//                                                String strFpos = DecimalUtils.formatFloat(fpos);
+//                                                String strFtransform = DecimalUtils.formatFloat(ftransform);
+//                                                String strRuntime = DecimalUtils.formatFloat((float)runtime);
+//                                                String strTop = DecimalUtils.formatFloat(Main.topN);
+//                                                System.out.println(status);
 
                                                 //顶部显示
-                                                Platform.runLater(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        Main.lableNum1.setText(strFload1);
-                                                        Main.lableNum2.setText(strFpos);
-                                                        Main.lableNum3.setText(strFtransform);
-                                                        Main.lableNum4.setText(strRuntime);
-                                                        Main.labelTop.setText(strTop);
-                                                    }
-                                                });
-                                                TestData testData = new TestData();
+//                                                Platform.runLater(new Runnable() {
+//                                                    @Override
+//                                                    public void run() {
+//                                                        Main.lableNum1.setText(strFload1);
+//                                                        Main.lableNum2.setText(strFpos);
+//                                                        Main.lableNum3.setText(strFtransform);
+//                                                        Main.lableNum4.setText(strRuntime);
+//                                                        Main.labelTop.setText(strTop);
+//                                                    }
+//                                                });
+                                                if(testData==null){
+                                                    testData = new TestData();
+                                                }
+                                                testData.setLoadVal1(fload1);
+                                                testData.setLoadVal2(fload2);
+                                                testData.setLoadVal3(fload3);
+                                                testData.setPosVal(fpos);
+//                                                testData.setTimeValue(runtime);
+                                                testData.setDeformVal(ftransform);
                                                 if(ConstantsUtils.machineStatus.compareTo(ConstantsUtils.testIng)==0){
                                                     //实验开始状态保存数据，画曲线
-                                                    testData.setLoadVal1(fload1);
-                                                    testData.setLoadVal2(fload2);
-                                                    testData.setLoadVal3(fload3);
-                                                    testData.setPosVal(fpos);
-                                                    testData.setTimeValue(runtime);
-                                                    testData.setDeformVal(ftransform);
 
                                                     //更新折线
                                                     Main.updateSeries(testData);
@@ -215,7 +225,7 @@ public class UIOnline {
                                                 if(ConstantsUtils.machineStatus.compareTo(ConstantsUtils.testEnd)==0 && Main.startFlag){
                                                     //收到实验结束状态，并且软件实验状态是正在实验中
                                                     //先保存实验
-                                                    Main.startTest.setRunTime(runtime);
+//                                                    Main.startTest.setRunTime(runtime);
                                                     //运行时间大于等于设置时间，实验停止
                                                     Main.stopTest();
                                                 }
@@ -268,6 +278,14 @@ public class UIOnline {
                             }
                         }
                     });
+//                    //任务开始
+                    //延迟多久运行
+                    dataTask.setDelay(Duration.millis(20));
+                    //每隔多久运行一次
+                    dataTask.setPeriod(Duration.millis(Main.periodTime));
+                    if(!dataTask.isRunning()){
+                        dataTask.start();
+                    }
                     //打开串口成功
                     btnOpen.setText("关闭串口");
                     //设置实验开始按钮可用
@@ -275,6 +293,7 @@ public class UIOnline {
                     Main.upBt.setDisable(false);
                     Main.downBt.setDisable(false);
                     Main.resetBt.setDisable(false);
+                    Main.stopBt.setDisable(false);
                     Main.button1.setDisable(false);
                     Main.button2.setDisable(false);
                     Main.button3.setDisable(false);
@@ -294,6 +313,11 @@ public class UIOnline {
                     Main.initBt();
                     //脱机按钮不可用
                     Main.offlineItem.setDisable(true);
+                    //task
+                    if(dataTask.isRunning()){
+                        dataTask.cancel();
+                        dataTask.reset();
+                    }
                     AlertUtils.alertInfo("关闭串口成功");
                 }
             }

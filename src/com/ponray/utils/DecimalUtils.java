@@ -27,8 +27,26 @@ public class DecimalUtils {
             strFload = decimalFormat2.format(fl);
         }else if(fl>0){
             strFload = decimalFormat3.format(fl);
+        }else if(fl>-10){
+            strFload = decimalFormat2.format(fl);
         }else{
             strFload = decimalFormat5.format(fl);
+        }
+        return strFload;
+    }
+
+    public static String formatDouble(Double d){
+        String strFload = Constants.STR_ZERO;
+        if(d>1000){
+            strFload = decimalFormat4.format(d);
+        }else if(d>100){
+            strFload = decimalFormat1.format(d);
+        }else if(d>10){
+            strFload = decimalFormat2.format(d);
+        }else if(d>0){
+            strFload = decimalFormat3.format(d);
+        }else{
+            strFload = decimalFormat5.format(d);
         }
         return strFload;
     }

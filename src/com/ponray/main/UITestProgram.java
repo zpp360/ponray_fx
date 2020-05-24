@@ -1851,10 +1851,12 @@ public class UITestProgram {
         p.setName(textProgramName.getText().trim());
         p.setStandard(choiceBoxStanderdSelect.getValue().getCode());
         if (radioLa.isSelected()) {
-            p.setDirect(Constants.INT_ZERO);
+            //拉向为1
+            p.setDirect(Constants.INT_ONE);
         }
         if (radioYa.isSelected()) {
-            p.setDirect(Constants.INT_ONE);
+            //压向为2
+            p.setDirect(Constants.INT_TWO);
         }
         p.setShapeName(choiceBoxShape.getValue());
         p.setTransformSensor(choiceBoxTransform.getValue());

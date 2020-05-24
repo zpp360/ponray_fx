@@ -120,7 +120,7 @@ public class SerialPortManager {
         try {
             in = serialPort.getInputStream();
             // 缓冲区大小为一个字节
-            byte[] readBuffer = new byte[24];
+            byte[] readBuffer = new byte[25];
             int bytesNum = in.read(readBuffer);
             while (bytesNum > 0) {
                 bytes = ArrayUtils.concat(bytes, readBuffer);

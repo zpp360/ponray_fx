@@ -9,7 +9,7 @@ public class Program {
     private String  name;
     //标准
     private String standard;
-    //试验方向,拉向为0,压向为1
+    //试验方向,拉向为1,压向为2
     private Integer direct;
     //试样形状名称
     private String shapeName;

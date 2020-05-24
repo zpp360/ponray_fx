@@ -22,10 +22,31 @@ public class CommandUtils {
      * 实验开始
      */
     public static final String START = "08";
+    /**
+     * 复位
+     */
+    public static final String RESET = "09";
+
+    /**
+     * 力
+     */
+    public static final String LOAD = "0A";
+    /**
+     * 位移
+     */
+    public static final String POS = "0B";
+    /**
+     * 变形
+     */
+    public static final String TRANSFORM = "0C";
 
     public static final String STR00 = "00";
 
-    public static final String STR00000000 = "00000000";
+    public static final String STR0 = "0";
+
+    public static final String STR000000000 = "000000000000000000"; //18个0，9字节
+
+    public static final String STR00000000 = "0000000000000000"; //16个0，8字节
 
     public static byte[] lastCommand = null;
 
@@ -36,7 +57,7 @@ public class CommandUtils {
      */
     public static byte[] commandUP(String speed){
         byte[] speedBytes = speedBytes(speed);
-        byte[] header = ByteUtils.hexStringToBytes(A55A+STR00+UP);
+        byte[] header = ByteUtils.hexStringToBytes(A55A+STR00+UP+STR000000000);
         byte[] command = ByteUtils.byteMerger(header,speedBytes);
         //crc16校验
         byte[] crc16Bytes = crc16(command);
@@ -50,7 +71,7 @@ public class CommandUtils {
      * @return
      */
     public static byte[] commandStop(){
-        byte[] command = ByteUtils.hexStringToBytes(A55A+STR00+STOP+STR00000000);
+        byte[] command = ByteUtils.hexStringToBytes(A55A+STR00+STOP+STR000000000+STR00+STR00+STR00+STR00);
         //crc16校验
         byte[] crc16Bytes = crc16(command);
         //记录上一次发送的命令
@@ -65,7 +86,7 @@ public class CommandUtils {
      */
     public static byte[] commandDown(String speed){
         byte[] speedBytes = speedBytes(speed);
-        byte[] header = ByteUtils.hexStringToBytes(A55A+STR00+DOWN);
+        byte[] header = ByteUtils.hexStringToBytes(A55A+STR00+DOWN+STR000000000);
         byte[] command = ByteUtils.byteMerger(header,speedBytes);
         //crc16校验
         byte[] crc16Bytes = crc16(command);
@@ -76,13 +97,81 @@ public class CommandUtils {
 
     /**
      * 实验开始
+     * @param direct 实验方向 拉向为1 压向2
      * @param speed 实验速度速度
-     * @param programNum 实验方案标号，传给硬件
      * @return
      */
-    public static byte[] commandStart(Float speed,String programNum){
+    public static byte[] commandStart(int direct,String model,float data1,float data2,Float speed){
         byte[] speedBytes =speedBytes(speed);
-        byte[] header = ByteUtils.hexStringToBytes(A55A+programNum+START);
+        byte[] header = ByteUtils.hexStringToBytes(A55A+STR0+direct+START+model);
+        byte[] data1Byte = ByteUtils.float2byte(data1);
+        byte[] datta2Byte = ByteUtils.float2byte(data2);
+        byte[] command = ByteUtils.byteMerger(header,data1Byte);
+        command = ByteUtils.byteMerger(command,datta2Byte);
+        command = ByteUtils.byteMerger(command,speedBytes);
+        //crc16校验
+        byte[] crc16Bytes = crc16(command);
+        //记录上一次发送的命令
+        lastCommand = ByteUtils.byteMerger(command,crc16Bytes);
+        return lastCommand;
+    }
+
+    /**
+     * 复位指令
+     * @param speed
+     * @return
+     */
+    public static byte[] commandReset(String speed){
+        byte[] speedBytes =speedBytes(speed);
+        byte[] header = ByteUtils.hexStringToBytes(A55A+STR00+RESET+STR000000000);
+        byte[] command = ByteUtils.byteMerger(header,speedBytes);
+        //crc16校验
+        byte[] crc16Bytes = crc16(command);
+        //记录上一次发送的命令
+        lastCommand = ByteUtils.byteMerger(command,crc16Bytes);
+        return lastCommand;
+    }
+
+    /**
+     * 力清零
+     * @param speed
+     * @return
+     */
+    public static byte[] commandClearLoad(String speed){
+        byte[] speedBytes =speedBytes(speed);
+        byte[] header = ByteUtils.hexStringToBytes(A55A+STR00+LOAD+STR000000000);
+        byte[] command = ByteUtils.byteMerger(header,speedBytes);
+        //crc16校验
+        byte[] crc16Bytes = crc16(command);
+        //记录上一次发送的命令
+        lastCommand = ByteUtils.byteMerger(command,crc16Bytes);
+        return lastCommand;
+    }
+
+    /**
+     * 位移清零
+     * @param speed
+     * @return
+     */
+    public static byte[] commandClearPos(String speed){
+        byte[] speedBytes =speedBytes(speed);
+        byte[] header = ByteUtils.hexStringToBytes(A55A+STR00+POS+STR000000000);
+        byte[] command = ByteUtils.byteMerger(header,speedBytes);
+        //crc16校验
+        byte[] crc16Bytes = crc16(command);
+        //记录上一次发送的命令
+        lastCommand = ByteUtils.byteMerger(command,crc16Bytes);
+        return lastCommand;
+    }
+
+    /**
+     * 变形清零
+     * @param speed
+     * @return
+     */
+    public static byte[] commandClearTransform(String speed){
+        byte[] speedBytes =speedBytes(speed);
+        byte[] header = ByteUtils.hexStringToBytes(A55A+STR00+TRANSFORM+STR000000000);
         byte[] command = ByteUtils.byteMerger(header,speedBytes);
         //crc16校验
         byte[] crc16Bytes = crc16(command);

@@ -56,7 +56,10 @@ public class Constants {
     public final static String BASE_UNIT_YL = "MPa";
 
     public final static int INT_ZERO = 0;
+    //拉
     public final static int INT_ONE = 1;
+    //压
+    public final static int INT_TWO = 2;
 
     public final static String STR_ZERO = "0";
 
@@ -70,4 +73,12 @@ public class Constants {
     public final static String TEST_STATUS_NOSTART = "未开始";
     public final static String TEST_STATUS_ING = "进行中";
     public final static String TEST_STATUS_END = "已结束";
+
+    /**
+     * 实验名称
+     */
+    public final static String KQL = "开启力";
+
+    public final static String ZDL = "折断力";
+
 }

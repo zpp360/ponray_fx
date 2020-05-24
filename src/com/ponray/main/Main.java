@@ -151,13 +151,17 @@ public class Main extends Application {
     //实验开始时间，在UIonlin里使用计算运行时间
     public static Long startTime = 0L;
     //每隔20毫秒运行一次
-    public static Long periodTime = 20L;
+    public static Long periodTime = 50L;
+
+    public static Long sum = 0L;
     //实验中实验，在UIOnline里保存
     public static Test startTest = null;
     //实验数据
     public static List<TestData> dataList = new ArrayList<>();
     private static ProgramService programService = new ProgramService();
     private static TestService testService = new TestService();
+
+    public static String testName = null;
 
     public static void main(String[] args) {
         launch(args);
@@ -369,7 +373,7 @@ public class Main extends Application {
         lableNum4.setTextFill(Color.web("#fff"));
 
 
-        Label labelN4 = new Label("ms");
+        Label labelN4 = new Label("s");
         labelN4.setMinSize(50,26);
         labelN4.setStyle("-fx-background-color: #002060;");
         labelN4.setFont(Font.font(FontUtil.FANGSONG, FontWeight.NORMAL, 20));
@@ -563,16 +567,6 @@ public class Main extends Application {
         //全屏
         stage.setMaximized(true);
         stage.show();
-
-        //任务开始
-        //延迟多久运行
-        DataTask dataTask = new DataTask();
-        dataTask.setDelay(Duration.millis(20));
-        //每隔多久运行一次
-        dataTask.setPeriod(Duration.millis(Main.periodTime));
-        if(!dataTask.isRunning()){
-            dataTask.start();
-        }
 
     }
 
@@ -1351,6 +1345,9 @@ public class Main extends Application {
                 AlertUtils.alertError("请选择实验方案");
                 return;
             }
+            if(allData==null || allData.size()==0){
+                return;
+            }
             HashMap<String,String> lastData = allData.get(allData.size()-1);
             if(lastData.containsValue("")){
                 AlertUtils.alertError("请先填写参数");
@@ -1445,7 +1442,14 @@ public class Main extends Application {
                 Main.button3.setDisable(true);
                 //发送开始命令
                 Float speed = selectedProgram.getGeneralSpeed();//获取速度设置值
-                SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(speed,selectedProgram.getNum()));
+                if(Constants.KQL.equals(selectedProgram)){
+                    Float data1 = 1000f;
+                    if(Constants.INT_TWO == selectedProgram.getDirect()){
+                        data1 = -1000f;
+                    }
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),data1,0f,speed));
+                    testName = Constants.KQL;
+                }
                 //设置实验状态进行中
                 allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_ING);
                 tableView.refresh();
@@ -1454,13 +1458,53 @@ public class Main extends Application {
         });
         //右侧停止按钮
         stopBt.setOnAction(event -> {
-            stopTest();
+            //stopTest();
+            byte[] command = CommandUtils.commandStop();
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
         });
         //上升
         upBt.setOnAction(event -> {
             String speed = speedTextField.getText().trim();
-            System.out.println(speed);
             byte[] command = CommandUtils.commandUP(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+        });
+        //下降
+        downBt.setOnAction(event -> {
+            String speed = speedTextField.getText().trim();
+            byte[] command = CommandUtils.commandDown(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+        });
+        //复位
+        resetBt.setOnAction(event -> {
+            String speed = speedTextField.getText().trim();
+            byte[] command = CommandUtils.commandReset(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+        });
+        //力清零
+        button1.setOnAction(event -> {
+            String speed = speedTextField.getText().trim();
+            byte[] command = CommandUtils.commandClearLoad(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            //峰值清零
+            Main.topN = 0F;
+        });
+        //位移清零
+        button2.setOnAction(event -> {
+            String speed = speedTextField.getText().trim();
+            byte[] command = CommandUtils.commandClearPos(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+        });
+        //变形清零
+        button3.setOnAction(event -> {
+            String speed = speedTextField.getText().trim();
+            byte[] command = CommandUtils.commandClearTransform(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
         });
     }
