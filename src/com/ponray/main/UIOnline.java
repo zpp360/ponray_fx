@@ -252,7 +252,7 @@ public class UIOnline {
 //                        }
 //                    });
                     ByteTask byteTask = new ByteTask();
-                    byteTask.setDelay(Duration.millis(20));
+                    byteTask.setDelay(Duration.millis(10));
                     //每隔多久运行一次
                     byteTask.setPeriod(Duration.millis(20));
                     if(!byteTask.isRunning()){

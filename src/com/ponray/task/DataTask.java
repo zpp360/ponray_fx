@@ -19,22 +19,18 @@ public class DataTask extends ScheduledService<TestData> {
             @Override
             protected void updateValue(TestData value) {
                 super.updateValue(value);
-                if(value!=null){
+                if (value != null) {
                     Main.lableNum1.setText(DecimalUtils.formatFloat(value.getLoadVal1()));
                     Main.lableNum2.setText(DecimalUtils.formatFloat(value.getPosVal()));
                     Main.lableNum3.setText(DecimalUtils.formatFloat(value.getDeformVal()));
-                    if(Main.startFlag){
+                    if (Main.startFlag) {
                         //实验开始状态下计时
-                        Main.lableNum4.setText(DecimalUtils.formatDouble((double)value.getTimeValue()/1000));
-                    }else{
+                        Main.lableNum4.setText(DecimalUtils.formatDouble((double) value.getTimeValue() / 1000));
+                    } else {
                         Main.lableNum4.setText(DecimalUtils.formatFloat(0F));
                     }
-                    //设置峰值
-                    if(value.getLoadVal1()>Main.topN){
-                        Main.topN = value.getLoadVal1();
-                    }
                     Main.labelTop.setText(DecimalUtils.formatFloat(Main.topN));
-                    if(Main.startFlag){
+                    if (Main.startFlag) {
                         //实验开始画曲线
 //                        TestData testData = value;//复制一份，否则报错java.util.ConcurrentModificationException
                         Main.updateSeries(value);
@@ -48,59 +44,56 @@ public class DataTask extends ScheduledService<TestData> {
             @Override
             protected TestData call() throws Exception {
                 TestData testData = null;
-                if(UIOnline.mSerialport!=null) {
+                if (UIOnline.mSerialport != null) {
                     byte[] bytes = UIOnline.byteList.poll();
                     String dataStr = ByteUtils.binaryToHexString(UIOnline.byteList.poll());
                     System.out.println(dataStr);
-                    if(!CRC16Utils.validateCrc16(dataStr)){
+                    if (!CRC16Utils.validateCrc16(dataStr)) {
                         return testData;
                     }
-//                    BigInteger status = new BigInteger(dataStr.substring(2,4),16);
-////                                                //存储当前试验机状态
-//                     BigInteger load1 = new BigInteger(dataStr.substring(6,14),16);
-//                     BigInteger load2 = new BigInteger(dataStr.substring(14,22),16);
-//                     BigInteger load3 = new BigInteger(dataStr.substring(22,30),16);
-//                     BigInteger pos = new BigInteger(dataStr.substring(30,38),16);
-//                     BigInteger transform = new BigInteger(dataStr.substring(38,46),16);
-//                     Float fload1 = Float.intBitsToFloat(load1.intValue());
                     byte[] byte4 = new byte[4];
                     System.arraycopy(bytes, 3, byte4, 0, 4);
-                     Float fload1 = ByteUtils.byte2float(byte4,0);
+                    Float fload1 = ByteUtils.byte2float(byte4, 0);
                     System.out.println(fload1);
                     System.arraycopy(bytes, 7, byte4, 0, 4);
-                     Float fload2 = ByteUtils.byte2float(byte4,0);
+                    Float fload2 = ByteUtils.byte2float(byte4, 0);
                     System.arraycopy(bytes, 11, byte4, 0, 4);
-                     Float fload3 = ByteUtils.byte2float(byte4,0);
+                    Float fload3 = ByteUtils.byte2float(byte4, 0);
                     System.arraycopy(bytes, 16, byte4, 0, 4);
-                     Float fpos = ByteUtils.byte2float(byte4,0);
+                    Float fpos = ByteUtils.byte2float(byte4, 0);
                     System.arraycopy(bytes, 20, byte4, 0, 4);
-                     Float ftransform = ByteUtils.byte2float(byte4,0);
-                     testData = new TestData();
+                    Float ftransform = ByteUtils.byte2float(byte4, 0);
+                    testData = new TestData();
                     testData.setLoadVal1(fload1);
                     testData.setLoadVal2(fload2);
                     testData.setLoadVal3(fload3);
                     testData.setPosVal(fpos);
                     testData.setDeformVal(ftransform);
+
+                    //设置峰值
+                    if (fload1 > Main.topN) {
+                        Main.topN = fload1;
+                    }
                     //实验时间
-                    if(Main.startFlag){
+                    if (Main.startFlag) {
                         Main.startTime = Main.startTime + Main.periodTime;
                         //设置实验时间
                         testData.setTimeValue(Main.startTime);
                         //实验编号
                         UIOnline.testData.setTestNum(Main.startTest.getTestNum());
 
-                        if(Constants.KQL.equals(Main.testName)){
+                        if (Constants.KQL.equals(Main.testName)) {
                             //停机条件
                             //峰值*50% + 当前力   大于  峰值
                             boolean flag = false;
-                            if(fload1 > Main.selectedProgram.getGtForce()){
+                            if (fload1 > Main.selectedProgram.getGtForce()) {
                                 flag = true;
                             }
-                            if(flag){
-                                float a = Main.topN * Main.selectedProgram.getLtRate()/100 + fload1;
+                            if (flag) {
+                                float a = Main.topN * Main.selectedProgram.getLtRate() / 100 + fload1;
                                 System.out.println(a);
-                                System.out.println("峰值："+Main.topN);
-                                if(a < Main.topN){
+                                System.out.println("峰值：" + Main.topN);
+                                if (a < Main.topN) {
                                     Main.stopTestAndSave();
                                 }
                             }

@@ -23,7 +23,7 @@ public class ByteTask extends ScheduledService<byte[]> {
                             in = UIOnline.mSerialport.getInputStream();
                             //如果可用字节数大于零则开始循环并获取数据
                             byte[] cache = new byte[2];
-                            int num = in.read(cache);
+                            in.read(cache);
                             if(Arrays.equals(cache,ByteUtils.A55A)){
                                 byte[] end = new byte[23];
                                 in.read(end);
