@@ -51,8 +51,9 @@ public class UIOnline {
     //串口打开时间
     public static long openTime = 0l;
 
-
     public static Queue<byte[]> byteList =  new LinkedList<>();
+
+    public static ByteTask byteTask = new ByteTask();
 
 
 
@@ -251,10 +252,10 @@ public class UIOnline {
 //                            }
 //                        }
 //                    });
-                    ByteTask byteTask = new ByteTask();
+                    byteTask = new ByteTask();
                     byteTask.setDelay(Duration.millis(10));
                     //每隔多久运行一次
-                    byteTask.setPeriod(Duration.millis(20));
+                    byteTask.setPeriod(Duration.millis(10));
                     if(!byteTask.isRunning()){
                         byteTask.start();
                     }

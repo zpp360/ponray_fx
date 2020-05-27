@@ -10,7 +10,8 @@ import java.util.Locale;
  */
 public class ByteUtils {
 
-	public static final byte[] A55A = hexStringToBytes("A55A");
+	public static final byte[] A5 = hexStringToBytes("A5");
+	public static final byte[] A6 = hexStringToBytes("5A");
 
 	/**
 	 * 十六进制字符串转byte[]
@@ -141,8 +142,8 @@ public class ByteUtils {
 	 * 把四个整数做或操作,转换为已整数
 	 */
 	public static int byteArrToInt(byte[] arr){
-		int x = ((arr[0] & 0xff) << 24 )|((arr[1]& 0xff) <<16 )|((arr[2] & 0xff)<<8)|(arr[3] & 0xff);
-		return x;
+		int x = ((arr[0] & 0xff) << 8 )|((arr[1]& 0xff));
+		return x & 0xffff;
 	}
 
 	// int转换为byte[4]数组
@@ -236,6 +237,24 @@ public class ByteUtils {
 			newBytes[i] = bytes[bytes.length-1-i];
 		}
 		return newBytes;
+	}
+
+
+	// 从byte数组的index处的连续4个字节获得一个int
+	public static int getInt(byte[] arr, int index) {
+		return 	(0xff000000 	& (arr[index+0] << 24))  |
+				(0x00ff0000 	& (arr[index+1] << 16))  |
+				(0x0000ff00 	& (arr[index+2] << 8))   |
+				(0x000000ff 	&  arr[index+3]);
+	}
+	// float转换为byte[4]数组
+	public static byte[] getByteArray(float f) {
+		int intbits = Float.floatToIntBits(f);//将float里面的二进制串解释为int整数
+		return getByteArray(intbits);
+	}
+	// 从byte数组的index处的连续4个字节获得一个float
+	public static float getFloat(byte[] arr, int index) {
+		return Float.intBitsToFloat(getInt(arr, index));
 	}
 
 }

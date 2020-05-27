@@ -85,6 +85,16 @@ public class CRC16Utils {
         return create == crc16;
     }
 
+    public static boolean validateCrc16(byte[] data){
+        byte[] startByte = new byte[23];
+        byte[] byteCrc16 = new byte[2];
+        System.arraycopy(data, 23, byteCrc16, 0, 2);
+        System.arraycopy(data, 0, startByte, 0, 23);
+        int create =  CRC16Utils.calcCrc16(startByte);
+        int crc16 = ByteUtils.byteArrToInt(byteCrc16);
+        return create == crc16;
+    }
+
 
 }
 

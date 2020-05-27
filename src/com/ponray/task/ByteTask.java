@@ -22,18 +22,20 @@ public class ByteTask extends ScheduledService<byte[]> {
                         if( UIOnline.mSerialport != null){
                             in = UIOnline.mSerialport.getInputStream();
                             //如果可用字节数大于零则开始循环并获取数据
-                            byte[] cache = new byte[2];
-                            in.read(cache);
-                            if(Arrays.equals(cache,ByteUtils.A55A)){
-                                byte[] end = new byte[23];
-                                in.read(end);
-                                readBuffer = ArrayUtils.concat(cache, end);
+                            byte[] cache1 = new byte[1];
+                            in.read(cache1);
+                            if(Arrays.equals(cache1,ByteUtils.A5)){
+                                byte[] cache2 = new byte[1];
+                                in.read(cache2);
+                                if(Arrays.equals(cache2,ByteUtils.A6)){
+                                    byte[] cache3 = new byte[23];
+                                    in.read(cache3);
+                                    readBuffer = ArrayUtils.concat(cache1, cache2);
+                                    readBuffer = ArrayUtils.concat(readBuffer, cache3);
+                                }
                                 UIOnline.byteList.offer(readBuffer);
                             }
-//                        int bytesNum = in.read(readBuffer);
-//                        while (!Arrays.equals(cache,ByteUtils.A55A)) {
-//                            readBuffer = ArrayUtils.concat(readBuffer, cache);
-//                        }
+
 
                         }
 

@@ -48,12 +48,12 @@ public class DataTask extends ScheduledService<TestData> {
                     byte[] bytes = UIOnline.byteList.poll();
                     String dataStr = ByteUtils.binaryToHexString(UIOnline.byteList.poll());
                     System.out.println(dataStr);
-                    if (!CRC16Utils.validateCrc16(dataStr)) {
+                    if (!CRC16Utils.validateCrc16(bytes)) {
                         return testData;
                     }
                     byte[] byte4 = new byte[4];
                     System.arraycopy(bytes, 3, byte4, 0, 4);
-                    Float fload1 = ByteUtils.byte2float(byte4, 0);
+                    Float fload1 = ByteUtils.getFloat(byte4, 0);
                     System.out.println(fload1);
                     System.arraycopy(bytes, 7, byte4, 0, 4);
                     Float fload2 = ByteUtils.byte2float(byte4, 0);
