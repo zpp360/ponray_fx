@@ -23,19 +23,16 @@ public class DataTask extends ScheduledService<TestData> {
                     Main.lableNum1.setText(DecimalUtils.formatFloat(value.getLoadVal1()));
                     Main.lableNum2.setText(DecimalUtils.formatFloat(value.getPosVal()));
                     Main.lableNum3.setText(DecimalUtils.formatFloat(value.getDeformVal()));
+                    Main.labelTop.setText(DecimalUtils.formatFloat(Main.topN));
                     if (Main.startFlag) {
                         //实验开始状态下计时
                         Main.lableNum4.setText(DecimalUtils.formatDouble((double) value.getTimeValue() / 1000));
-                    } else {
-                        Main.lableNum4.setText(DecimalUtils.formatFloat(0F));
-                    }
-                    Main.labelTop.setText(DecimalUtils.formatFloat(Main.topN));
-                    if (Main.startFlag) {
                         //实验开始画曲线
 //                        TestData testData = value;//复制一份，否则报错java.util.ConcurrentModificationException
                         Main.updateSeries(value);
-                        TestData data = value;
-                        Main.dataList.add(data);
+                        Main.dataList.add(value);
+                    } else {
+                        Main.lableNum4.setText(DecimalUtils.formatFloat(0F));
                     }
                 }
 
@@ -54,15 +51,14 @@ public class DataTask extends ScheduledService<TestData> {
                     byte[] byte4 = new byte[4];
                     System.arraycopy(bytes, 3, byte4, 0, 4);
                     Float fload1 = ByteUtils.getFloat(byte4, 0);
-                    System.out.println(fload1);
                     System.arraycopy(bytes, 7, byte4, 0, 4);
-                    Float fload2 = ByteUtils.byte2float(byte4, 0);
+                    Float fload2 = ByteUtils.getFloat(byte4, 0);
                     System.arraycopy(bytes, 11, byte4, 0, 4);
-                    Float fload3 = ByteUtils.byte2float(byte4, 0);
+                    Float fload3 = ByteUtils.getFloat(byte4, 0);
                     System.arraycopy(bytes, 16, byte4, 0, 4);
-                    Float fpos = ByteUtils.byte2float(byte4, 0);
+                    Float fpos = ByteUtils.getFloat(byte4, 0);
                     System.arraycopy(bytes, 20, byte4, 0, 4);
-                    Float ftransform = ByteUtils.byte2float(byte4, 0);
+                    Float ftransform = ByteUtils.getFloat(byte4, 0);
                     testData = new TestData();
                     testData.setLoadVal1(fload1);
                     testData.setLoadVal2(fload2);

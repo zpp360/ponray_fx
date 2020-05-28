@@ -987,14 +987,17 @@ public class Main extends Application {
             if(Axis.N.getName().equals(yAxisNmae)){
                 //Y轴是力
                 series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getLoadVal1()));
+                return;
             }
             if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
                 //Y轴是位移
                 series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getPosVal()));
+                return;
             }
             if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
                 //Y轴是变形
                 series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getDeformVal()));
+                return;
             }
         }
         if(Axis.N.getName().equals(xAxisName)){
@@ -1002,14 +1005,17 @@ public class Main extends Application {
             if(Axis.TIME.getName().equals(yAxisNmae)){
                 //Y轴是时间
                 series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getTimeValue()));
+                return;
             }
             if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
                 //Y轴是位移
                 series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getPosVal()));
+                return;
             }
             if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
                 //Y轴是变形
                 series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getDeformVal()));
+                return;
             }
         }
         if(Axis.DISPLACEMENT.getName().equals(xAxisName)){
@@ -1017,14 +1023,17 @@ public class Main extends Application {
             if(Axis.TIME.getName().equals(yAxisNmae)){
                 //Y轴是时间
                 series1.getData().add(new XYChart.Data(data.getPosVal(),data.getTimeValue()));
+                return;
             }
             if(Axis.N.getName().equals(yAxisNmae)){
                 //Y轴是力
                 series1.getData().add(new XYChart.Data(data.getPosVal(),data.getLoadVal1()));
+                return;
             }
             if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
                 //Y轴是变形
                 series1.getData().add(new XYChart.Data(data.getPosVal(),data.getDeformVal()));
+                return;
             }
         }
         if(Axis.TRANSFORM.getName().equals(xAxisName)){
@@ -1032,14 +1041,17 @@ public class Main extends Application {
             if(Axis.TIME.getName().equals(yAxisNmae)){
                 //Y轴是时间
                 series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getTimeValue()));
+                return;
             }
             if(Axis.N.getName().equals(yAxisNmae)){
                 //Y轴是力
                 series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getLoadVal1()));
+                return;
             }
             if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
                 //Y轴是位移
                 series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getPosVal()));
+                return;
             }
         }
     }
