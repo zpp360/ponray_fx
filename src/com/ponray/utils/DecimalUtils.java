@@ -11,6 +11,7 @@ public class DecimalUtils {
     private static DecimalFormat decimalFormat3=new DecimalFormat("000.00");
     private static DecimalFormat decimalFormat4=new DecimalFormat("0000.0");
     private static DecimalFormat decimalFormat5=new DecimalFormat("000.0");
+    private static DecimalFormat decimalFormat6=new DecimalFormat("00.00");
 
     /**
      * 格式化数字，在数显框显示
@@ -27,8 +28,8 @@ public class DecimalUtils {
             strFload = decimalFormat2.format(fl);
         }else if(fl>0){
             strFload = decimalFormat3.format(fl);
-        }else if(fl>-10){
-            strFload = decimalFormat2.format(fl);
+        }else if(fl>-99){
+            strFload = decimalFormat6.format(fl);
         }else{
             strFload = decimalFormat5.format(fl);
         }

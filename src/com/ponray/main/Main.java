@@ -12,6 +12,7 @@ import com.ponray.service.ProgramService;
 import com.ponray.service.TestService;
 import com.ponray.task.DataTask;
 import com.ponray.utils.*;
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 import gnu.io.PortInUseException;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -19,11 +20,14 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -33,6 +37,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -42,6 +47,7 @@ import javafx.util.Duration;
 import javafx.util.StringConverter;
 import org.apache.commons.lang.StringUtils;
 
+import javax.imageio.ImageIO;
 import java.io.*;
 import java.net.URL;
 import java.sql.Connection;
@@ -86,7 +92,7 @@ public class Main extends Application {
     //实验参数列表
     private static ObservableList<HashMap<String,String>> allData = FXCollections.observableArrayList();
     //选中的用户参数
-    private static HashMap<String,String> selectedUserParam = null;
+    public static HashMap<String,String> selectedUserParam = null;
     private static int selectedUserParamIndex = 0;
     private static HashMap<String,String> editDataRow = null;
     //清零按钮
@@ -151,7 +157,6 @@ public class Main extends Application {
     //每隔20毫秒运行一次
     public static Long periodTime = 50L;
 
-    public static Long sum = 0L;
     //实验中实验，在UIOnline里保存
     public static Test startTest = null;
     //实验数据
@@ -790,9 +795,6 @@ public class Main extends Application {
         mainChart = createChart(xAxisName,yAxisNmae);
         mainChart.prefWidthProperty().bind(tabPane.widthProperty().subtract(200));
         mainChart.prefHeightProperty().bind(tabPane.heightProperty());
-        //在此处添加线，在createChart方法中添加不显示线
-        series1.getData().add(new XYChart.Data(10,10));
-        series1.getData().add(new XYChart.Data(20,20));
         mainChart.setStyle("-fx-stroke: antiquewhite;");
         mainChart.getData().add(series1);
         main.getChildren().add(mainChart);
@@ -986,12 +988,12 @@ public class Main extends Application {
             //x轴是时间
             if(Axis.N.getName().equals(yAxisNmae)){
                 //Y轴是力
-                series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getLoadVal1()));
+                series1.getData().add(new XYChart.Data(data.getTimeValue(),Math.abs(data.getLoadVal1())));
                 return;
             }
             if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
                 //Y轴是位移
-                series1.getData().add(new XYChart.Data(data.getTimeValue(),data.getPosVal()));
+                series1.getData().add(new XYChart.Data(data.getTimeValue(),Math.abs(data.getPosVal())));
                 return;
             }
             if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
@@ -1004,17 +1006,17 @@ public class Main extends Application {
             //x轴是力
             if(Axis.TIME.getName().equals(yAxisNmae)){
                 //Y轴是时间
-                series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getTimeValue()));
+                series1.getData().add(new XYChart.Data(Math.abs(data.getLoadVal1()),data.getTimeValue()));
                 return;
             }
             if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
                 //Y轴是位移
-                series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getPosVal()));
+                series1.getData().add(new XYChart.Data(Math.abs(data.getLoadVal1()),Math.abs(data.getPosVal())));
                 return;
             }
             if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
                 //Y轴是变形
-                series1.getData().add(new XYChart.Data(data.getLoadVal1(),data.getDeformVal()));
+                series1.getData().add(new XYChart.Data(Math.abs(data.getLoadVal1()),data.getDeformVal()));
                 return;
             }
         }
@@ -1022,17 +1024,17 @@ public class Main extends Application {
             //X轴是位移
             if(Axis.TIME.getName().equals(yAxisNmae)){
                 //Y轴是时间
-                series1.getData().add(new XYChart.Data(data.getPosVal(),data.getTimeValue()));
+                series1.getData().add(new XYChart.Data(Math.abs(data.getPosVal()),data.getTimeValue()));
                 return;
             }
             if(Axis.N.getName().equals(yAxisNmae)){
                 //Y轴是力
-                series1.getData().add(new XYChart.Data(data.getPosVal(),data.getLoadVal1()));
+                series1.getData().add(new XYChart.Data(Math.abs(data.getPosVal()),Math.abs(data.getLoadVal1())));
                 return;
             }
             if(Axis.TRANSFORM.getName().equals(yAxisNmae)){
                 //Y轴是变形
-                series1.getData().add(new XYChart.Data(data.getPosVal(),data.getDeformVal()));
+                series1.getData().add(new XYChart.Data(Math.abs(data.getPosVal()),data.getDeformVal()));
                 return;
             }
         }
@@ -1045,12 +1047,12 @@ public class Main extends Application {
             }
             if(Axis.N.getName().equals(yAxisNmae)){
                 //Y轴是力
-                series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getLoadVal1()));
+                series1.getData().add(new XYChart.Data(data.getDeformVal(),Math.abs(data.getLoadVal1())));
                 return;
             }
             if(Axis.DISPLACEMENT.getName().equals(yAxisNmae)){
                 //Y轴是位移
-                series1.getData().add(new XYChart.Data(data.getDeformVal(),data.getPosVal()));
+                series1.getData().add(new XYChart.Data(data.getDeformVal(),Math.abs(data.getPosVal())));
                 return;
             }
         }
@@ -1255,8 +1257,6 @@ public class Main extends Application {
     }
 
     private void registEvent(){
-        //清零按钮
-
         //速度滑动条
         speedSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldVal, Number newVal) -> {
             speedTextField.setText(String.format("%.0f", newVal));
@@ -1388,8 +1388,6 @@ public class Main extends Application {
                 return;
             }
 
-            //数据列表清空,初始化
-            dataList.clear();
             //所有数据清零
             clearAllData();
             //创建mdb文件
@@ -1418,6 +1416,7 @@ public class Main extends Application {
                 startTest.setPressUnit(selectedProgram.getUnitN());
                 startTest.setTransformUnit(selectedProgram.getUnitTransform());
                 startTest.setProgramName(selectedProgram.getName());
+                startTest.setStandardName(selectedProgram.getStandard());
                 startTest.setSaveFile(fileName);
                 startTest.setShape(selectedProgram.getShapeName());
                 startTest.setSpeed(selectedProgram.isControl()?0:selectedProgram.getGeneralSpeed());
@@ -1436,38 +1435,17 @@ public class Main extends Application {
                 Main.button2.setDisable(true);
                 Main.button3.setDisable(true);
                 //发送开始命令
-                if(Constants.KQL.equals(selectedProgram.getName())){
+                if(Constants.KQL.equals(selectedProgram.getName()) || Constants.ZDL.equals(selectedProgram.getName())
+                        || selectedProgram.getName().startsWith(Constants.LSL) || Constants.CCL.equals(selectedProgram.getName())){
                     Float data1 = 1000f;
-                    if(Constants.INT_TWO == selectedProgram.getDirect()){
+                    if(Constants.INT_ONE == selectedProgram.getDirect()){
                         data1 = -1000f;
                     }
-                    if(selectedProgram.isClearN()){
-                        //实验开始清空力
-                        String speed = speedTextField.getText().trim();
-                        byte[] command = CommandUtils.commandClearLoad(speed);
-                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
-                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
-                        //峰值清零
-                        Main.topN = 0F;
-                    }
-                    if(selectedProgram.isClearDisp()){
-                        //实验开始清空位移
-                        String speed = speedTextField.getText().trim();
-                        byte[] command = CommandUtils.commandClearPos(speed);
-                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
-                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
-                    }
-                    if(selectedProgram.isClearTransform()){
-                        //实验开始清空变形
-                        String speed = speedTextField.getText().trim();
-                        byte[] command = CommandUtils.commandClearTransform(speed);
-                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
-                        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
-                    }
-
+                    //实验开始清零
+                    testStartClear();
                     SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),data1,0f,selectedProgram.getGeneralSpeed()));
                     SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),data1,0f,selectedProgram.getGeneralSpeed()));
-                    testName = Constants.KQL;
+                    testName = selectedProgram.getName();
                 }
                 //设置实验状态进行中
                 allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_ING);
@@ -1528,6 +1506,35 @@ public class Main extends Application {
         });
     }
 
+    /**
+     * 根据设置清零
+     */
+    private void testStartClear() {
+        if(selectedProgram.isClearN()){
+            //实验开始清空力
+            String speed = speedTextField.getText().trim();
+            byte[] command = CommandUtils.commandClearLoad(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            //峰值清零
+            Main.topN = 0F;
+        }
+        if(selectedProgram.isClearDisp()){
+            //实验开始清空位移
+            String speed = speedTextField.getText().trim();
+            byte[] command = CommandUtils.commandClearPos(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+        }
+        if(selectedProgram.isClearTransform()){
+            //实验开始清空变形
+            String speed = speedTextField.getText().trim();
+            byte[] command = CommandUtils.commandClearTransform(speed);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+        }
+    }
+
 
     public static void stopTest(){
         //实验开始标志置为false
@@ -1551,7 +1558,9 @@ public class Main extends Application {
      */
     public static void stopTestAndSave(){
         //发送实验停止
-
+        byte[] command = CommandUtils.commandStop();
+        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+        SerialPortManager.sendToPort(UIOnline.mSerialport,command);
         //按钮状态
         startBt.setDisable(false);
         stopBt.setDisable(true);
@@ -1564,8 +1573,6 @@ public class Main extends Application {
         Main.button3.setDisable(false);
         startTest.setRunTime(Main.startTime);
         try {
-            //保存实验
-            testService.insert(startTest);
             //实验结束保存数据
             DBFileHelper.getInstance(startTest.getSaveFile());
             testService.batchSaveTestData(dataList);
@@ -1580,18 +1587,118 @@ public class Main extends Application {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        startTest = null;
-        startTime = null;
-        //top力值
-//        topN = 0F;
-        //实验开始标志置为false
-        startFlag = false;
+        //快照生成曲线图图片
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                String imgName =Main.startTest.getSaveFile()+Main.startTime+".png";
+                File file = new File(System.getProperty("user.dir") + File.separator + "datafile" + File.separator+imgName);
+                snapshot(Main.mainChart,file);
+                startTest.setImgFile(imgName);
+                //计算实验结果
+                startTest = testResult(startTest);
+                try {
+                    testService.insert(startTest);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                startTest = null;
+                startTime = null;
+                //实验开始标志置为false
+                startFlag = false;
+
+            }
+        });
+
+
+
     }
 
     /**
-     * 刷新简略信息树
-     * @param selectedProgram
+     * 计算实验结果
+     * @param test
+     * @return
      */
+    public static Test testResult(Test test){
+        //峰值
+        test.setMaxLoad(Main.topN);
+        //试样名称
+        String simpleName = selectedUserParam.get(Constants.SIMPLE_NAME);
+        test.setSimpleName(simpleName);
+        if(Constants.LSL.equals(testName)){
+            //拉伸力保存峰值对应的位移
+            for(TestData data:Main.dataList){
+                if(data.getLoadVal1().equals(Main.topN)){
+                    test.setMaxLoadPos(data.getPosVal());
+                }
+            }
+        }
+        if(Constants.CCL.equals(testName)){
+            //穿刺力，保存穿刺深度
+            test.setDeep(Float.parseFloat(selectedUserParam.get(Constants.CCL_DEEP)));
+        }
+
+        //拉伸力
+        if(testName.startsWith(Constants.LSL)){
+            //面积
+            Float area = null;
+            if(Constants.BANCAI.equals(selectedProgram.getShapeName())){
+                //板材
+                Float width = Float.parseFloat(selectedUserParam.get(Constants.LSL_K));
+                Float hou = Float.parseFloat(selectedUserParam.get(Constants.LSL_H));
+                area = width * hou;
+            }
+            if(Constants.BANGCAI.equals(selectedProgram.getShapeName())){
+                //棒材直径
+                Float dia = Float.parseFloat(selectedUserParam.get(Constants.LSL_D));
+                area = 3.1416F * dia * dia / 4;
+            }
+            //拉伸强度
+            Float mpa = Main.topN / area;
+
+            test.setArea(area);
+            test.setMpa(mpa);
+
+            //计算伸长率，最大位移除以标距
+            Float maxPos = Main.dataList.get(Main.dataList.size()-1).getPosVal();
+            Float LO = Float.parseFloat(selectedUserParam.get(Constants.LSL_LO));
+            Float extension = maxPos/LO;//伸长率
+            test.setLo(LO);
+            test.setExtension(extension);
+
+        }
+
+        return test;
+    }
+    /**
+     * char快照生成图片
+     * @param node
+     * @param file
+     */
+    public static void snapshot(Node node,File file) {
+        //以下两句是设置截图的参数，具体细节还没有研究
+        final javafx.scene.SnapshotParameters params
+                = new javafx.scene.SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+        //对Node进行截图，只会截取显示出来的部分，未显示出来的部分无法截图（没有火狐截图高级）
+        javafx.scene.image.WritableImage snapshot = node.snapshot(params, null);
+        //将JavaFX格式的WritableImage对象转换成AWT BufferedImage 对象来进行保存
+        final java.awt.image.BufferedImage image
+                = javafx.embed.swing.SwingFXUtils.fromFXImage(snapshot, null);
+        //通过ImageIO来存储图片
+        try {
+            javax.imageio.ImageIO.write(image, "png", file);
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+        /**
+         * 刷新简略信息树
+         * @param selectedProgram
+         */
     private void refreshTree(Program selectedProgram) {
         treeView.setRoot(treeRoot);
         treeRoot.getChildren().clear();
@@ -1611,9 +1718,9 @@ public class Main extends Application {
                 if(selectedProgram.getLtRate()!=null && selectedProgram.getLtRate()!=0F){
                     itemBreak.getChildren().add(new TreeItem<>("后前力值之比下于"+selectedProgram.getLtRate()+"%为断裂"));
                 }
-                if(selectedProgram.getLtMearure()!=null && selectedProgram.getLtMearure()!=0F){
-                    itemBreak.getChildren().add(new TreeItem<>("力值小于最大力的"+selectedProgram.getLtMearure()+"%为断裂"));
-                }
+//                if(selectedProgram.getLtMearure()!=null && selectedProgram.getLtMearure()!=0F){
+//                    itemBreak.getChildren().add(new TreeItem<>("力值小于最大力的"+selectedProgram.getLtMearure()+"%为断裂"));
+//                }
                 itemBreak.setExpanded(true);
             }
         }
@@ -1680,6 +1787,8 @@ public class Main extends Application {
      * 所有数据归零，包括图表数据清零
      */
     private void clearAllData(){
+        //数据列表清空,初始化
+        dataList.clear();
         topN = 0F;
         startTime = 0L;
         series1.getData().clear();

@@ -33,7 +33,7 @@ public class ByteTask extends ScheduledService<byte[]> {
                                     readBuffer = ArrayUtils.concat(cache1, cache2);
                                     readBuffer = ArrayUtils.concat(readBuffer, cache3);
                                 }
-                                UIOnline.byteList.offer(readBuffer);
+                                UIOnline.byteList.add(readBuffer);
                             }
 
 

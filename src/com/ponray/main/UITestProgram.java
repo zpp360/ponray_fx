@@ -328,7 +328,7 @@ public class UITestProgram {
         if(programList!=null && programList.size()>0){
             choiceBoxProgramName.setValue(programList.get(0));
         }
-        tabPane.getTabs().addAll(tab1,tab2,tab3,tab4,tab5);
+        tabPane.getTabs().addAll(tab1,tab2,tab3,tab4);
         return tabPane;
     }
 
@@ -1712,10 +1712,10 @@ public class UITestProgram {
      */
     private void initTab1Data() {
         if(selectedProgram!=null){
-            if(Constants.INT_ONE == selectedProgram.getDirect()){
+            if(Constants.INT_ZERO == selectedProgram.getDirect()){
                 radioLa.setSelected(true);
             }
-            if(Constants.INT_TWO == selectedProgram.getDirect()){
+            if(Constants.INT_ONE == selectedProgram.getDirect()){
                 radioYa.setSelected(true);
             }
             choiceBoxShape.setValue(selectedProgram.getShapeName());
@@ -1852,11 +1852,11 @@ public class UITestProgram {
         p.setStandard(choiceBoxStanderdSelect.getValue().getCode());
         if (radioLa.isSelected()) {
             //拉向为1
-            p.setDirect(Constants.INT_ONE);
+            p.setDirect(Constants.INT_ZERO);
         }
         if (radioYa.isSelected()) {
             //压向为2
-            p.setDirect(Constants.INT_TWO);
+            p.setDirect(Constants.INT_ONE);
         }
         p.setShapeName(choiceBoxShape.getValue());
         p.setTransformSensor(choiceBoxTransform.getValue());

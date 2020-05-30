@@ -20,7 +20,7 @@ public class TestService {
     public int insert(Test test) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
         //先将其它设置为未选中
-        String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,speed,run_time,shape) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,img_file,speed,run_time,shape,max_load,deep,area,mpa,simple_name,lo,extension) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,test.getTestNum());
         pstmt.setDate(2,test.getTestTime());
@@ -31,9 +31,17 @@ public class TestService {
         pstmt.setString(7,test.getTransformUnit());
         pstmt.setString(8,test.getPressUnit());
         pstmt.setString(9,test.getSaveFile());
-        pstmt.setFloat(10,test.getSpeed());
-        pstmt.setFloat(11,test.getRunTime());
-        pstmt.setString(12,test.getShape());
+        pstmt.setString(10,test.getImgFile());
+        pstmt.setFloat(11,test.getSpeed());
+        pstmt.setFloat(12,test.getRunTime());
+        pstmt.setString(13,test.getShape());
+        pstmt.setFloat(14,test.getMaxLoad());
+        pstmt.setFloat(15,test.getDeep()==null?0F:test.getDeep());
+        pstmt.setFloat(16,test.getArea()==null?0F:test.getArea());
+        pstmt.setFloat(17,test.getMpa()==null?0F:test.getMpa());
+        pstmt.setString(18,test.getSimpleName());
+        pstmt.setFloat(19,test.getLo()==null?0F:test.getLo());
+        pstmt.setFloat(20,test.getExtension()==null?0F:test.getExtension());
         int res = pstmt.executeUpdate();
         if(res>0){
             System.out.println("插入实验成功");

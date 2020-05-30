@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -51,7 +52,7 @@ public class UIOnline {
     //串口打开时间
     public static long openTime = 0l;
 
-    public static Queue<byte[]> byteList =  new LinkedList<>();
+    public static List<byte[]> byteList =  new ArrayList<>();
 
     public static ByteTask byteTask = new ByteTask();
 

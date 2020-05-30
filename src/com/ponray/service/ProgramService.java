@@ -75,7 +75,7 @@ public class ProgramService {
                 "deform_extend=?,auto_breakage=?,gt_force=?,lt_rate=?,lt_mearure=?," +
                 "is_time=?,time_value=?,is_load=?,load_value=?,is_transform=?,transform_value=?," +
                 "is_pos=?,pos_value=?,is_preload=?,preload_value=?,preload_speed=?,is_return=?,return_speed=?," +
-                "is_default=?,is_clear_disp=?,is_clear_transform=?,is_clear_n=? where ID = ?";
+                "is_default=?,is_clear_disp=?,is_clear_transform=?,is_clear_n=?,num=? where ID = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1,p.getName());
         pstmt.setString(2,p.getStandard());
@@ -107,7 +107,8 @@ public class ProgramService {
         pstmt.setBoolean(28,p.isClearDisp());
         pstmt.setBoolean(29,p.isClearTransform());
         pstmt.setBoolean(30,p.isClearN());
-        pstmt.setLong(31,p.getID());
+        pstmt.setString(31,"00");
+        pstmt.setLong(32,p.getID());
         int res = pstmt.executeUpdate();
         if(res>0){
             System.out.println("更新实验方案基本信息成功");

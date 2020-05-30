@@ -19,6 +19,95 @@ public class Test {
     private Float speed;//位移控制的速度，如果是程序控制则为“0”
     private Long runTime;//运行时间
     private String shape;//试样的形状
+    private String imgFile;//实验曲线图片
+
+    private Float maxLoad;//峰值
+
+    private Float maxLoadPos;//峰值对应的位移，拉伸力
+
+    private Float deep;//穿刺深度
+
+    private Float area;//面积
+
+    private Float mpa;//拉伸强度
+
+    private String simpleName;//试样名称
+
+    private Float lo;//标距
+
+    private Float extension;//伸长率
+
+    public Float getLo() {
+        return lo;
+    }
+
+    public void setLo(Float lo) {
+        this.lo = lo;
+    }
+
+    public Float getExtension() {
+        return extension;
+    }
+
+    public void setExtension(Float extension) {
+        this.extension = extension;
+    }
+
+    public String getSimpleName() {
+        return simpleName;
+    }
+
+    public void setSimpleName(String simpleName) {
+        this.simpleName = simpleName;
+    }
+
+    public Float getArea() {
+        return area;
+    }
+
+    public void setArea(Float area) {
+        this.area = area;
+    }
+
+    public Float getMpa() {
+        return mpa;
+    }
+
+    public void setMpa(Float mpa) {
+        this.mpa = mpa;
+    }
+
+    public Float getDeep() {
+        return deep;
+    }
+
+    public void setDeep(Float deep) {
+        this.deep = deep;
+    }
+
+    public Float getMaxLoadPos() {
+        return maxLoadPos;
+    }
+
+    public void setMaxLoadPos(Float maxLoadPos) {
+        this.maxLoadPos = maxLoadPos;
+    }
+
+    public Float getMaxLoad() {
+        return maxLoad;
+    }
+
+    public void setMaxLoad(Float maxLoad) {
+        this.maxLoad = maxLoad;
+    }
+
+    public String getImgFile() {
+        return imgFile;
+    }
+
+    public void setImgFile(String imgFile) {
+        this.imgFile = imgFile;
+    }
 
     public Long getTestNum() {
         return testNum;

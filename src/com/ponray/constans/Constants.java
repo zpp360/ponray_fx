@@ -77,8 +77,46 @@ public class Constants {
     /**
      * 实验名称
      */
-    public final static String KQL = "开启力";
+    public final static String KQL = "开启力";//分析峰值
 
-    public final static String ZDL = "折断力";
+    public final static String ZDL = "折断力";//分析峰值
+
+    public final static String LSL = "拉伸力";//分析峰值，和峰值对应的位移
+
+    /**
+     * 拉伸力用到的参数key
+     */
+    public final static String LSL_K = "宽度";
+
+    public final static String LSL_H = "厚度";
+
+    public final static String LSL_D = "直径";
+
+    public final static String LSL_LO = "标距";
+
+    public final static String BANCAI = "板材";
+
+    public final static String BANGCAI = "棒材";
+
+
+
+    public final static String CCL = "穿刺力";//穿刺力
+
+    /**
+     * 穿刺深度key
+     */
+    public final static String CCL_DEEP = "穿刺深度";
+
+    public final static String DLZ = "定力值";
+
+    public final static String DWY = "定位移";
+
+    public final static String BLL = "剥离力";
+
+    public final static String HSHDXCS = "活塞滑动性测试";
+
+
+
+    public final static String SIMPLE_NAME = "试样名称";
 
 }
