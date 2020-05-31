@@ -23,9 +23,19 @@ public class Test {
 
     private Float maxLoad;//峰值
 
+    private Float minLoad;//最小力值
+
+    private Float avgLoad;//平均力值
+
     private Float maxLoadPos;//峰值对应的位移，拉伸力
 
     private Float deep;//穿刺深度
+
+    private Float width;//宽度
+
+    private Float hou;//厚度
+
+    private Float dia;//直径
 
     private Float area;//面积
 
@@ -36,6 +46,56 @@ public class Test {
     private Float lo;//标距
 
     private Float extension;//伸长率
+
+    private Float blqd;//剥离强度
+
+    public Float getBlqd() {
+        return blqd;
+    }
+
+    public void setBlqd(Float blqd) {
+        this.blqd = blqd;
+    }
+
+    public Float getMinLoad() {
+        return minLoad;
+    }
+
+    public void setMinLoad(Float minLoad) {
+        this.minLoad = minLoad;
+    }
+
+    public Float getAvgLoad() {
+        return avgLoad;
+    }
+
+    public void setAvgLoad(Float avgLoad) {
+        this.avgLoad = avgLoad;
+    }
+
+    public Float getWidth() {
+        return width;
+    }
+
+    public void setWidth(Float width) {
+        this.width = width;
+    }
+
+    public Float getHou() {
+        return hou;
+    }
+
+    public void setHou(Float hou) {
+        this.hou = hou;
+    }
+
+    public Float getDia() {
+        return dia;
+    }
+
+    public void setDia(Float dia) {
+        this.dia = dia;
+    }
 
     public Float getLo() {
         return lo;

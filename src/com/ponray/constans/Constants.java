@@ -73,6 +73,9 @@ public class Constants {
     public final static String TEST_STATUS_NOSTART = "未开始";
     public final static String TEST_STATUS_ING = "进行中";
     public final static String TEST_STATUS_END = "已结束";
+    public final static String TEST_STATUS_STOP = "停止";
+
+
 
     /**
      * 实验名称
@@ -86,7 +89,7 @@ public class Constants {
     /**
      * 拉伸力用到的参数key
      */
-    public final static String LSL_K = "宽度";
+    public final static String WIDTH = "宽度";
 
     public final static String LSL_H = "厚度";
 
@@ -109,14 +112,73 @@ public class Constants {
 
     public final static String DLZ = "定力值";
 
+    /**
+     * 定力值，定位移实验阶段，实验结束置为0
+     */
+    public static int STAGE = 0;
+
+    /**
+     * 第二阶段命令是否已发
+     */
+    public static boolean STAGE2_SEND_FLAG = false;
+
+    /**
+     * 实验保持时间
+     */
+    public static Long KEEP_TIME = 0L;
+
+    /**
+     * 力1 key
+     */
+    public final static String DLZ_LOAD1 = "力值1";
+    /**
+     * 力2 key
+     */
+    public final static String DLZ_LOAD2 = "力值2";
+
+    /**
+     * 时间1 key
+     */
+    public final static String TIME1 = "时间1";
+    /**
+     * 时间2 key
+     */
+    public final static String TIME2 = "时间2";
+
     public final static String DWY = "定位移";
 
+    public final static String DWY_POS1 = "位移1";
+    public final static String DWY_POS2 = "位移2";
+
     public final static String BLL = "剥离力";
+
+    public final static String BLL_QSWY = "起始位移";
+
+    public final static String BLL_JSWY = "结束位移";
+    
 
     public final static String HSHDXCS = "活塞滑动性测试";
 
 
 
     public final static String SIMPLE_NAME = "试样名称";
+
+    /**
+     * 定力值，定位移用的data1
+     */
+    public static Float DATA1_VAL = 0F;
+    /**
+     * 定力值，定位移用的data2
+     */
+    public static Float DATA2_VAL = 0F;
+
+    /**
+     * 时间1值
+     */
+    public static Float TIME1_VAL = 0F;
+    /**
+     * 时间2值
+     */
+    public static Float TIME2_VAL = 0F;
 
 }

@@ -263,6 +263,22 @@ public class ProgramService {
      * @return
      * @throws Exception
      */
+    public int delUserParamById(Long id) throws Exception{
+        Connection conn = AccessHelper.getConnection();
+        String sql = "delete from t_program_user_param where ID = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setLong(1,id);
+        int result = pstmt.executeUpdate();
+        pstmt.close();
+        return result;
+    }
+
+    /**
+     * 根据programid删除用户参数
+     * @param id
+     * @return
+     * @throws Exception
+     */
     public int delUserParamByProgramId(Long id) throws Exception{
         Connection conn = AccessHelper.getConnection();
         String sql = "delete from t_program_user_param where program_id = ?";

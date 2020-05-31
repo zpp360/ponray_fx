@@ -5,7 +5,7 @@ import java.util.List;
 
 public enum BaseUnit {
 
-    NO("无",""),PERCENT("%","百分号"),TEMPERATURE("温度","温度"),
+    NO("无",""),S("s","秒"),PERCENT("%","百分号"),TEMPERATURE("温度","温度"),
     MM("mm","毫米"),SQMM("mm^2","平方毫米"),MPA("MPa","兆帕"),
     N("N","牛"),NS("N/s","牛/秒");
 

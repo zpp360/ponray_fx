@@ -10,24 +10,19 @@ import com.ponray.enums.Axis;
 import com.ponray.serial.SerialPortManager;
 import com.ponray.service.ProgramService;
 import com.ponray.service.TestService;
-import com.ponray.task.DataTask;
 import com.ponray.utils.*;
-import com.sun.corba.se.impl.orbutil.closure.Constant;
-import gnu.io.PortInUseException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -37,17 +32,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import javafx.util.StringConverter;
 import org.apache.commons.lang.StringUtils;
 
-import javax.imageio.ImageIO;
 import java.io.*;
 import java.net.URL;
 import java.sql.Connection;
@@ -133,6 +125,8 @@ public class Main extends Application {
     private static TableColumn<Test,String> testColumnStand = new TableColumn("执行标准");
     private static TableColumn<Test,String> testColumnShap = new TableColumn("试样形状");
     private static TableColumn<Test,String> testColumnTransform = new TableColumn("变形计算选择");
+    private static List<Test> testList = new ArrayList<>();
+    private static Test selectedTest = null;
 
 
     //------------tab4 end --------------
@@ -984,6 +978,9 @@ public class Main extends Application {
 //            xAxis.setLowerBound(xAxis.getLowerBound()+1);
 //            xAxis.setUpperBound(xAxis.getUpperBound()+1);
 //        }
+        if(data.getTimeValue()==null){
+            return;
+        }
         if(Axis.TIME.getName().equals(xAxisName)){
             //x轴是时间
             if(Axis.N.getName().equals(yAxisNmae)){
@@ -1306,15 +1303,42 @@ public class Main extends Application {
             if(searchSelectProgram==null){
                 return;
             }
-            List<Test> list = null;
             try {
-                list = testService.listByStandard(searchSelectProgram.getStandard());
+                testList = testService.listByStandard(searchSelectProgram.getStandard());
                 testTableView.getItems().clear();
-                testTableView.getItems().addAll(list);
+                testTableView.getItems().addAll(testList);
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
+        });
+        testTableView.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if(newValue.intValue()>-1){
+                    selectedTest = testList.get(newValue.intValue());
+                }
+            }
+        });
+        //观看曲线
+        viewLineBtn.setOnAction(event -> {
+            System.out.println(selectedTest.getSaveFile());
+            if(selectedTest==null){
+                return;
+            }
+            try {
+                List<Test> tests = testService.listBySaveFile(selectedTest.getSaveFile());
+                DBFileHelper.getInstance(selectedTest.getSaveFile());
+                if(tests.size()>0){
+                    for (int i=0;i<tests.size();i++){
+                        List<TestData> list = testService.listTestDateByTestNum(tests.get(i).getTestNum());
+                        //往char添加线
+
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
         //出报告
         reportBtn.setOnAction(event -> {
@@ -1437,6 +1461,111 @@ public class Main extends Application {
                 //发送开始命令
                 if(Constants.KQL.equals(selectedProgram.getName()) || Constants.ZDL.equals(selectedProgram.getName())
                         || selectedProgram.getName().startsWith(Constants.LSL) || Constants.CCL.equals(selectedProgram.getName())){
+                    //开启力，折断力，穿刺力，拉伸力
+                    Float data1 = 1000f;
+                    if(Constants.INT_ONE == selectedProgram.getDirect()){
+                        data1 = -1000f;
+                    }
+                    //实验开始清零
+                    testStartClear();
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),data1,0f,selectedProgram.getGeneralSpeed()));
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),data1,0f,selectedProgram.getGeneralSpeed()));
+                    testName = selectedProgram.getName();
+                }
+
+                if(Constants.DLZ.equals(selectedProgram.getName())){
+                    //定力值
+                    String load1 = selectedUserParam.get(Constants.DLZ_LOAD1);
+                    if(!ValidateUtils.posttiveFloat(load1) && !ValidateUtils.zIndex(load1)){
+                        AlertUtils.alertError("力值1数据错误");
+                        return;
+                    }
+
+                    String load2 = selectedUserParam.get(Constants.DLZ_LOAD2);
+                    if(!ValidateUtils.posttiveFloat(load2) && !ValidateUtils.zIndex(load2)){
+                        AlertUtils.alertError("力值2数据错误");
+                        return;
+                    }
+
+                    String time1 = selectedUserParam.get(Constants.TIME1);
+                    if(!ValidateUtils.posttiveFloat(time1) && !ValidateUtils.zIndex(time1)){
+                        AlertUtils.alertError("时间1数据错误");
+                        return;
+                    }
+
+                    String time2 = selectedUserParam.get(Constants.TIME2);
+                    if(!ValidateUtils.posttiveFloat(time2) && !ValidateUtils.zIndex(time2)){
+                        AlertUtils.alertError("时间2数据错误");
+                        return;
+                    }
+
+                    Constants.DATA1_VAL = Float.valueOf(load1);
+                    Constants.DATA2_VAL = Float.valueOf(load2);
+                    Constants.TIME1_VAL = Float.valueOf(time1);
+                    Constants.TIME2_VAL = Float.valueOf(time2);
+                    //实验开始清零
+                    testStartClear();
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),Constants.DATA1_VAL,0f,selectedProgram.getGeneralSpeed()));
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),Constants.DATA1_VAL,0f,selectedProgram.getGeneralSpeed()));
+                    testName = selectedProgram.getName();
+                    Constants.STAGE = 1;//实验阶段置为1
+                }
+
+                if(Constants.DWY.equals(selectedProgram.getName()) || Constants.HSHDXCS.equals(selectedProgram.getName())){
+                    //定位移
+                    String pos1 = selectedUserParam.get(Constants.DWY_POS1);
+                    if(!ValidateUtils.posttiveFloat(pos1) && !ValidateUtils.zIndex(pos1)){
+                        AlertUtils.alertError("位移1数据错误");
+                        return;
+                    }
+
+                    String pos2 = selectedUserParam.get(Constants.DWY_POS2);
+                    if(!ValidateUtils.posttiveFloat(pos2) && !ValidateUtils.zIndex(pos2)){
+                        AlertUtils.alertError("位移2数据错误");
+                        return;
+                    }
+
+                    String time1 = selectedUserParam.get(Constants.TIME1);
+                    if(!ValidateUtils.posttiveFloat(time1) && !ValidateUtils.zIndex(time1)){
+                        AlertUtils.alertError("时间1数据错误");
+                        return;
+                    }
+
+                    String time2 = selectedUserParam.get(Constants.TIME2);
+                    if(!ValidateUtils.posttiveFloat(time2) && !ValidateUtils.zIndex(time2)){
+                        AlertUtils.alertError("时间2数据错误");
+                        return;
+                    }
+
+                    Constants.DATA1_VAL = Float.valueOf(pos1);
+                    Constants.DATA2_VAL = Float.valueOf(pos2);
+                    Constants.TIME1_VAL = Float.valueOf(time1);
+                    Constants.TIME2_VAL = Float.valueOf(time2);
+                    //实验开始清零
+                    testStartClear();
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),Constants.DATA1_VAL,0f,selectedProgram.getGeneralSpeed()));
+                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(selectedProgram.getDirect(),selectedProgram.getNum(),Constants.DATA1_VAL,0f,selectedProgram.getGeneralSpeed()));
+                    testName = selectedProgram.getName();
+                    Constants.STAGE = 1;//实验阶段置为1
+                }
+
+                if(Constants.BLL.equals(selectedProgram.getName())){
+                    //剥离力
+                    String startLoad = selectedUserParam.get(Constants.BLL_QSWY);
+                    if(!ValidateUtils.posttiveFloat(startLoad) && !ValidateUtils.zIndex(startLoad)){
+                        AlertUtils.alertError("起始位移数据错误");
+                        return;
+                    }
+                    String endLoad = selectedUserParam.get(Constants.BLL_JSWY);
+                    if(!ValidateUtils.posttiveFloat(endLoad) && !ValidateUtils.zIndex(endLoad)){
+                        AlertUtils.alertError("结束位移数据错误");
+                        return;
+                    }
+                    String width = selectedUserParam.get(Constants.BLL_JSWY);
+                    if(!ValidateUtils.posttiveFloat(width) && !ValidateUtils.zIndex(width)){
+                        AlertUtils.alertError("宽度数据错误");
+                        return;
+                    }
                     Float data1 = 1000f;
                     if(Constants.INT_ONE == selectedProgram.getDirect()){
                         data1 = -1000f;
@@ -1552,6 +1681,10 @@ public class Main extends Application {
 
         startTest = null;
         startTime = null;
+
+        //设置实验状态进行中
+        allData.get(selectedUserParamIndex).put(Constants.TEST_STATUS,Constants.TEST_STATUS_STOP);
+        tableView.refresh();
     }
     /**
      * 实验停止
@@ -1625,14 +1758,6 @@ public class Main extends Application {
         //试样名称
         String simpleName = selectedUserParam.get(Constants.SIMPLE_NAME);
         test.setSimpleName(simpleName);
-        if(Constants.LSL.equals(testName)){
-            //拉伸力保存峰值对应的位移
-            for(TestData data:Main.dataList){
-                if(data.getLoadVal1().equals(Main.topN)){
-                    test.setMaxLoadPos(data.getPosVal());
-                }
-            }
-        }
         if(Constants.CCL.equals(testName)){
             //穿刺力，保存穿刺深度
             test.setDeep(Float.parseFloat(selectedUserParam.get(Constants.CCL_DEEP)));
@@ -1640,17 +1765,22 @@ public class Main extends Application {
 
         //拉伸力
         if(testName.startsWith(Constants.LSL)){
+            //拉伸力保存断后变形
+            test.setMaxLoadPos(dataList.get(dataList.size()-1).getPosVal());
             //面积
             Float area = null;
             if(Constants.BANCAI.equals(selectedProgram.getShapeName())){
                 //板材
-                Float width = Float.parseFloat(selectedUserParam.get(Constants.LSL_K));
+                Float width = Float.parseFloat(selectedUserParam.get(Constants.WIDTH));
+                test.setWidth(width);
                 Float hou = Float.parseFloat(selectedUserParam.get(Constants.LSL_H));
+                test.setHou(hou);
                 area = width * hou;
             }
             if(Constants.BANGCAI.equals(selectedProgram.getShapeName())){
                 //棒材直径
                 Float dia = Float.parseFloat(selectedUserParam.get(Constants.LSL_D));
+                test.setDia(dia);
                 area = 3.1416F * dia * dia / 4;
             }
             //拉伸强度
@@ -1666,6 +1796,38 @@ public class Main extends Application {
             test.setLo(LO);
             test.setExtension(extension);
 
+        }
+        //定力值，定位移，活塞滑动性测试都是取平台值，保存在参数中
+
+        if(Constants.BLL.equals(testName)){
+            //剥离，计算力最大值，最小值，平均值，剥离强度
+            Float maxLoad = 0F;
+            Float start = Float.parseFloat(selectedUserParam.get(Constants.BLL_QSWY));
+            Float end = Float.parseFloat(selectedUserParam.get(Constants.BLL_JSWY));
+            Float width = Float.parseFloat(selectedUserParam.get(Constants.WIDTH));
+            Float sum = 0F;
+            Float minLoad = 5000F;
+            int count = 0;
+            for (TestData data:dataList){
+                //在起始力和结束力区间内
+                if(data.getPosVal()>start && data.getPosVal()<end){
+                    if(data.getLoadVal1()<minLoad){
+                        minLoad = data.getLoadVal1();
+                    }
+                    if(data.getLoadVal1()>maxLoad){
+                        maxLoad = data.getLoadVal1();
+                    }
+                    sum = sum + data.getLoadVal1();
+                }
+                count++;
+            }
+            Float avgLoad = sum/count;
+            Float blqd = avgLoad/width;
+            test.setMaxLoad(maxLoad);
+            test.setMinLoad(minLoad);
+            test.setAvgLoad(avgLoad);
+            test.setWidth(width);
+            test.setBlqd(blqd);
         }
 
         return test;

@@ -9,11 +9,9 @@ import com.ponray.utils.*;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 
-import java.math.BigInteger;
-
 public class DataTask extends ScheduledService<TestData> {
     private static int count = 0;
-    private static boolean flag = false;
+    private static boolean flag = false;//自动判断断裂，当前力大于10N条件
     @Override
     protected Task<TestData> createTask() {
         Task<TestData> task = new Task<TestData>() {
@@ -45,7 +43,6 @@ public class DataTask extends ScheduledService<TestData> {
             protected TestData call() throws Exception {
                 TestData testData = null;
                 if (UIOnline.mSerialport != null) {
-                    long start = System.currentTimeMillis();
                     byte[] bytes = null;
                     if(UIOnline.byteList.size()>0){
                         bytes = UIOnline.byteList.get(UIOnline.byteList.size()-1);
@@ -111,11 +108,95 @@ public class DataTask extends ScheduledService<TestData> {
                             if(Math.abs(fpos)>=fDeep){
                                 //穿刺深度到设定值，停止实验
                                 Main.stopTestAndSave();
-                                flag = false;
+                            }
+                        }
+
+                        if(Constants.DLZ.equals(Main.testName)){
+                            //定力值
+                            if(Constants.STAGE == 1){
+                                if(fload1>=Constants.DATA1_VAL){
+                                    //开始第一阶段保持
+                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                }
+
+                                //在第一阶段，判断运行时间，发送第二阶段力保持命令
+                                if(Constants.KEEP_TIME >= (Constants.TIME1_VAL*1000) && !Constants.STAGE2_SEND_FLAG){
+                                    //发送第二阶段命令
+                                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(Main.selectedProgram.getDirect(),Main.selectedProgram.getNum(),Constants.DATA2_VAL,0f,Main.selectedProgram.getGeneralSpeed()));
+                                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(Main.selectedProgram.getDirect(),Main.selectedProgram.getNum(),Constants.DATA2_VAL,0f,Main.selectedProgram.getGeneralSpeed()));
+                                    Constants.STAGE = 2;//实验阶段置为2
+                                    Constants.STAGE2_SEND_FLAG = true;//第二阶段开始命令已发送
+                                    Constants.KEEP_TIME = 0L;//保持时间置为0
+                                    Constants.DATA1_VAL = 0F;//力1置为0
+                                    Constants.TIME1_VAL = 0F;//第一阶段时间置为0
+                                }
+                            }
+                            //在第二阶段，判断运行时间，发送停止命令
+                            if(Constants.STAGE==2){
+                                if(fload1>=Constants.DATA2_VAL){
+                                    //开始第2阶段保持
+                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                }
+                                //第二阶段。判断保持时间，发送停止命令
+                                if(Constants.KEEP_TIME >= (Constants.TIME2_VAL*1000)){
+                                    Main.stopTestAndSave();
+                                    Constants.STAGE = 0;//实验阶段置为0
+                                    Constants.STAGE2_SEND_FLAG = false;//第二阶段开始命令已发送置为0
+                                    Constants.KEEP_TIME = 0L;//保持时间置为0
+                                    Constants.DATA2_VAL = 0F;//力2置为0
+                                    Constants.TIME2_VAL = 0F;//第二时间段保持时间置为0
+                                }
+                            }
+                        }
+                        if(Constants.DWY.equals(Main.testName) || Constants.HSHDXCS.equals(Main.testName)){
+                            //定位移
+                            if(Constants.STAGE == 1){
+                                if(Math.abs(fpos)>=Constants.DATA1_VAL){
+                                    //开始第一阶段保持
+                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                    System.out.println(Constants.KEEP_TIME);
+                                }
+
+                                //在第一阶段，判断保持时间，发送第二阶段力保持命令
+                                if(Constants.KEEP_TIME >= (Constants.TIME1_VAL*1000) && !Constants.STAGE2_SEND_FLAG){
+                                    //发送第二阶段命令
+                                    Float data2 = Constants.DATA1_VAL + Constants.DATA2_VAL;
+                                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(Main.selectedProgram.getDirect(),Main.selectedProgram.getNum(),data2,0f,Main.selectedProgram.getGeneralSpeed()));
+                                    SerialPortManager.sendToPort(UIOnline.mSerialport,CommandUtils.commandStart(Main.selectedProgram.getDirect(),Main.selectedProgram.getNum(),data2,0f,Main.selectedProgram.getGeneralSpeed()));
+                                    Constants.STAGE = 2;//实验阶段置为2
+                                    Constants.STAGE2_SEND_FLAG = true;//第二阶段开始命令已发送
+                                    Constants.KEEP_TIME = 0L;//保持时间置为0
+                                    Constants.TIME1_VAL = 0F;//第一阶段时间置为0
+                                }
+                            }
+                            //在第二阶段，判断运行时间，发送停止命令
+                            if(Constants.STAGE==2){
+                                if(Math.abs(fpos)>=(Constants.DATA1_VAL + Constants.DATA2_VAL)){
+                                    //开始第2阶段保持
+                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                }
+                                //第二阶段。判断保持时间，发送停止命令
+                                if(Constants.KEEP_TIME >= (Constants.TIME2_VAL*1000)){
+                                    System.out.println(Constants.TIME2_VAL*1000);
+                                    Main.stopTestAndSave();
+                                    Constants.STAGE = 0;//实验阶段置为0
+                                    Constants.STAGE2_SEND_FLAG = false;//第二阶段开始命令已发送置为0
+                                    Constants.KEEP_TIME = 0L;//保持时间置为0
+                                    Constants.DATA2_VAL = 0F;//力2置为0
+                                    Constants.TIME2_VAL = 0F;//第二时间段保持时间置为0
+                                }
+                            }
+                        }
+                        if(Constants.BLL.equals(Main.testName)){
+                           //剥离
+                            Float endPos = Float.parseFloat(Main.selectedUserParam.get(Constants.BLL_JSWY));
+                            if(fpos>endPos){
+                                //当前力值大于结束力值，判定停机
+                                Main.stopTestAndSave();
                             }
                         }
                     }
-                    UIOnline.openTime = UIOnline.openTime + Main.periodTime;
+//                    UIOnline.openTime = UIOnline.openTime + Main.periodTime;
                 }
                 return testData;
             }

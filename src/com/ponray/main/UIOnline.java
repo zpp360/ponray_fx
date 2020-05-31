@@ -44,13 +44,7 @@ public class UIOnline {
     // 串口对象
     public static SerialPort mSerialport = null;
 
-    private TestService testService = new TestService();
-
     private DataTask dataTask = new DataTask();
-
-    public static TestData testData = null;
-    //串口打开时间
-    public static long openTime = 0l;
 
     public static List<byte[]> byteList =  new ArrayList<>();
 

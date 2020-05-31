@@ -1443,7 +1443,7 @@ public class UITestProgram {
         paramBtnDel.setOnAction(event -> {
             programUserParamList.remove(selectedUserParam);
             try {
-                programService.delUserParamByProgramId(selectedUserParam.getID());
+                programService.delUserParamById(selectedUserParam.getID());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1491,6 +1491,7 @@ public class UITestProgram {
                 return;
             }
             try {
+                programService.delUserParamByProgramId(selectedProgram.getID());
                 programService.batchSaveUserParam(programUserParamList,selectedProgram.getID());
                 AlertUtils.alertInfo("保存用户参数成功");
             } catch (Exception e) {

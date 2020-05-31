@@ -2,7 +2,6 @@ package com.ponray.service;
 
 import com.ponray.entity.Test;
 import com.ponray.entity.TestData;
-import com.ponray.entity.TestParam;
 import com.ponray.utils.AccessHelper;
 import com.ponray.utils.DBFileHelper;
 
@@ -20,7 +19,7 @@ public class TestService {
     public int insert(Test test) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
         //先将其它设置为未选中
-        String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,img_file,speed,run_time,shape,max_load,deep,area,mpa,simple_name,lo,extension) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,img_file,speed,run_time,shape,max_load,deep,area,mpa,simple_name,lo,extension,min_load,avg_load,width,hou,dia,blqd) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,test.getTestNum());
         pstmt.setDate(2,test.getTestTime());
@@ -42,6 +41,12 @@ public class TestService {
         pstmt.setString(18,test.getSimpleName());
         pstmt.setFloat(19,test.getLo()==null?0F:test.getLo());
         pstmt.setFloat(20,test.getExtension()==null?0F:test.getExtension());
+        pstmt.setFloat(21,test.getMinLoad()==null?0F:test.getMinLoad());
+        pstmt.setFloat(22,test.getAvgLoad()==null?0F:test.getAvgLoad());
+        pstmt.setFloat(23,test.getWidth()==null?0F:test.getWidth());
+        pstmt.setFloat(24,test.getHou()==null?0F:test.getHou());
+        pstmt.setFloat(25,test.getDia()==null?0F:test.getDia());
+        pstmt.setFloat(26,test.getBlqd()==null?0F:test.getBlqd());
         int res = pstmt.executeUpdate();
         if(res>0){
             System.out.println("插入实验成功");
@@ -122,9 +127,27 @@ public class TestService {
      */
     public List<Test> listByStandard(String stand) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
-        String sql = "select * from t_test where standard_name = ?";
+        String sql = "select max(test_num) as test_num,max(test_time) as test_time,max(program_name) as program_name,max(standard_name) as standard_name, max(transform_sensor) as transform_sensor," +
+                "max(load_unit) as load_unit,max(transform_unit) as transform_unit,max(press_unit) as press_unit,max(save_file) as save_file,max(speed) as speed," +
+                "max(run_time) as run_time,max(shape) as shape from t_test where standard_name = ? group by save_file";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1,stand);
+        ResultSet set = pstmt.executeQuery();
+        return createList(set);
+    }
+
+    /**
+     * 根据保存文件名查询所有试验
+     * @param saveFile
+     * @return
+     * @throws SQLException
+     * @throws ClassNotFoundException
+     */
+    public List<Test> listBySaveFile(String saveFile) throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select * from t_test where save_file = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setString(1,saveFile);
         ResultSet set = pstmt.executeQuery();
         return createList(set);
     }
@@ -201,6 +224,42 @@ public class TestService {
     }
 
     /**
+     * 根据实验编号查询实验数据
+     * @param testNum
+     * @return
+     */
+    public List<TestData> listTestDateByTestNum(Long testNum) throws SQLException, ClassNotFoundException {
+        Connection conn = AccessHelper.getConnection();
+        String sql = "select * from m_test_data where test_num = ?";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
+        pstmt.setLong(1,testNum);
+        ResultSet set = pstmt.executeQuery();
+        return createTestDataList(set);
+    }
+
+    /**
+     * 创建testData list
+     * @param set
+     * @return
+     * @throws SQLException
+     */
+    private List<TestData> createTestDataList(ResultSet set) throws SQLException {
+        List<TestData> list = new ArrayList<>();
+        while(set.next()){
+            TestData test = new TestData();
+            test.setTestNum(set.getLong("test_num"));
+            test.setTimeValue(set.getLong("time_val"));
+            test.setLoadVal1(set.getFloat("load_val1"));
+            test.setLoadVal2(set.getFloat("load_val2"));
+            test.setLoadVal3(set.getFloat("load_val3"));
+            test.setPosVal(set.getFloat("pos_val"));
+            test.setDeformVal(set.getFloat("deform_val"));
+            list.add(test);
+        }
+        return list;
+    }
+
+    /**
      * 保存实验参数
      */
     public void batchSaveTestParam(Long testNum, HashMap<String,String> param) throws SQLException, ClassNotFoundException {
@@ -217,4 +276,6 @@ public class TestService {
         pstmt.clearBatch();
         pstmt.close();
     }
+
+
 }
