@@ -24,20 +24,11 @@ public class DBFileHelper {
     private DBFileHelper(){}
 
     public static DBFileHelper getInstance(String dbName) throws ClassNotFoundException, SQLException {
-        //先检查实例是否存在，如果不存在才进入下面的同步模块
-        if(instance == null){
-            //同步块，线程安全的创建实例
-            synchronized (AccessHelper.class){
-                //再次检查实例是否存在，不存在才真的创建实例
-                if(instance == null){
-                    instance = new DBFileHelper();
+        instance = new DBFileHelper();
 
-                    Class.forName(DRIVER);
-                    conn = DriverManager.getConnection("jdbc:ucanaccess://" + DBPATH + dbName+".mdb",USERNAME,PASSWORD);
-                    statement = conn.createStatement();
-                }
-            }
-        }
+        Class.forName(DRIVER);
+        conn = DriverManager.getConnection("jdbc:ucanaccess://" + DBPATH + dbName+".mdb");
+        statement = conn.createStatement();
         return instance;
     }
 

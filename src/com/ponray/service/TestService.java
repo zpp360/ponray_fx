@@ -19,7 +19,7 @@ public class TestService {
     public int insert(Test test) throws SQLException, ClassNotFoundException {
         Connection conn = AccessHelper.getConnection();
         //先将其它设置为未选中
-        String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,img_file,speed,run_time,shape,max_load,deep,area,mpa,simple_name,lo,extension,min_load,avg_load,width,hou,dia,blqd) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "insert into t_test(test_num,test_time,program_name,standard_name,transform_sensor,load_unit,transform_unit,press_unit,save_file,img_file,speed,run_time,shape,max_load,deep,area,mpa,simple_name,lo,extension,min_load,avg_load,width,hou,dia,blqd,dlz_load1,dlz_load2,dwy_pos1,dwy_pos2) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,test.getTestNum());
         pstmt.setDate(2,test.getTestTime());
@@ -47,6 +47,10 @@ public class TestService {
         pstmt.setFloat(24,test.getHou()==null?0F:test.getHou());
         pstmt.setFloat(25,test.getDia()==null?0F:test.getDia());
         pstmt.setFloat(26,test.getBlqd()==null?0F:test.getBlqd());
+        pstmt.setFloat(27,test.getDlzLoad1()==null?0F:test.getDlzLoad1());
+        pstmt.setFloat(28,test.getDlzLoad2()==null?0F:test.getDlzLoad2());
+        pstmt.setFloat(29,test.getDwyPos1()==null?0F:test.getDwyPos1());
+        pstmt.setFloat(30,test.getDwyPos2()==null?0F:test.getDwyPos2());
         int res = pstmt.executeUpdate();
         if(res>0){
             System.out.println("插入实验成功");
@@ -133,7 +137,24 @@ public class TestService {
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setString(1,stand);
         ResultSet set = pstmt.executeQuery();
-        return createList(set);
+        List<Test> list = new ArrayList<>();
+        while(set.next()) {
+            Test test = new Test();
+            test.setTestNum(set.getLong("test_num"));
+            test.setTestTime(set.getDate("test_time"));
+            test.setProgramName(set.getString("program_name"));
+            test.setStandardName(set.getString("standard_name"));
+            test.setTransformSensor(set.getString("transform_sensor"));
+            test.setLoadUnit(set.getString("load_unit"));
+            test.setTransformUnit(set.getString("transform_unit"));
+            test.setPressUnit(set.getString("press_unit"));
+            test.setSaveFile(set.getString("save_file"));
+            test.setSpeed(set.getFloat("speed"));
+            test.setRunTime(set.getLong("run_time"));
+            test.setShape(set.getString("shape"));
+            list.add(test);
+        }
+        return list;
     }
 
     /**
@@ -189,9 +210,28 @@ public class TestService {
             test.setTransformUnit(set.getString("transform_unit"));
             test.setPressUnit(set.getString("press_unit"));
             test.setSaveFile(set.getString("save_file"));
+            test.setImgFile(set.getString("img_file"));
             test.setSpeed(set.getFloat("speed"));
             test.setRunTime(set.getLong("run_time"));
             test.setShape(set.getString("shape"));
+            test.setMaxLoad(set.getFloat("max_load"));
+            test.setMaxLoadPos(set.getFloat("max_load_pos"));
+            test.setDeep(set.getFloat("deep"));
+            test.setArea(set.getFloat("Area"));
+            test.setMpa(set.getFloat("mpa"));
+            test.setSimpleName(set.getString("Area"));
+            test.setLo(set.getFloat("Lo"));
+            test.setExtension(set.getFloat("extension"));
+            test.setMinLoad(set.getFloat("min_load"));
+            test.setAvgLoad(set.getFloat("avg_load"));
+            test.setWidth(set.getFloat("width"));
+            test.setHou(set.getFloat("hou"));
+            test.setDia(set.getFloat("dia"));
+            test.setBlqd(set.getFloat("blqd"));
+            test.setDlzLoad1(set.getFloat("dlz_load1"));
+            test.setDlzLoad2(set.getFloat("dlz_load2"));
+            test.setDwyPos1(set.getFloat("dwy_pos1"));
+            test.setDwyPos2(set.getFloat("dwy_pos2"));
             list.add(test);
         }
         return list;
@@ -229,8 +269,8 @@ public class TestService {
      * @return
      */
     public List<TestData> listTestDateByTestNum(Long testNum) throws SQLException, ClassNotFoundException {
-        Connection conn = AccessHelper.getConnection();
-        String sql = "select * from m_test_data where test_num = ?";
+        Connection conn = DBFileHelper.getConnection();
+        String sql = "select * from t_test_data where test_num = ?";
         PreparedStatement pstmt = conn.prepareStatement(sql);
         pstmt.setLong(1,testNum);
         ResultSet set = pstmt.executeQuery();

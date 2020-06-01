@@ -1322,28 +1322,50 @@ public class Main extends Application {
         });
         //观看曲线
         viewLineBtn.setOnAction(event -> {
-            System.out.println(selectedTest.getSaveFile());
+            //先清除曲线
+            mainChart.getData().clear();
             if(selectedTest==null){
                 return;
             }
+            List<Test> tests = null;
             try {
-                List<Test> tests = testService.listBySaveFile(selectedTest.getSaveFile());
-                DBFileHelper.getInstance(selectedTest.getSaveFile());
-                if(tests.size()>0){
-                    for (int i=0;i<tests.size();i++){
-                        List<TestData> list = testService.listTestDateByTestNum(tests.get(i).getTestNum());
-                        //往char添加线
-
-                    }
-                }
+                tests = testService.listBySaveFile(selectedTest.getSaveFile());
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            if(tests==null || tests.size()==0){
+                AlertUtils.alertError("未查询到实验数据");
+            }
+            showTestLine(tests);
+            //切换到tab2
+            tabPane.getSelectionModel().select(tab2);
         });
         //出报告
         reportBtn.setOnAction(event -> {
+            if(selectedTest==null){
+                AlertUtils.alertError("未选择实验");
+                return;
+            }
+            //tab2显示曲线
+            List<Test> tests = null;
+            try {
+                tests = testService.listBySaveFile(selectedTest.getSaveFile());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(tests==null || tests.size()==0){
+                AlertUtils.alertError("未查询到实验数据");
+            }
+            showTestLine(tests);
+            try {
+                WordUtils.write2Docx(selectedTest,tests);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
 
         });
+
         /**
          * 参数选择改变
          */
@@ -1636,6 +1658,30 @@ public class Main extends Application {
     }
 
     /**
+     * 点击查询或出报告绘制曲线
+     */
+    private List<Test> showTestLine(List<Test> tests){
+        try {
+            DBFileHelper.getInstance(selectedTest.getSaveFile());
+            if(tests.size()>0){
+                for (int i=0;i<tests.size();i++){
+                    List<TestData> list = testService.listTestDateByTestNum(tests.get(i).getTestNum());
+                    //往char添加线
+                    XYChart.Series series = new XYChart.Series();
+                    series.setName(tests.get(i).getTestNum()+"");
+                    for(TestData data:list){
+                        series.getData().add(new XYChart.Data(data.getDeformVal(),data.getLoadVal1()));
+                    }
+                    mainChart.getData().add(series);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return tests;
+    }
+
+    /**
      * 根据设置清零
      */
     private void testStartClear() {
@@ -1798,6 +1844,16 @@ public class Main extends Application {
 
         }
         //定力值，定位移，活塞滑动性测试都是取平台值，保存在参数中
+        if(Constants.DLZ.equals(testName)){
+            //定力值
+            test.setDlzLoad1(Float.parseFloat(selectedUserParam.get(Constants.DLZ_LOAD1)));
+            test.setDlzLoad2(Float.parseFloat(selectedUserParam.get(Constants.DLZ_LOAD2)));
+        }
+        if(Constants.DWY.equals(testName) ||Constants.HSHDXCS.equals(testName)){
+            //定位移，活塞滑动性测试
+            test.setDwyPos1(Float.parseFloat(selectedUserParam.get(Constants.DWY_POS1)));
+            test.setDwyPos2(Float.parseFloat(selectedUserParam.get(Constants.DWY_POS2)));
+        }
 
         if(Constants.BLL.equals(testName)){
             //剥离，计算力最大值，最小值，平均值，剥离强度
@@ -1841,7 +1897,7 @@ public class Main extends Application {
         //以下两句是设置截图的参数，具体细节还没有研究
         final javafx.scene.SnapshotParameters params
                 = new javafx.scene.SnapshotParameters();
-        params.setFill(Color.TRANSPARENT);
+        params.setFill(Color.WHITE);
         //对Node进行截图，只会截取显示出来的部分，未显示出来的部分无法截图（没有火狐截图高级）
         javafx.scene.image.WritableImage snapshot = node.snapshot(params, null);
         //将JavaFX格式的WritableImage对象转换成AWT BufferedImage 对象来进行保存

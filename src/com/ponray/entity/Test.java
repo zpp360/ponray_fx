@@ -49,6 +49,46 @@ public class Test {
 
     private Float blqd;//剥离强度
 
+    private Float dlzLoad1;//定力值 力1
+
+    private Float dlzLoad2;//定力值 力2
+
+    private Float dwyPos1;//定位移 位移1
+
+    private Float dwyPos2;//定位移 位移2
+
+    public Float getDlzLoad1() {
+        return dlzLoad1;
+    }
+
+    public void setDlzLoad1(Float dlzLoad1) {
+        this.dlzLoad1 = dlzLoad1;
+    }
+
+    public Float getDlzLoad2() {
+        return dlzLoad2;
+    }
+
+    public void setDlzLoad2(Float dlzLoad2) {
+        this.dlzLoad2 = dlzLoad2;
+    }
+
+    public Float getDwyPos1() {
+        return dwyPos1;
+    }
+
+    public void setDwyPos1(Float dwyPos1) {
+        this.dwyPos1 = dwyPos1;
+    }
+
+    public Float getDwyPos2() {
+        return dwyPos2;
+    }
+
+    public void setDwyPos2(Float dwyPos2) {
+        this.dwyPos2 = dwyPos2;
+    }
+
     public Float getBlqd() {
         return blqd;
     }
