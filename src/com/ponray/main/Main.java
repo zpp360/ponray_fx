@@ -10,6 +10,7 @@ import com.ponray.enums.Axis;
 import com.ponray.serial.SerialPortManager;
 import com.ponray.service.ProgramService;
 import com.ponray.service.TestService;
+import com.ponray.task.DataTask;
 import com.ponray.utils.*;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -148,7 +149,7 @@ public class Main extends Application {
     public static boolean startFlag = false;
     //实验开始时间，在UIonlin里使用计算运行时间
     public static Long startTime = 0L;
-    //每隔20毫秒运行一次
+    //每隔50毫秒运行一次
     public static Long periodTime = 50L;
 
     //实验中实验，在UIOnline里保存
@@ -1617,6 +1618,7 @@ public class Main extends Application {
             byte[] command = CommandUtils.commandUP(speed);
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            stopBt.setDisable(false);
         });
         //下降
         downBt.setOnAction(event -> {
@@ -1624,6 +1626,7 @@ public class Main extends Application {
             byte[] command = CommandUtils.commandDown(speed);
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            stopBt.setDisable(false);
         });
         //复位
         resetBt.setOnAction(event -> {
@@ -1631,6 +1634,7 @@ public class Main extends Application {
             byte[] command = CommandUtils.commandReset(speed);
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
             SerialPortManager.sendToPort(UIOnline.mSerialport,command);
+            stopBt.setDisable(false);
         });
         //力清零
         button1.setOnAction(event -> {
@@ -1785,7 +1789,7 @@ public class Main extends Application {
                 startTime = null;
                 //实验开始标志置为false
                 startFlag = false;
-
+                Constants.TIME = 0L;
             }
         });
 

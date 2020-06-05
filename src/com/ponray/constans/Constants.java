@@ -126,6 +126,10 @@ public class Constants {
      * 实验保持时间
      */
     public static Long KEEP_TIME = 0L;
+    /**
+     * 保持开始的时间
+     */
+    public static Long KEEP_START_TIME = 0L;
 
     /**
      * 力1 key
@@ -180,5 +184,8 @@ public class Constants {
      * 时间2值
      */
     public static Float TIME2_VAL = 0F;
+
+
+    public static long TIME = 0L;
 
 }

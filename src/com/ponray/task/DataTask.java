@@ -9,6 +9,8 @@ import com.ponray.utils.*;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class DataTask extends ScheduledService<TestData> {
     private static int count = 0;
     private static boolean flag = false;//自动判断断裂，当前力大于10N条件
@@ -80,7 +82,11 @@ public class DataTask extends ScheduledService<TestData> {
                     count++;
                     //实验时间
                     if (Main.startFlag) {
-                        Main.startTime = Main.startTime + Main.periodTime;
+                        if(Constants.TIME == 0L){
+                            Constants.TIME = System.currentTimeMillis();
+                        }
+//                        Main.startTime = Main.startTime + Main.periodTime;
+                        Main.startTime = System.currentTimeMillis() - Constants.TIME;
                         //设置实验时间
                         testData.setTimeValue(Main.startTime);
                         //实验编号
@@ -116,7 +122,11 @@ public class DataTask extends ScheduledService<TestData> {
                             if(Constants.STAGE == 1){
                                 if(fload1>=Constants.DATA1_VAL){
                                     //开始第一阶段保持
-                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                    if(Constants.KEEP_START_TIME == 0L){
+                                        Constants.KEEP_START_TIME = System.currentTimeMillis();
+                                    }
+//                                  Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                    Constants.KEEP_TIME = System.currentTimeMillis() - Constants.KEEP_START_TIME;
                                 }
 
                                 //在第一阶段，判断运行时间，发送第二阶段力保持命令
@@ -129,13 +139,18 @@ public class DataTask extends ScheduledService<TestData> {
                                     Constants.KEEP_TIME = 0L;//保持时间置为0
                                     Constants.DATA1_VAL = 0F;//力1置为0
                                     Constants.TIME1_VAL = 0F;//第一阶段时间置为0
+                                    Constants.KEEP_START_TIME = 0L;
                                 }
                             }
                             //在第二阶段，判断运行时间，发送停止命令
                             if(Constants.STAGE==2){
                                 if(fload1>=Constants.DATA2_VAL){
                                     //开始第2阶段保持
-                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                    if(Constants.KEEP_START_TIME == 0L){
+                                        Constants.KEEP_START_TIME = System.currentTimeMillis();
+                                    }
+//                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                    Constants.KEEP_TIME = System.currentTimeMillis() - Constants.KEEP_START_TIME;
                                 }
                                 //第二阶段。判断保持时间，发送停止命令
                                 if(Constants.KEEP_TIME >= (Constants.TIME2_VAL*1000)){
@@ -145,6 +160,7 @@ public class DataTask extends ScheduledService<TestData> {
                                     Constants.KEEP_TIME = 0L;//保持时间置为0
                                     Constants.DATA2_VAL = 0F;//力2置为0
                                     Constants.TIME2_VAL = 0F;//第二时间段保持时间置为0
+                                    Constants.KEEP_START_TIME = 0L;
                                 }
                             }
                         }
@@ -153,8 +169,11 @@ public class DataTask extends ScheduledService<TestData> {
                             if(Constants.STAGE == 1){
                                 if(Math.abs(fpos)>=Constants.DATA1_VAL){
                                     //开始第一阶段保持
-                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
-                                    System.out.println(Constants.KEEP_TIME);
+                                    if(Constants.KEEP_START_TIME == 0L){
+                                        Constants.KEEP_START_TIME = System.currentTimeMillis();
+                                    }
+//                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                    Constants.KEEP_TIME = System.currentTimeMillis() - Constants.KEEP_START_TIME;
                                 }
 
                                 //在第一阶段，判断保持时间，发送第二阶段力保持命令
@@ -167,13 +186,18 @@ public class DataTask extends ScheduledService<TestData> {
                                     Constants.STAGE2_SEND_FLAG = true;//第二阶段开始命令已发送
                                     Constants.KEEP_TIME = 0L;//保持时间置为0
                                     Constants.TIME1_VAL = 0F;//第一阶段时间置为0
+                                    Constants.KEEP_START_TIME = 0L;
                                 }
                             }
                             //在第二阶段，判断运行时间，发送停止命令
                             if(Constants.STAGE==2){
                                 if(Math.abs(fpos)>=(Constants.DATA1_VAL + Constants.DATA2_VAL)){
                                     //开始第2阶段保持
-                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                    if(Constants.KEEP_START_TIME == 0L){
+                                        Constants.KEEP_START_TIME = System.currentTimeMillis();
+                                    }
+//                                    Constants.KEEP_TIME = Constants.KEEP_TIME + Main.periodTime;
+                                    Constants.KEEP_TIME = System.currentTimeMillis() - Constants.KEEP_START_TIME;
                                 }
                                 //第二阶段。判断保持时间，发送停止命令
                                 if(Constants.KEEP_TIME >= (Constants.TIME2_VAL*1000)){
@@ -184,6 +208,7 @@ public class DataTask extends ScheduledService<TestData> {
                                     Constants.KEEP_TIME = 0L;//保持时间置为0
                                     Constants.DATA2_VAL = 0F;//力2置为0
                                     Constants.TIME2_VAL = 0F;//第二时间段保持时间置为0
+                                    Constants.KEEP_START_TIME = 0L;
                                 }
                             }
                         }
